@@ -10,9 +10,9 @@ High-level task list for moving from single-file prototype to production app wit
 ## Phase 2 — API contract first
 See the [design spec](superpowers/specs/2026-04-19-api-contract-design.md).
 
-- [ ] Define Pydantic models under `backend/src/backend/contract/` (User, Task, Team, Rank, Rewards, News, auth, form bodies)
-- [ ] Write endpoint catalog markdown alongside the models
-- [ ] Validate JSON fixtures against the models via a smoke test (`just contract-validate`)
+- [x] Define Pydantic models under `backend/src/backend/contract/` (User, Task, Team, Rank, Rewards, News, auth, form bodies)
+- [x] Write endpoint catalog markdown alongside the models
+- [x] Validate JSON fixtures against the models via a smoke test (`just contract-validate`)
 - [ ] ~~Stub FastAPI endpoints returning mock data server-side~~ — deferred to Phase 5 (runnable server lives with persistence)
 - [ ] ~~Validate wire format end-to-end (no persistence yet)~~ — replaced by fixture validation above; end-to-end happens in Phase 4 when the frontend wires up
 
