@@ -52,14 +52,29 @@ def test_migration_is_downgrade_safe() -> None:
     fixture that other tests share.
     """
     import os
+    from pathlib import Path
+
     from alembic import command
     from alembic.config import Config
     from testcontainers.postgres import PostgresContainer
 
-    alembic_ini = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "alembic.ini"))
-    with PostgresContainer("postgres:17-alpine") as pg:
-        cfg = Config(alembic_ini)
-        cfg.set_main_option("sqlalchemy.url", pg.get_connection_url())
-        command.upgrade(cfg, "head")
-        command.downgrade(cfg, "base")
-        command.upgrade(cfg, "head")
+    from backend.config import get_settings
+
+    alembic_ini = str(Path(__file__).parent.parent / "alembic.ini")
+    prev_db_url = os.environ.get("DATABASE_URL")
+    with PostgresContainer("postgres:17-alpine", driver="psycopg") as pg:
+        url = pg.get_connection_url()
+        os.environ["DATABASE_URL"] = url
+        get_settings.cache_clear()
+        try:
+            cfg = Config(alembic_ini)
+            cfg.set_main_option("sqlalchemy.url", url)
+            command.upgrade(cfg, "head")
+            command.downgrade(cfg, "base")
+            command.upgrade(cfg, "head")
+        finally:
+            if prev_db_url is None:
+                os.environ.pop("DATABASE_URL", None)
+            else:
+                os.environ["DATABASE_URL"] = prev_db_url
+            get_settings.cache_clear()
