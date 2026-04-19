@@ -9,9 +9,7 @@ type Props = {
   cap: number;
   fg: string;
   muted: string;
-  cardBg: string;
-  cardBorder: string;
-  variant: string;
+  variant: "joined" | "led";
   onApproveRequest?: (requestId: string) => void;
   onRejectRequest?: (requestId: string) => void;
   onCancelRequest?: () => void;
@@ -26,8 +24,6 @@ export default function TeamCard({
   cap,
   fg,
   muted,
-  cardBg,
-  cardBorder,
   variant,
   onApproveRequest,
   onRejectRequest,
@@ -228,7 +224,7 @@ export default function TeamCard({
             </button>
           </div>
           <button
-            onClick={onCancelRequest}
+            onClick={() => onCancelRequest?.()}
             style={{
               padding: "7px 12px",
               borderRadius: 10,
