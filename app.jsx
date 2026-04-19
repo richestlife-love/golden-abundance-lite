@@ -10,7 +10,7 @@ function PaperBackground() {
   );
 }
 
-// ─── Hero variants ────────────────────────────────────────────
+// ─── Hero ─────────────────────────────────────────────────────
 function MascotHero({ size }) {
   const s = size; // diameter of the halo
   return (
@@ -66,14 +66,13 @@ function MascotHero({ size }) {
           cy="50%"
           r={s * 0.48}
           fill="none"
-          stroke={"rgba(254,210,52,0.5)"}
+          stroke="rgba(254,210,52,0.5)"
           strokeWidth="1"
           strokeDasharray="2 6"
         />
       </svg>
       <img
         src={`assets/mascot-halfbody.png?v=1`}
-        alt=""
         style={{
           width: Math.min(s * 1.15, 560),
           height: Math.min(s * 1.05, 520),
@@ -139,42 +138,29 @@ function SparkleGlyph({ x, y, size = 18, color = "#fff", delay = 0 }) {
 
 // ─── Headline ─────────────────────────────────────────────────
 function Headline({ text, fontSize }) {
-  // Split "欢迎加入金富有志工" → 欢迎加入 / 金富有志工
-  const lines = text.length > 6 ? [text.slice(0, 4), text.slice(4)] : [text];
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 4,
+        textAlign: "center",
         lineHeight: 1,
+        fontSize,
+        fontWeight: 900,
+        letterSpacing: 2,
+        fontFamily: '"Noto Sans SC", "PingFang SC", sans-serif',
+        background: "linear-gradient(180deg, #cb9f01 0%, #987701 55%, #655001 100%)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        backgroundClip: "text",
+        filter: "drop-shadow(0 2px 4px rgba(254,199,1,0.45))",
+        color: "rgb(203, 159, 1)",
       }}
     >
-      {lines.map((line, i) => (
-        <div
-          key={i}
-          style={{
-            fontSize,
-            fontWeight: 900,
-            letterSpacing: 2,
-            fontFamily: '"Noto Sans SC", "PingFang SC", sans-serif',
-            background: "linear-gradient(180deg, #cb9f01 0%, #987701 55%, #655001 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            filter: "drop-shadow(0 2px 4px rgba(254,199,1,0.45))",
-            color: "rgb(203, 159, 1)",
-          }}
-        >
-          {line}
-        </div>
-      ))}
+      {text}
     </div>
   );
 }
 
-// ─── CTA Button variants ──────────────────────────────────────
+// ─── CTA Button ───────────────────────────────────────────────
 function GradientButton({ label, onClick }) {
   const [pressed, setPressed] = useState(false);
   return (
@@ -1327,7 +1313,6 @@ function NewsBoard({ fg, muted, cardBg, cardBorder }) {
           >
             {/* ambient glow */}
             <div
-              aria-hidden
               style={{
                 position: "absolute",
                 top: -24,
@@ -1559,8 +1544,6 @@ function HomeScreen({
         {/* Points card */}
         <div
           onClick={() => onNavigate && onNavigate("rewards")}
-          role="button"
-          tabIndex={0}
           style={{
             borderRadius: 22,
             background: "linear-gradient(135deg, #FFF9DC 0%, #FFE892 70%, #FFDB5E 100%)",
@@ -2682,7 +2665,6 @@ function TaskDetailScreen({
             >
               {/* sparkle accents */}
               <svg
-                aria-hidden
                 style={{
                   position: "absolute",
                   top: 0,
@@ -3807,7 +3789,6 @@ function RankScreen({ user, tasks, onNavigate }) {
       >
         {/* Decorative glow */}
         <div
-          aria-hidden
           style={{
             position: "absolute",
             inset: "-10% -10% auto -10%",
@@ -4136,7 +4117,6 @@ function RankScreen({ user, tasks, onNavigate }) {
             >
               {/* starfield hint */}
               <svg
-                aria-hidden
                 width="100%"
                 height="100%"
                 style={{ position: "absolute", inset: 0, opacity: 0.3 }}
@@ -4806,7 +4786,6 @@ function MyRewards({ fg,
       >
         {/* sparkle dots */}
         <svg
-          aria-hidden
           width="100%"
           height="100%"
           style={{
@@ -5441,7 +5420,6 @@ function RewardsScreen({ user, tasks, onBack }) {
         >
           {/* sparkle field */}
           <svg
-            aria-hidden
             width="100%"
             height="100%"
             style={{
@@ -5649,7 +5627,6 @@ function MyScreen({
           <div style={{ display: "flex", gap: 8 }}>
             <button
               onClick={onSignOut}
-              aria-label="登出"
               title="登出"
               style={{
                 width: 36,
@@ -5683,7 +5660,6 @@ function MyScreen({
             </button>
             <button
               onClick={() => onNavigate("profile")}
-              aria-label="個人資料與設定"
               style={{
                 width: 36,
                 height: 36,
@@ -5730,7 +5706,6 @@ function MyScreen({
         >
           {/* Decorative starfield + mountain silhouette */}
           <svg
-            aria-hidden
             width="100%"
             height="100%"
             style={{
@@ -5823,12 +5798,10 @@ function MyScreen({
             onMouseOut={(e) =>
               (e.currentTarget.style.background = "transparent")
             }
-            aria-label="查看個人資料"
           >
             {/* Avatar with halo ring */}
             <div style={{ position: "relative", flexShrink: 0 }}>
               <div
-                aria-hidden
                 style={{
                   position: "absolute",
                   inset: -5,
@@ -5885,8 +5858,6 @@ function MyScreen({
                 </div>
                 {user?.id && (
                   <span
-                    role="button"
-                    tabIndex={0}
                     onClick={copyUserId}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") copyUserId(e);
@@ -6010,7 +5981,6 @@ function MyScreen({
               onMouseOut={(e) =>
                 (e.currentTarget.style.background = "transparent")
               }
-              aria-label="查看星光獎勵"
             >
               <div
                 style={{
@@ -6744,7 +6714,6 @@ function TeamCard({
         >
           {/* Decorative starfield motif */}
           <svg
-            aria-hidden
             width="100%"
             height="100%"
             style={{
@@ -7011,7 +6980,6 @@ function TeamCard({
           >
             {/* decorative sparkle trail */}
             <svg
-              aria-hidden
               style={{
                 position: "absolute",
                 inset: 0,
@@ -8597,7 +8565,6 @@ function ProfileScreen({ user, onBack, onEdit }) {
                     border: "1px solid rgba(120,90,0,0.12)",
                     cursor: "pointer",
                     transition: "all 0.18s ease",
-                    fontFamily: 'ui-monospace, "SF Mono", monospace',
                   }}
                 >
                   {user.id}
@@ -9638,14 +9605,11 @@ function TeamForm({ onCancel, onSubmit }) {
             </div>
           ) : (
             filteredTeams.map((team) => {
-              const full = false; // no hard cap — teams have no upper limit
               const isPending = pendingJoin === team.id;
               return (
                 <div
                   key={team.id}
-                  onClick={() =>
-                    !full && setPendingJoin(isPending ? null : team.id)
-                  }
+                  onClick={() => setPendingJoin(isPending ? null : team.id)}
                   style={{
                     padding: 12,
                     borderRadius: 14,
@@ -9655,11 +9619,10 @@ function TeamForm({ onCancel, onSubmit }) {
                     border: isPending
                       ? "1.5px solid rgba(109,174,74,0.65)"
                       : "1px solid rgba(109,174,74,0.25)",
-                    cursor: full ? "default" : "pointer",
+                    cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
-                    opacity: full && !isPending ? 0.55 : 1,
                   }}
                 >
                   <div
@@ -9714,30 +9677,18 @@ function TeamForm({ onCancel, onSubmit }) {
                     style={{
                       padding: "6px 12px",
                       borderRadius: 999,
-                      background:
-                        full && !isPending
-                          ? "rgba(120,110,150,0.12)"
-                          : isPending
-                            ? "transparent"
-                            : "linear-gradient(135deg, #8dc968, #6dae4a)",
+                      background: isPending
+                        ? "transparent"
+                        : "linear-gradient(135deg, #8dc968, #6dae4a)",
                       border: isPending ? "1.5px solid #4e9a2e" : "none",
-                      color:
-                        full && !isPending
-                          ? muted
-                          : isPending
-                            ? "#3d7a2e"
-                            : "#fff",
+                      color: isPending ? "#3d7a2e" : "#fff",
                       fontSize: 11,
                       fontWeight: 700,
                       whiteSpace: "nowrap",
                       flexShrink: 0,
                     }}
                   >
-                    {full && !isPending
-                      ? "已滿"
-                      : isPending
-                        ? "✓ 已選"
-                        : "選擇"}
+                    {isPending ? "✓ 已選" : "選擇"}
                   </div>
                 </div>
               );
@@ -9845,7 +9796,7 @@ function FormSuccessOverlay({
 
 // ─── App ──────────────────────────────────────────────────────
 function App() {
-  const [screen, setScreen] = useState("landing"); // 'landing' | 'auth' | 'home' | 'tasks' | 'taskDetail' | 'form' | 'rewards'
+  const [screen, setScreen] = useState("landing");
   const [rewardsFrom, setRewardsFrom] = useState("home");
   const navigateTo = (next) => {
     if (next === "rewards") setRewardsFrom(screen === "me" ? "me" : "home");
