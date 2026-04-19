@@ -287,7 +287,7 @@ export default function MyScreen() {
                   fontSize: fs(28),
                   fontWeight: 800,
                   color: "#fff",
-                  boxShadow: "0 8px 22px rgba(254,199,1,0.4), inset 0 2px 0 rgba(255,255,255,0.4)",
+                  boxShadow: "var(--shadow-2), var(--shadow-inset-hi)",
                   fontFamily: "var(--font-serif)",
                   border: "2px solid rgba(255,255,255,0.9)",
                 }}

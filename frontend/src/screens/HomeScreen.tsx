@@ -146,7 +146,7 @@ export default function HomeScreen() {
             overflow: "hidden",
             flexShrink: 0,
             cursor: "pointer",
-            boxShadow: "0 8px 22px rgba(200,160,0,0.2), inset 0 1px 0 rgba(255,255,255,0.6)",
+            boxShadow: "var(--shadow-2), var(--shadow-inset-hi)",
             animation: "fadeInUp 0.5s 0.05s ease backwards",
           }}
         >

@@ -84,7 +84,7 @@ export default function TaskCard({
         animation: `fadeInUp 0.5s ${0.15 + index * 0.06}s ease backwards`,
         cursor: "pointer",
         overflow: "hidden",
-        boxShadow: "0 4px 14px rgba(254,210,52,0.18)",
+        boxShadow: "var(--shadow-1)",
         display: "flex",
         alignItems: "center",
         gap: 12,

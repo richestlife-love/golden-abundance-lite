@@ -30,8 +30,8 @@ export default function GradientButton({ label, onClick }: Props) {
         letterSpacing: 4,
         fontFamily: "var(--font-sans)",
         boxShadow: pressed
-          ? "0 4px 12px rgba(254,199,1,0.4), inset 0 2px 6px rgba(0,0,0,0.1)"
-          : "0 12px 30px rgba(254,199,1,0.5), 0 4px 10px rgba(254,210,52,0.35), inset 0 1px 0 rgba(255,255,255,0.5)",
+          ? "var(--shadow-1), inset 0 2px 6px rgba(0,0,0,0.1)"
+          : "var(--shadow-3), var(--shadow-inset-hi)",
         transition: "all 0.15s ease",
         transform: pressed ? "translateY(1px) scale(0.985)" : "none",
         position: "relative",

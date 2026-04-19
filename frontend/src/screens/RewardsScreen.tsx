@@ -84,7 +84,7 @@ export default function RewardsScreen() {
             borderRadius: 22,
             background: "linear-gradient(160deg, #FFE48C 0%, #FFEEAD 55%, #FFF7D6 100%)",
             border: "1px solid rgba(254,199,1,0.3)",
-            boxShadow: "0 8px 22px rgba(200,160,0,0.12)",
+            boxShadow: "var(--shadow-2)",
             marginBottom: 14,
           }}
         >

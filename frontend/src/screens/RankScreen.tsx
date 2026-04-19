@@ -1295,7 +1295,7 @@ export default function RankScreen() {
               borderRadius: 16,
               background: "rgba(255,255,255,0.96)",
               border: "1px solid rgba(254,199,1,0.45)",
-              boxShadow: "0 10px 28px rgba(100,80,1,0.18), 0 0 0 1px rgba(254,210,52,0.18)",
+              boxShadow: "var(--shadow-2), 0 0 0 1px rgba(254,210,52,0.18)",
               backdropFilter: "blur(14px)",
               WebkitBackdropFilter: "blur(14px)",
               display: "flex",

@@ -601,7 +601,7 @@ export default function TeamCard({
                 flexShrink: 0,
                 position: "relative",
                 zIndex: 1,
-                boxShadow: "0 4px 12px rgba(200,160,0,0.25), inset 0 0 0 1.5px rgba(254,199,1,0.4)",
+                boxShadow: "var(--shadow-1), inset 0 0 0 1.5px rgba(254,199,1,0.4)",
               }}
             >
               📨
