@@ -244,7 +244,7 @@ All paths under `/api/v1/`. `Auth` column: `—` = public, `B` = `Authorization:
 | POST | `/teams/{team_id}/join-requests/{req_id}/reject` | B | — | 204 | 401, 403 not leader, 404 |
 | POST | `/teams/{team_id}/leave` | B | — | 204 | 401, 403 leader cannot leave own team, 404 |
 
-**409 on `POST /teams/{team_id}/join-requests`** fires when any of the following holds: caller is already a member or leader of this team; caller already has a pending request to this team; caller is already a member (or has a pending request) of **any other** team. A user may belong to at most one joined team at a time, and may have at most one outstanding join request at a time.
+**409 on `POST /teams/{team_id}/join-requests`** fires when any of the following holds: caller is already a member or leader of this team; caller already has a pending request to this team; caller is already a member (or has a pending request) of **any other** team. A user may belong to at most one joined team at a time, and may have at most one outstanding join request at a time. Leaders cannot submit a join-request to their own team (409).
 
 **No `DELETE /teams/{team_id}`.** The frontend does not expose a "disband" affordance anywhere — the "退出" button in `TeamCard` is gated by `!isLeader` (see `frontend/app.jsx:6845`). Leaders manage their team via `PATCH` (rename/topic); they cannot disband it. This preserves the invariant that every profile-complete user has a led team.
 
