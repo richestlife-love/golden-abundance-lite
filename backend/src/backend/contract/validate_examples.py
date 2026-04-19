@@ -16,6 +16,7 @@ from pydantic import BaseModel, TypeAdapter
 from backend.contract.common import Paginated
 from backend.contract.news import NewsItem
 from backend.contract.rewards import Reward
+from backend.contract.team import Team
 from backend.contract.user import ProfileCreate, User
 
 FIXTURES_DIR = Path(__file__).parent / "examples"
@@ -29,6 +30,8 @@ FIXTURES: dict[str, Any] = {
     "profile_create.json": ProfileCreate,
     "rewards_list.json": TypeAdapter(list[Reward]),
     "news_list.json": TypeAdapter(Paginated[NewsItem]),
+    "team_as_leader.json": Team,
+    "team_as_member.json": Team,
 }
 
 
