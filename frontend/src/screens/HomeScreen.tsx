@@ -130,7 +130,6 @@ export default function HomeScreen({
         </div>
 
         {/* Points card */}
-        {/* Points card */}
         <div
           onClick={() => onNavigate("rewards")}
           style={{
