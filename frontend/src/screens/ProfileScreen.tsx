@@ -16,13 +16,16 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
   const accent = "#cb9f01";
 
   const [idCopied, setIdCopied] = useState(false);
-  const copyUserId = () => {
+  const copyUserId = async () => {
     if (!user?.id) return;
+    if (!navigator.clipboard) return;
     try {
-      navigator.clipboard && navigator.clipboard.writeText(user.id);
-    } catch (err) {}
-    setIdCopied(true);
-    setTimeout(() => setIdCopied(false), 1800);
+      await navigator.clipboard.writeText(user.id);
+      setIdCopied(true);
+      setTimeout(() => setIdCopied(false), 1800);
+    } catch {
+      // permission denied or another failure — skip confirmation
+    }
   };
 
   const COUNTRY_FLAG: Record<string, string> = {

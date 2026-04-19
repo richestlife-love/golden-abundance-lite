@@ -76,21 +76,27 @@ export default function TeamCard({
   const [renameOpen, setRenameOpen] = useState(false);
   const [idCopied, setIdCopied] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
-  const copyId = () => {
+  const copyId = async () => {
+    if (!navigator.clipboard) return;
     try {
-      navigator.clipboard && navigator.clipboard.writeText(team.id);
-    } catch (e) {}
-    setIdCopied(true);
-    setTimeout(() => setIdCopied(false), 1800);
+      await navigator.clipboard.writeText(team.id);
+      setIdCopied(true);
+      setTimeout(() => setIdCopied(false), 1800);
+    } catch {
+      // permission denied or another failure — skip confirmation
+    }
   };
   const shareUrl = "golden-abundance.vercel.app";
   const shareMessage = `嗨！我在「金富有」建立了志工團隊，一起來加入吧 ✨\n\n團隊編號：${team.id}\n開啟 App：${shareUrl}\n\n進入 App 後，點「我的 › 搜尋加入」輸入編號 ${team.id} 即可申請。`;
-  const copyShare = () => {
+  const copyShare = async () => {
+    if (!navigator.clipboard) return;
     try {
-      navigator.clipboard && navigator.clipboard.writeText(shareMessage);
-    } catch (e) {}
-    setShareCopied(true);
-    setTimeout(() => setShareCopied(false), 1800);
+      await navigator.clipboard.writeText(shareMessage);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 1800);
+    } catch {
+      // permission denied or another failure — skip confirmation
+    }
   };
   // Pending member waiting for approval
   if (team.role === "member" && team.status === "pending") {
