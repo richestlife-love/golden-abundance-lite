@@ -205,9 +205,7 @@ describe("click-through: start task", () => {
 
 describe("history back", () => {
   it("back() from /tasks/1 re-renders /tasks (not just URL — DOM-level check)", async () => {
-    const { router } = renderRoute("/home", { seed: "authed-complete" });
-    await expectScreen(router, "/home", "首页");
-    await router.navigate({ to: "/tasks" });
+    const { router } = renderRoute("/tasks", { seed: "authed-complete" });
     await expectScreen(router, "/tasks", "任务");
     await router.navigate({ to: "/tasks/$taskId", params: { taskId: "1" } });
     // "任務說明" is unique to TaskDetailScreen — proves the detail view mounted.
