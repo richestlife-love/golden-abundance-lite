@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "user": {
+        "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b0031",
+        "display_id": "UYAZHU",
+        "name": "吳雅萱",
+        "avatar_url": null
+      },
+      "rank": 1,
+      "points": 3240,
+      "week_points": 480
+    },
+    {
+      "user": {
+        "id": "7f7a9b10-1d3a-4c2e-9e81-1b3e8a2d0001",
+        "display_id": "UJETKAN",
+        "name": "簡傑特",
+        "avatar_url": null
+      },
+      "rank": 17,
+      "points": 480,
+      "week_points": 120
+    }
+  ],
+  "next_cursor": "eyJvZmZzZXQiOjJ9"
+}

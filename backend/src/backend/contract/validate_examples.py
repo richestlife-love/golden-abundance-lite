@@ -15,6 +15,7 @@ from pydantic import BaseModel, TypeAdapter
 
 from backend.contract.common import Paginated
 from backend.contract.news import NewsItem
+from backend.contract.rank import TeamRankEntry, UserRankEntry
 from backend.contract.rewards import Reward
 from backend.contract.team import Team
 from backend.contract.user import ProfileCreate, User
@@ -32,6 +33,8 @@ FIXTURES: dict[str, Any] = {
     "news_list.json": TypeAdapter(Paginated[NewsItem]),
     "team_as_leader.json": Team,
     "team_as_member.json": Team,
+    "rank_users_week.json": TypeAdapter(Paginated[UserRankEntry]),
+    "rank_teams_week.json": TypeAdapter(Paginated[TeamRankEntry]),
 }
 
 
