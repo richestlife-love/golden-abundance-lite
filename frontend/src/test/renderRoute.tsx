@@ -50,10 +50,7 @@ export interface RenderRouteResult {
   getState: () => AppState;
 }
 
-export function renderRoute(
-  path: string,
-  opts: { seed?: SeedAuth } = {},
-): RenderRouteResult {
+export function renderRoute(path: string, opts: { seed?: SeedAuth } = {}): RenderRouteResult {
   const seed = opts.seed ?? "guest";
   const router = createAppRouter({
     history: createMemoryHistory({ initialEntries: [path] }),

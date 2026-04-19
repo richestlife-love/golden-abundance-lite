@@ -35,9 +35,7 @@ function RootLayout() {
     >
       <GlobalStyles />
       <Outlet />
-      {successData && (
-        <FormSuccessOverlay {...successData} onDone={() => setSuccessData(null)} />
-      )}
+      {successData && <FormSuccessOverlay {...successData} onDone={() => setSuccessData(null)} />}
     </div>
   );
 }

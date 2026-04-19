@@ -103,9 +103,10 @@ export default function LandingScreen({ onStart }: Props) {
             <span
               style={{
                 color: "#fff",
-                fontSize: fs(14),
-                fontWeight: 900,
-                fontFamily: "var(--font-serif)",
+                fontSize: fs(16),
+                fontWeight: 400,
+                fontFamily: "var(--font-display)",
+                lineHeight: 1,
               }}
             >
               金
@@ -114,10 +115,10 @@ export default function LandingScreen({ onStart }: Props) {
           <span
             style={{
               fontSize: fs(12),
-              fontWeight: 600,
-              letterSpacing: 2,
+              fontWeight: 500,
+              letterSpacing: 3,
               color: "#987701",
-              fontFamily: "var(--font-sans)",
+              fontFamily: "var(--font-display)",
             }}
           >
             金富有 · GOLDEN ABUNDANCE

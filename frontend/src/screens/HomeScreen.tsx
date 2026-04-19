@@ -277,13 +277,13 @@ export default function HomeScreen() {
               >
                 <div
                   style={{
-                    fontSize: fs(48),
-                    fontWeight: 900,
-                    letterSpacing: -1.5,
+                    fontSize: fs(52),
+                    fontWeight: 600,
+                    letterSpacing: -0.5,
                     background: "linear-gradient(135deg, #cb9f01 0%, #fec701 45%, #cb9f01 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
-                    fontFamily: "var(--font-serif)",
+                    fontFamily: "var(--font-display)",
                     lineHeight: 1,
                     textShadow: "0 2px 4px rgba(200,160,0,0.15)",
                   }}

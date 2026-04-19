@@ -14,9 +14,7 @@ export default function RankScreen() {
   const [tab, setTab] = useState("personal"); // personal | team | challenge
   const [period, setPeriod] = useState("month"); // week | month | all
 
-  const myPoints = tasks
-    .filter((t) => t.status === "completed")
-    .reduce((s, t) => s + t.points, 0);
+  const myPoints = tasks.filter((t) => t.status === "completed").reduce((s, t) => s + t.points, 0);
   const myName = user?.nickname || user?.zhName || user?.name || "你";
 
   // Challenge tasks available for leaderboard

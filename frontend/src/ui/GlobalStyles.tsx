@@ -33,6 +33,11 @@ export default function GlobalStyles() {
         /* Typography */
         --font-sans: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif;
         --font-serif: "Noto Serif SC", serif;
+        /* Display tier — reserved for hero headlines, the brand mark, and
+           oversized numerals. Pairs a refined Chinese calligraphic serif
+           (XiaoWei) with a classical Latin serif (Cormorant) so mixed-script
+           headlines share one voice. */
+        --font-display: "ZCOOL XiaoWei", "Cormorant Garamond", "Noto Serif SC", serif;
       }
       html, body { margin: 0; padding: 0; background: var(--bg-shell); }
       * { box-sizing: border-box; }
