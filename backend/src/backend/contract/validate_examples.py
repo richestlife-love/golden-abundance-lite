@@ -18,8 +18,17 @@ from backend.contract.common import Paginated
 from backend.contract.news import NewsItem
 from backend.contract.rank import TeamRankEntry, UserRankEntry
 from backend.contract.rewards import Reward
-from backend.contract.task import InterestFormBody, Task, TicketFormBody
-from backend.contract.team import Team
+from backend.contract.task import (
+    InterestFormBody,
+    Task,
+    TaskSubmissionResponse,
+    TicketFormBody,
+)
+from backend.contract.team import (
+    MeProfileCreateResponse,
+    MeTeamsResponse,
+    Team,
+)
 from backend.contract.user import ProfileCreate, User
 
 FIXTURES_DIR = Path(__file__).parent / "examples"
@@ -43,6 +52,9 @@ FIXTURES: dict[str, Any] = {
     "task_team_challenge.json": Task,
     "interest_form_submit.json": InterestFormBody,
     "ticket_form_submit.json": TicketFormBody,
+    "task_submission_response.json": TaskSubmissionResponse,
+    "me_profile_create_response.json": MeProfileCreateResponse,
+    "me_teams_response.json": MeTeamsResponse,
 }
 
 

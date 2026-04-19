@@ -1,0 +1,41 @@
+{
+  "user": {
+    "id": "7f7a9b10-1d3a-4c2e-9e81-1b3e8a2d0001",
+    "display_id": "UJETKAN",
+    "email": "jet@example.com",
+    "zh_name": "簡傑特",
+    "en_name": "Jet Kan",
+    "nickname": "Jet",
+    "name": "簡傑特",
+    "phone": "912345678",
+    "phone_code": "+886",
+    "line_id": "jetkan",
+    "telegram_id": null,
+    "country": "台灣",
+    "location": "台北",
+    "avatar_url": null,
+    "profile_complete": true,
+    "created_at": "2026-04-01T10:30:00Z"
+  },
+  "led_team": {
+    "id": "c3d4e5f6-7a8b-9c0d-1e2f-3a4b5c6d0001",
+    "display_id": "T-JETKAN",
+    "name": "簡傑特的團隊",
+    "alias": null,
+    "topic": "尚未指定主題",
+    "leader": {
+      "id": "7f7a9b10-1d3a-4c2e-9e81-1b3e8a2d0001",
+      "display_id": "UJETKAN",
+      "name": "簡傑特",
+      "avatar_url": null
+    },
+    "members": [],
+    "cap": 6,
+    "points": 0,
+    "week_points": 0,
+    "rank": null,
+    "role": "leader",
+    "requests": [],
+    "created_at": "2026-04-01T10:35:00Z"
+  }
+}
