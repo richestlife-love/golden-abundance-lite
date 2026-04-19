@@ -7,6 +7,7 @@ requires-python = ">=3.14"
 dependencies = [
     "alembic>=1.16",
     "fastapi[standard]>=0.118",
+    "greenlet>=3",
     "psycopg[binary]>=3.2",
     "pydantic-settings>=2.7",
     "pydantic[email]>=2.13.2",
