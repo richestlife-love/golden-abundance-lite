@@ -51,11 +51,14 @@ you need the schema.
 
 ## Validate
 
-From the repository root:
+From `backend/` (or any subdirectory of it — `just` walks upward to find
+`backend/justfile`):
 
 ```
 just contract-validate
 ```
+
+From the repo root: `just -f backend/justfile contract-validate`.
 
 Exits 0 on success; non-zero if any fixture fails to parse against its
 declared model. Run this any time you add or change a model or fixture.

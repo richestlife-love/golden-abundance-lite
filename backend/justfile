@@ -4,3 +4,7 @@ ci:
   uv run ruff check --fix
   uv run ruff format
   uv run ty check
+
+# Validate example JSON fixtures against the Pydantic contract models
+contract-validate:
+  uv run python -m backend.contract.validate_examples
