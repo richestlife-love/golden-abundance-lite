@@ -13,7 +13,7 @@ Recipes live per subtree. `cd` into the subtree first, then run:
 ```sh
 cd frontend
 just install        # install frontend deps (pnpm)
-just serve          # Vite dev server on http://localhost:8000
+just serve          # Vite dev server on http://localhost:5173
 just build          # tsc -b && vite build → frontend/dist
 just tunnel         # https://subvitalized-occupative-katelyn.ngrok-free.dev
 just fmt            # format frontend sources with Prettier

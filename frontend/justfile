@@ -10,7 +10,7 @@ ci:
 install:
     pnpm install
 
-# Run the Vite dev server on http://localhost:8000
+# Run the Vite dev server on http://localhost:5173
 serve: install
     pnpm run dev
 
@@ -22,6 +22,6 @@ build: install
 fmt: install
     pnpm run format
 
-# Expose local port 8000 (https) via a reserved ngrok hostname
+# Expose local port 5173 (https) via a reserved ngrok hostname
 tunnel:
-    ngrok http --url=subvitalized-occupative-katelyn.ngrok-free.dev --scheme=https 8000
+    ngrok http --url=subvitalized-occupative-katelyn.ngrok-free.dev --scheme=https 5173
