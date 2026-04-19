@@ -79,6 +79,20 @@ Surfaced during Phase 5a (backend foundation — FastAPI + SQLModel + Alembic + 
 - **`TaskProgressRow` has `updated_at` but no `created_at`** — once any update fires, the original enrollment time is lost. Add `created_at` if a service needs to query "when did the user start this task".
 
 ### Tooling hygiene
-- **Coverage gate temporarily 60%** — [`backend/pyproject.toml`](../backend/pyproject.toml) `[tool.coverage.report]`. Was 90 in the plan; lowered because pytest-cov hard-fails below the gate and Phase 5a's test surface is small (Settings + `/health` + DB round-trip + schema-drift). Restore to 90 once Phase 5b/5c router and service tests land.
+- ~~**Coverage gate temporarily 60%**~~ — resolved in Phase 5b: gate is back to 90 in [`backend/pyproject.toml`](../backend/pyproject.toml) and the auth-layer tests bring total coverage to ~97%.
 - **`testcontainers[postgresql]>=4.9` extra is obsolete** — [`backend/pyproject.toml`](../backend/pyproject.toml). testcontainers v4 bundles Postgres support unconditionally; `uv sync` warns `package does not have an extra named 'postgresql'` on every run. Rewrite to `testcontainers>=4.9`.
 - **Alembic `path_separator` deprecation warning** — once per pytest run. Fix: add `path_separator = os` under `[alembic]` in [`backend/alembic.ini`](../backend/alembic.ini).
+
+## Tech debt / review findings (Phase 5b)
+
+Surfaced during Phase 5b (Google-stub auth + HS256 JWT + `/auth/google`, `/auth/logout`, `/me`). Address when Phase 6 replaces the Google stub with real JWKS verification, unless noted otherwise.
+
+### Auth / security
+- **`display_id` select-then-insert race** — [`backend/src/backend/services/display_id.py`](../backend/src/backend/services/display_id.py) + [`backend/src/backend/services/user.py`](../backend/src/backend/services/user.py). Two concurrent sign-ups with the same email-derived base can both pick the same candidate; the loser hits a unique-constraint `IntegrityError` and the router returns 500. Wrap candidate generation in a retry-on-`IntegrityError` loop, or switch to `INSERT … ON CONFLICT` with suffix regeneration, before production sign-ups land.
+- **No JWT revocation / denylist** — `POST /auth/logout` is best-effort: tokens remain valid until `exp` regardless. Combine short access-token TTLs + a refresh-token rotation (or a small per-user revoked-jti table) when this starts mattering.
+- **No `iss` / `aud` claims on minted tokens** — [`backend/src/backend/auth/jwt.py`](../backend/src/backend/auth/jwt.py). Single-service HS256 only; revisit if tokens ever cross service boundaries.
+- **No rate limiting on `/auth/google`** — a noisy caller can force an unbounded number of upserts + JWT signatures. Add per-IP / per-email throttling at the ingress or a SlowAPI-style middleware.
+- **`HTTPException(detail=str(exc))` on `/auth/google`** — [`backend/src/backend/routers/auth.py`](../backend/src/backend/routers/auth.py). Passes through the stub's verbose "Phase 5 stub" message, which also echoes the caller-supplied id_token fragment from `email-validator`. When Phase 6 swaps in real Google verification, replace with a constant `"Invalid id_token"` and log the underlying error server-side at WARNING.
+
+### Dependencies
+- **`email-validator` is an undeclared direct dependency** — used by [`backend/src/backend/auth/google_stub.py`](../backend/src/backend/auth/google_stub.py) via the `pydantic[email]` transitive. Pin explicitly in `backend/pyproject.toml` (`"email-validator>=2"`) so a future `pydantic` extra change can't silently break the auth stub.
