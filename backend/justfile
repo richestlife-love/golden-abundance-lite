@@ -23,6 +23,14 @@ db-up:
 db-down:
   docker compose down
 
+# Run Alembic migrations to head
+migrate:
+  uv run alembic upgrade head
+
+# Create a new Alembic revision (pass MSG="message")
+makemigration MSG:
+  uv run alembic revision --autogenerate -m "{{MSG}}"
+
 # Run pytest only
 test *args:
   uv run pytest {{args}}
