@@ -1238,7 +1238,7 @@ function NewsBoard({ fg, muted, cardBg, cardBorder }) {
   ];
 
   const [idx, setIdx] = useState(0);
-  const trackRef = React.useRef(null);
+  const trackRef = useRef(null);
 
   // Track scroll snap to keep dots in sync
   const onScroll = (e) => {
