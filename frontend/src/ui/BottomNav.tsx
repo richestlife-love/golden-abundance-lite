@@ -1,11 +1,13 @@
+import type { ScreenId } from '../types';
+
 type Props = {
-  current: string;
+  current: ScreenId;
   muted: string;
-  onNavigate: (screen: string) => void;
+  onNavigate: (screen: ScreenId) => void;
 };
 
 export default function BottomNav({ current, muted, onNavigate }: Props) {
-  const items = [
+  const items: { key: ScreenId; label: string; icon: string }[] = [
     { key: "home", label: "首页", icon: "◉" },
     { key: "tasks", label: "任务", icon: "❋" },
     { key: "rank", label: "排行", icon: "▲" },

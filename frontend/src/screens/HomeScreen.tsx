@@ -140,7 +140,7 @@ export default function HomeScreen({
         {/* Points card */}
         {/* Points card */}
         <div
-          onClick={() => onNavigate && onNavigate("rewards")}
+          onClick={() => onNavigate("rewards")}
           style={{
             borderRadius: 22,
             background: "linear-gradient(135deg, #FFF9DC 0%, #FFE892 70%, #FFDB5E 100%)",
@@ -471,7 +471,7 @@ export default function HomeScreen({
             探索任务
           </div>
           <div
-            onClick={() => onNavigate && onNavigate("tasks")}
+            onClick={() => onNavigate("tasks")}
             style={{ fontSize: 12, color: muted, cursor: "pointer" }}
           >
             查看全部 →
@@ -525,7 +525,7 @@ export default function HomeScreen({
       <BottomNav
         current="home"
         muted={muted}
-        onNavigate={onNavigate as (screen: string) => void}
+        onNavigate={onNavigate}
       />
     </div>
   );
