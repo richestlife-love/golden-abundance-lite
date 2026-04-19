@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from httpx import AsyncClient
 
 from tests.helpers import sign_in_and_complete
@@ -35,7 +37,6 @@ async def test_create_join_request_duplicate_pending_409(client: AsyncClient) ->
 
 
 async def test_create_join_request_404_for_unknown_team(client: AsyncClient) -> None:
-    from uuid import uuid4
     out = await sign_in_and_complete(client, "out@example.com", "外人")
     response = await client.post(
         f"/api/v1/teams/{uuid4()}/join-requests",

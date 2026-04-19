@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from httpx import AsyncClient
 
 from tests.helpers import sign_in_and_complete
@@ -47,7 +49,6 @@ async def test_team_detail_outsider_sees_null_requests(client: AsyncClient) -> N
 
 
 async def test_team_detail_404(client: AsyncClient) -> None:
-    from uuid import uuid4
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     response = await client.get(f"/api/v1/teams/{uuid4()}", headers=jet.headers)
     assert response.status_code == 404

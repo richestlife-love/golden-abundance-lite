@@ -1,7 +1,10 @@
+from uuid import uuid4
+
 from httpx import AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.db.models import TaskDefRow
+from backend.db.models import RewardRow, TaskDefRow
 from tests.helpers import sign_in_and_complete
 
 
@@ -120,9 +123,6 @@ async def test_approve_grants_challenge_reward_at_cap(
     assert approve.status_code == 200
 
     # Query rewards directly via the DB — GET /me/rewards lands in Phase 5d.
-    from sqlalchemy import select
-    from backend.db.models import RewardRow
-
     jet_rewards = (
         await session.execute(select(RewardRow).where(RewardRow.user_id == jet.user_id))  # ty: ignore[invalid-argument-type]
     ).scalars().all()
@@ -161,7 +161,6 @@ async def test_leader_cannot_approve_request_from_different_team(
 
 
 async def test_approve_unknown_team_404(client: AsyncClient) -> None:
-    from uuid import uuid4
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     unknown_team = uuid4()
     unknown_req = uuid4()
@@ -173,7 +172,6 @@ async def test_approve_unknown_team_404(client: AsyncClient) -> None:
 
 
 async def test_approve_unknown_req_404(client: AsyncClient) -> None:
-    from uuid import uuid4
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     r = await client.post(
         f"/api/v1/teams/{jet.led_team_id}/join-requests/{uuid4()}/approve",
@@ -183,7 +181,6 @@ async def test_approve_unknown_req_404(client: AsyncClient) -> None:
 
 
 async def test_reject_unknown_req_404(client: AsyncClient) -> None:
-    from uuid import uuid4
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     r = await client.post(
         f"/api/v1/teams/{jet.led_team_id}/join-requests/{uuid4()}/reject",
@@ -194,7 +191,6 @@ async def test_reject_unknown_req_404(client: AsyncClient) -> None:
 
 async def test_cancel_unknown_req_404(client: AsyncClient) -> None:
     """DELETE /join-requests/{unknown} → 404."""
-    from uuid import uuid4
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     r = await client.delete(
         f"/api/v1/teams/{jet.led_team_id}/join-requests/{uuid4()}",
