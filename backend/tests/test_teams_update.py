@@ -27,7 +27,9 @@ async def test_non_leader_cannot_update(client: AsyncClient) -> None:
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     out = await sign_in_and_complete(client, "out@example.com", "外人")
     response = await client.patch(
-        f"/api/v1/teams/{jet.led_team_id}", json={"topic": "hack"}, headers=out.headers
+        f"/api/v1/teams/{jet.led_team_id}",
+        json={"topic": "hack"},
+        headers=out.headers,
     )
     assert response.status_code == 403
 

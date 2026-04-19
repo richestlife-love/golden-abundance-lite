@@ -24,9 +24,7 @@ _TICKET = {
 }
 
 
-async def test_submit_interest_marks_completed(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_submit_interest_marks_completed(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     t1 = seeded_task_defs["T1"].id
 
@@ -38,9 +36,7 @@ async def test_submit_interest_marks_completed(
     assert data["reward"] is None
 
 
-async def test_submit_ticket_creates_reward(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_submit_ticket_creates_reward(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     t1 = seeded_task_defs["T1"].id
     t2 = seeded_task_defs["T2"].id
@@ -53,27 +49,21 @@ async def test_submit_ticket_creates_reward(
     assert response.json()["reward"]["status"] == "earned"
 
 
-async def test_submit_wrong_form_type_400(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_submit_wrong_form_type_400(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     t1 = seeded_task_defs["T1"].id
     response = await client.post(f"/api/v1/tasks/{t1}/submit", json=_TICKET, headers=h)
     assert response.status_code == 400
 
 
-async def test_submit_locked_task_412(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_submit_locked_task_412(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     t2 = seeded_task_defs["T2"].id
     response = await client.post(f"/api/v1/tasks/{t2}/submit", json=_TICKET, headers=h)
     assert response.status_code == 412
 
 
-async def test_submit_twice_returns_409(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_submit_twice_returns_409(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     t1 = seeded_task_defs["T1"].id
     await client.post(f"/api/v1/tasks/{t1}/submit", json=_INTEREST, headers=h)
@@ -81,9 +71,7 @@ async def test_submit_twice_returns_409(
     assert second.status_code == 409
 
 
-async def test_submit_to_formless_task_400(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_submit_to_formless_task_400(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     t3 = seeded_task_defs["T3"].id
     response = await client.post(f"/api/v1/tasks/{t3}/submit", json=_INTEREST, headers=h)
@@ -91,9 +79,7 @@ async def test_submit_to_formless_task_400(
     assert "does not accept submissions" in response.json()["detail"].lower()
 
 
-async def test_submit_to_nonexistent_task_404(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_submit_to_nonexistent_task_404(client: AsyncClient, seeded_task_defs) -> None:
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     r = await client.post(
         f"/api/v1/tasks/{uuid4()}/submit",
@@ -103,9 +89,7 @@ async def test_submit_to_nonexistent_task_404(
     assert r.status_code == 404
 
 
-async def test_submit_interest_with_empty_list_is_422(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_submit_interest_with_empty_list_is_422(client: AsyncClient, seeded_task_defs) -> None:
     """Contract declares `interests: list[str] = Field(min_length=1)`.
 
     A regression that drops the min_length would silently accept empty
@@ -128,17 +112,28 @@ async def test_submit_t2_twice_does_not_create_second_reward(
     from backend.db.models import RewardRow
 
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
-    await client.post(f"/api/v1/tasks/{seeded_task_defs['T1'].id}/submit",
-                      json=_INTEREST, headers=jet.headers)
-    await client.post(f"/api/v1/tasks/{seeded_task_defs['T2'].id}/submit",
-                      json=_TICKET, headers=jet.headers)
-    r2 = await client.post(f"/api/v1/tasks/{seeded_task_defs['T2'].id}/submit",
-                           json=_TICKET, headers=jet.headers)
+    await client.post(
+        f"/api/v1/tasks/{seeded_task_defs['T1'].id}/submit",
+        json=_INTEREST,
+        headers=jet.headers,
+    )
+    await client.post(
+        f"/api/v1/tasks/{seeded_task_defs['T2'].id}/submit",
+        json=_TICKET,
+        headers=jet.headers,
+    )
+    r2 = await client.post(
+        f"/api/v1/tasks/{seeded_task_defs['T2'].id}/submit",
+        json=_TICKET,
+        headers=jet.headers,
+    )
     assert r2.status_code == 409
 
-    count = (await session.execute(
-        select(func.count()).select_from(RewardRow).where(RewardRow.user_id == jet.user_id)  # ty: ignore[invalid-argument-type]
-    )).scalar_one()
+    count = (
+        await session.execute(
+            select(func.count()).select_from(RewardRow).where(RewardRow.user_id == jet.user_id)  # ty: ignore[invalid-argument-type]
+        )
+    ).scalar_one()
     assert count == 1
 
 
@@ -154,8 +149,6 @@ async def test_submit_t2_twice_does_not_create_second_reward(
         ("GET", "/api/v1/news"),
     ],
 )
-async def test_phase_5d_endpoint_requires_auth(
-    client: AsyncClient, method: str, path: str
-) -> None:
+async def test_phase_5d_endpoint_requires_auth(client: AsyncClient, method: str, path: str) -> None:
     r = await client.request(method, path)
     assert r.status_code == 401, f"{method} {path} should require auth"

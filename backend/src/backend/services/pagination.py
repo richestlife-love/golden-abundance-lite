@@ -87,9 +87,7 @@ async def paginate_keyset(
         if not isinstance(payload, list) or len(payload) != len(sort):
             raise InvalidCursor("cursor shape does not match sort columns")
         values = [s.from_json(payload[i]) for i, s in enumerate(sort)]
-        stmt = stmt.where(
-            tuple_(*(s.col for s in sort)) < tuple_(*values)
-        )
+        stmt = stmt.where(tuple_(*(s.col for s in sort)) < tuple_(*values))
     stmt = stmt.order_by(*(s.col.desc() for s in sort)).limit(limit + 1)
 
     rows = (await session.execute(stmt)).all()
@@ -97,7 +95,5 @@ async def paginate_keyset(
     next_cursor: str | None = None
     if len(rows) > limit and page:
         last_values = extract(page[-1])
-        next_cursor = encode_cursor(
-            [s.to_json(v) for s, v in zip(sort, last_values, strict=True)]
-        )
+        next_cursor = encode_cursor([s.to_json(v) for s, v in zip(sort, last_values, strict=True)])
     return page, next_cursor  # ty: ignore[invalid-return-type]

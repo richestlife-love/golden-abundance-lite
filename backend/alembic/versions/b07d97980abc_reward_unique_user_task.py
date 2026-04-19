@@ -22,9 +22,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.create_unique_constraint(
-        "uq_reward_user_task", "rewards", ["user_id", "task_def_id"]
-    )
+    op.create_unique_constraint("uq_reward_user_task", "rewards", ["user_id", "task_def_id"])
 
 
 def downgrade() -> None:

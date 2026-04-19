@@ -15,7 +15,9 @@ _PROFILE_BODY = {
 }
 
 
-async def test_post_profile_sets_flag_and_creates_led_team(client: AsyncClient) -> None:
+async def test_post_profile_sets_flag_and_creates_led_team(
+    client: AsyncClient,
+) -> None:
     headers = await sign_in(client, "jet@example.com")
     response = await client.post("/api/v1/me/profile", json=_PROFILE_BODY, headers=headers)
     assert response.status_code == 200
@@ -36,9 +38,7 @@ async def test_post_profile_is_one_shot(client: AsyncClient) -> None:
 async def test_patch_me_partial_update(client: AsyncClient) -> None:
     headers = await sign_in(client, "jet@example.com")
     await client.post("/api/v1/me/profile", json=_PROFILE_BODY, headers=headers)
-    response = await client.patch(
-        "/api/v1/me", json={"nickname": "JetNew"}, headers=headers
-    )
+    response = await client.patch("/api/v1/me", json={"nickname": "JetNew"}, headers=headers)
     assert response.status_code == 200
     assert response.json()["nickname"] == "JetNew"
     assert response.json()["zh_name"] == "簡傑特"  # untouched

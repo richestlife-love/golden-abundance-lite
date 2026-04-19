@@ -20,15 +20,11 @@ async def test_get_task_by_id(client: AsyncClient, seeded_task_defs) -> None:
 
 async def test_get_task_404(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
-    response = await client.get(
-        "/api/v1/tasks/00000000-0000-0000-0000-000000000000", headers=h
-    )
+    response = await client.get("/api/v1/tasks/00000000-0000-0000-0000-000000000000", headers=h)
     assert response.status_code == 404
 
 
-async def test_list_me_tasks_returns_all_four(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_list_me_tasks_returns_all_four(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     response = await client.get("/api/v1/me/tasks", headers=h)
     assert response.status_code == 200
@@ -36,9 +32,7 @@ async def test_list_me_tasks_returns_all_four(
     assert {t["display_id"] for t in data} == {"T1", "T2", "T3", "T4"}
 
 
-async def test_t2_locked_until_t1_completed_visible_in_list(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_t2_locked_until_t1_completed_visible_in_list(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     response = await client.get("/api/v1/me/tasks", headers=h)
     by_did = {t["display_id"]: t for t in response.json()}

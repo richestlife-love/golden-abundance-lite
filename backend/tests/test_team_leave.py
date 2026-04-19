@@ -7,9 +7,7 @@ from tests.helpers import sign_in_and_complete
 
 async def test_leader_cannot_leave_own_team(client: AsyncClient) -> None:
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
-    response = await client.post(
-        f"/api/v1/teams/{jet.led_team_id}/leave", headers=jet.headers
-    )
+    response = await client.post(f"/api/v1/teams/{jet.led_team_id}/leave", headers=jet.headers)
     assert response.status_code == 403
 
 
@@ -18,7 +16,8 @@ async def test_member_can_leave(client: AsyncClient) -> None:
     out = await sign_in_and_complete(client, "out@example.com", "外人")
     req = (
         await client.post(
-            f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
+            f"/api/v1/teams/{jet.led_team_id}/join-requests",
+            headers=out.headers,
         )
     ).json()
     await client.post(
@@ -26,9 +25,7 @@ async def test_member_can_leave(client: AsyncClient) -> None:
         headers=jet.headers,
     )
 
-    response = await client.post(
-        f"/api/v1/teams/{jet.led_team_id}/leave", headers=out.headers
-    )
+    response = await client.post(f"/api/v1/teams/{jet.led_team_id}/leave", headers=out.headers)
     assert response.status_code == 204
 
     # Caller's joined team is now null

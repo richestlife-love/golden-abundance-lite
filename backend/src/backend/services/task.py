@@ -20,7 +20,10 @@ from backend.db.models import (
     TaskStepProgressRow,
     UserRow,
 )
-from backend.services.reward import create_reward_if_bonus, row_to_contract_reward
+from backend.services.reward import (
+    create_reward_if_bonus,
+    row_to_contract_reward,
+)
 from backend.services.team import caller_team_totals
 
 
@@ -46,9 +49,7 @@ async def _required_ids(session: AsyncSession, task_def_id: UUID) -> list[UUID]:
     return [row[0] for row in rows]
 
 
-async def _team_totals(
-    session: AsyncSession, caller: UserRow, *, cap: int
-) -> TeamChallengeProgress:
+async def _team_totals(session: AsyncSession, caller: UserRow, *, cap: int) -> TeamChallengeProgress:
     led_total, joined_total = await caller_team_totals(session, caller)
     return TeamChallengeProgress(
         total=max(led_total, joined_total),
@@ -58,30 +59,39 @@ async def _team_totals(
     )
 
 
-async def _steps_for(
-    session: AsyncSession, task_def_id: UUID, user_id: UUID
-) -> list[ContractTaskStep]:
+async def _steps_for(session: AsyncSession, task_def_id: UUID, user_id: UUID) -> list[ContractTaskStep]:
     defs = (
-        await session.execute(
-            select(TaskStepDefRow)
-            .where(TaskStepDefRow.task_def_id == task_def_id)  # ty: ignore[invalid-argument-type]
-            .order_by(TaskStepDefRow.order.asc())  # ty: ignore[unresolved-attribute]
+        (
+            await session.execute(
+                select(TaskStepDefRow)
+                .where(TaskStepDefRow.task_def_id == task_def_id)  # ty: ignore[invalid-argument-type]
+                .order_by(TaskStepDefRow.order.asc())  # ty: ignore[unresolved-attribute]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     if not defs:
         return []
     step_ids = [d.id for d in defs]
     progress_rows = (
-        await session.execute(
-            select(TaskStepProgressRow)
-            .where(TaskStepProgressRow.user_id == user_id)  # ty: ignore[invalid-argument-type]
-            .where(TaskStepProgressRow.step_id.in_(step_ids))  # ty: ignore[unresolved-attribute]
+        (
+            await session.execute(
+                select(TaskStepProgressRow)
+                .where(TaskStepProgressRow.user_id == user_id)  # ty: ignore[invalid-argument-type]
+                .where(TaskStepProgressRow.step_id.in_(step_ids))  # ty: ignore[unresolved-attribute]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     done_map = {r.step_id: r.done for r in progress_rows}
     return [
         ContractTaskStep(
-            id=d.id, label=d.label, done=done_map.get(d.id, False), order=d.order
+            id=d.id,
+            label=d.label,
+            done=done_map.get(d.id, False),
+            order=d.order,
         )
         for d in defs
     ]
@@ -109,8 +119,7 @@ async def row_to_contract_task(
     if task_def.is_challenge:
         if task_def.cap is None:
             raise RuntimeError(
-                f"Challenge task {task_def.display_id} is missing cap — "
-                "is_challenge=True requires a non-null cap."
+                f"Challenge task {task_def.display_id} is missing cap — is_challenge=True requires a non-null cap."
             )
         team_progress = await _team_totals(session, caller, cap=task_def.cap)
     else:
@@ -170,19 +179,18 @@ async def row_to_contract_task(
     )
 
 
-async def list_caller_tasks(
-    session: AsyncSession, *, caller: UserRow
-) -> list[ContractTask]:
+async def list_caller_tasks(session: AsyncSession, *, caller: UserRow) -> list[ContractTask]:
     defs = (
-        await session.execute(
-            select(TaskDefRow).order_by(TaskDefRow.display_id.asc())  # ty: ignore[unresolved-attribute]
+        (
+            await session.execute(
+                select(TaskDefRow).order_by(TaskDefRow.display_id.asc())  # ty: ignore[unresolved-attribute]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     completed_ids = await _completed_task_def_ids(session, caller.id)
-    return [
-        await row_to_contract_task(session, d, caller=caller, completed_ids=completed_ids)
-        for d in defs
-    ]
+    return [await row_to_contract_task(session, d, caller=caller, completed_ids=completed_ids) for d in defs]
 
 
 class TaskSubmitError(Exception):

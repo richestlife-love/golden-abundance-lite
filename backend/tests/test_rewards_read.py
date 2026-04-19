@@ -26,9 +26,7 @@ async def test_rewards_empty_for_new_user(client: AsyncClient, seeded_task_defs)
     assert response.json() == []
 
 
-async def test_reward_appears_after_bonus_task(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_reward_appears_after_bonus_task(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     t1 = seeded_task_defs["T1"].id
     t2 = seeded_task_defs["T2"].id
@@ -42,17 +40,21 @@ async def test_reward_appears_after_bonus_task(
     assert rewards[0]["bonus"] == "限定紀念徽章"
 
 
-async def test_me_rewards_is_scoped_to_caller(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_me_rewards_is_scoped_to_caller(client: AsyncClient, seeded_task_defs) -> None:
     """A missing `WHERE user_id = :caller` would leak rewards across users."""
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     out = await sign_in_and_complete(client, "out@example.com", "外人")
 
-    await client.post(f"/api/v1/tasks/{seeded_task_defs['T1'].id}/submit",
-                      json=_INTEREST, headers=jet.headers)
-    await client.post(f"/api/v1/tasks/{seeded_task_defs['T2'].id}/submit",
-                      json=_TICKET, headers=jet.headers)
+    await client.post(
+        f"/api/v1/tasks/{seeded_task_defs['T1'].id}/submit",
+        json=_INTEREST,
+        headers=jet.headers,
+    )
+    await client.post(
+        f"/api/v1/tasks/{seeded_task_defs['T2'].id}/submit",
+        json=_TICKET,
+        headers=jet.headers,
+    )
 
     jet_rewards = (await client.get("/api/v1/me/rewards", headers=jet.headers)).json()
     out_rewards = (await client.get("/api/v1/me/rewards", headers=out.headers)).json()

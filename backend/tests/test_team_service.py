@@ -10,7 +10,9 @@ from backend.services.team import (
 from backend.services.user import upsert_user_by_email
 
 
-async def test_create_led_team_sets_name_and_topic(session: AsyncSession) -> None:
+async def test_create_led_team_sets_name_and_topic(
+    session: AsyncSession,
+) -> None:
     user = await upsert_user_by_email(session, email="jet@example.com")
     user.zh_name = "簡傑特"
     await session.flush()
@@ -24,7 +26,9 @@ async def test_create_led_team_sets_name_and_topic(session: AsyncSession) -> Non
     assert team.leader_id == user.id
 
 
-async def test_row_to_contract_team_as_leader_sees_requests(session: AsyncSession) -> None:
+async def test_row_to_contract_team_as_leader_sees_requests(
+    session: AsyncSession,
+) -> None:
     user = await upsert_user_by_email(session, email="jet@example.com")
     await session.flush()
     team = await create_led_team(session, user)
@@ -35,7 +39,9 @@ async def test_row_to_contract_team_as_leader_sees_requests(session: AsyncSessio
     assert contract.requests == []  # leader sees empty list, not None
 
 
-async def test_row_to_contract_team_as_outsider_hides_requests(session: AsyncSession) -> None:
+async def test_row_to_contract_team_as_outsider_hides_requests(
+    session: AsyncSession,
+) -> None:
     leader = await upsert_user_by_email(session, email="leader@example.com")
     outsider = await upsert_user_by_email(session, email="out@example.com")
     await session.flush()
@@ -61,7 +67,9 @@ async def test_row_to_contract_team_as_member(session: AsyncSession) -> None:
     assert any(m.id == member.id for m in contract.members)
 
 
-async def test_search_team_refs_filters_by_leader_display_id(session: AsyncSession) -> None:
+async def test_search_team_refs_filters_by_leader_display_id(
+    session: AsyncSession,
+) -> None:
     jet = await upsert_user_by_email(session, email="jet@example.com")
     jet.zh_name = "簡傑特"
     wei = await upsert_user_by_email(session, email="wei@example.com")
@@ -72,13 +80,20 @@ async def test_search_team_refs_filters_by_leader_display_id(session: AsyncSessi
     await session.commit()
 
     page = await search_team_refs(
-        session, q=None, topic=None, leader_display_id=jet.display_id, cursor=None, limit=20
+        session,
+        q=None,
+        topic=None,
+        leader_display_id=jet.display_id,
+        cursor=None,
+        limit=20,
     )
     assert len(page.items) == 1
     assert page.items[0].leader.id == jet.id
 
 
-async def test_search_team_refs_filters_by_q_on_name(session: AsyncSession) -> None:
+async def test_search_team_refs_filters_by_q_on_name(
+    session: AsyncSession,
+) -> None:
     """q does an ILIKE match against name OR alias."""
     jet = await upsert_user_by_email(session, email="jet@example.com")
     jet.zh_name = "簡傑特"
@@ -92,12 +107,22 @@ async def test_search_team_refs_filters_by_q_on_name(session: AsyncSession) -> N
     await session.commit()
 
     by_name = await search_team_refs(
-        session, q="簡傑特", topic=None, leader_display_id=None, cursor=None, limit=20
+        session,
+        q="簡傑特",
+        topic=None,
+        leader_display_id=None,
+        cursor=None,
+        limit=20,
     )
     assert [t.id for t in by_name.items] == [jet_team.id]
 
     by_alias = await search_team_refs(
-        session, q="金富有", topic=None, leader_display_id=None, cursor=None, limit=20
+        session,
+        q="金富有",
+        topic=None,
+        leader_display_id=None,
+        cursor=None,
+        limit=20,
     )
     assert [t.id for t in by_alias.items] == [jet_team.id]
 
@@ -114,7 +139,12 @@ async def test_search_team_refs_filters_by_topic(session: AsyncSession) -> None:
     await session.commit()
 
     page = await search_team_refs(
-        session, q=None, topic="長者陪伴", leader_display_id=None, cursor=None, limit=20
+        session,
+        q=None,
+        topic="長者陪伴",
+        leader_display_id=None,
+        cursor=None,
+        limit=20,
     )
     assert [t.id for t in page.items] == [jet_team.id]
 

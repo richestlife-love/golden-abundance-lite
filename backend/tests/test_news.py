@@ -37,9 +37,7 @@ async def _seed(session: AsyncSession) -> list[NewsItemRow]:
     return items
 
 
-async def test_news_pinned_first(
-    client: AsyncClient, session: AsyncSession
-) -> None:
+async def test_news_pinned_first(client: AsyncClient, session: AsyncSession) -> None:
     await _seed(session)
     h = await sign_in(client, "jet@example.com")
     response = await client.get("/api/v1/news", headers=h)
@@ -50,9 +48,7 @@ async def test_news_pinned_first(
     assert [it["title"] for it in items[1:3]] == ["B", "C"]
 
 
-async def test_news_cursor_pagination(
-    client: AsyncClient, session: AsyncSession
-) -> None:
+async def test_news_cursor_pagination(client: AsyncClient, session: AsyncSession) -> None:
     await _seed(session)
     h = await sign_in(client, "jet@example.com")
     first = await client.get("/api/v1/news?limit=2", headers=h)
@@ -60,9 +56,7 @@ async def test_news_cursor_pagination(
     assert len(data["items"]) == 2
     assert data["next_cursor"] is not None
 
-    second = await client.get(
-        f"/api/v1/news?limit=2&cursor={data['next_cursor']}", headers=h
-    )
+    second = await client.get(f"/api/v1/news?limit=2&cursor={data['next_cursor']}", headers=h)
     assert second.status_code == 200
     tail = second.json()["items"]
     assert [it["title"] for it in tail] == ["C"]
@@ -90,29 +84,32 @@ async def test_news_empty_returns_empty_items(client: AsyncClient) -> None:
     assert data["next_cursor"] is None
 
 
-async def test_news_cursor_terminal_page_next_cursor_is_none(
-    client: AsyncClient, session: AsyncSession
-) -> None:
+async def test_news_cursor_terminal_page_next_cursor_is_none(client: AsyncClient, session: AsyncSession) -> None:
     """On the last page, next_cursor must be null."""
     from backend.db.models import NewsItemRow
 
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     for i in range(3):
-        session.add(NewsItemRow(
-            title=f"News {i}",
-            body=f"body {i}",
-            pinned=False,
-            category="活動",
-            published_at=datetime(2026, 4, 10 + i, tzinfo=timezone.utc),
-        ))
+        session.add(
+            NewsItemRow(
+                title=f"News {i}",
+                body=f"body {i}",
+                pinned=False,
+                category="活動",
+                published_at=datetime(2026, 4, 10 + i, tzinfo=timezone.utc),
+            )
+        )
     await session.commit()
 
     first = (await client.get("/api/v1/news?limit=2", headers=jet.headers)).json()
     assert len(first["items"]) == 2
     assert first["next_cursor"] is not None
 
-    second = (await client.get(
-        f"/api/v1/news?limit=2&cursor={first['next_cursor']}", headers=jet.headers
-    )).json()
+    second = (
+        await client.get(
+            f"/api/v1/news?limit=2&cursor={first['next_cursor']}",
+            headers=jet.headers,
+        )
+    ).json()
     assert len(second["items"]) == 1
     assert second["next_cursor"] is None

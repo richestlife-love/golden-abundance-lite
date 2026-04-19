@@ -20,7 +20,9 @@ async def test_google_sign_in_creates_user(client: AsyncClient, session: AsyncSe
     assert result.scalar_one() is not None
 
 
-async def test_google_sign_in_is_idempotent_for_existing_email(client: AsyncClient) -> None:
+async def test_google_sign_in_is_idempotent_for_existing_email(
+    client: AsyncClient,
+) -> None:
     r1 = await client.post("/api/v1/auth/google", json={"id_token": "same@example.com"})
     r2 = await client.post("/api/v1/auth/google", json={"id_token": "same@example.com"})
     assert r1.status_code == 200 and r2.status_code == 200
@@ -32,12 +34,16 @@ async def test_google_sign_in_rejects_empty_token(client: AsyncClient) -> None:
     assert response.status_code == 401
 
 
-async def test_google_sign_in_rejects_bad_token_shape(client: AsyncClient) -> None:
+async def test_google_sign_in_rejects_bad_token_shape(
+    client: AsyncClient,
+) -> None:
     response = await client.post("/api/v1/auth/google", json={"id_token": "not-an-email"})
     assert response.status_code == 401
 
 
-async def test_logout_returns_204_with_valid_bearer(client: AsyncClient) -> None:
+async def test_logout_returns_204_with_valid_bearer(
+    client: AsyncClient,
+) -> None:
     sign_in = await client.post("/api/v1/auth/google", json={"id_token": "jet@example.com"})
     token = sign_in.json()["access_token"]
     response = await client.post("/api/v1/auth/logout", headers={"Authorization": f"Bearer {token}"})
@@ -49,7 +55,9 @@ async def test_logout_401_without_bearer(client: AsyncClient) -> None:
     assert response.status_code == 401
 
 
-async def test_sign_in_case_variations_are_same_user(client: AsyncClient) -> None:
+async def test_sign_in_case_variations_are_same_user(
+    client: AsyncClient,
+) -> None:
     """Email case must not split into two accounts — classic hijack vector."""
     r1 = await client.post("/api/v1/auth/google", json={"id_token": "jet@example.com"})
     r2 = await client.post("/api/v1/auth/google", json={"id_token": "Jet@Example.COM"})
@@ -77,7 +85,9 @@ async def test_logout_is_idempotent(client: AsyncClient) -> None:
     assert r2.status_code == 204
 
 
-async def test_auth_response_expires_in_matches_token_exp(client: AsyncClient) -> None:
+async def test_auth_response_expires_in_matches_token_exp(
+    client: AsyncClient,
+) -> None:
     from backend.auth.jwt import decode_token
 
     r = await client.post("/api/v1/auth/google", json={"id_token": "jet@example.com"})

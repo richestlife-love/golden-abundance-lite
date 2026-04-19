@@ -13,11 +13,13 @@ _INTEREST = {
 }
 
 
-async def test_rank_users_sorts_by_points_desc(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_rank_users_sorts_by_points_desc(client: AsyncClient, seeded_task_defs) -> None:
     h_jet, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
-    await client.post(f"/api/v1/tasks/{seeded_task_defs['T1'].id}/submit", json=_INTEREST, headers=h_jet)
+    await client.post(
+        f"/api/v1/tasks/{seeded_task_defs['T1'].id}/submit",
+        json=_INTEREST,
+        headers=h_jet,
+    )
     await sign_in_and_complete(client, "wei@example.com", "偉")
 
     response = await client.get("/api/v1/rank/users?period=all_time", headers=h_jet)
@@ -37,9 +39,7 @@ async def test_rank_users_over_max_limit_422(client: AsyncClient, seeded_task_de
     assert response.status_code == 422
 
 
-async def test_rank_teams_zero_when_no_completions(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_rank_teams_zero_when_no_completions(client: AsyncClient, seeded_task_defs) -> None:
     h, *_ = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     response = await client.get("/api/v1/rank/teams", headers=h)
     assert response.status_code == 200
@@ -48,9 +48,7 @@ async def test_rank_teams_zero_when_no_completions(
     assert items[0]["points"] == 0
 
 
-async def test_rank_users_cursor_walks_to_end(
-    client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_rank_users_cursor_walks_to_end(client: AsyncClient, seeded_task_defs) -> None:
     h1, *_ = await sign_in_and_complete(client, "a@example.com", "A")
     await sign_in_and_complete(client, "b@example.com", "B")
     await sign_in_and_complete(client, "c@example.com", "C")
@@ -85,21 +83,19 @@ async def test_rank_users_week_filters_out_old_completions(
     from backend.db.models import TaskProgressRow
 
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
-    session.add(TaskProgressRow(  # ty: ignore[missing-argument]
-        user_id=jet.user_id,
-        task_def_id=seeded_task_defs["T1"].id,
-        status="completed",
-        progress=1.0,
-        completed_at=datetime.now(timezone.utc) - timedelta(days=10),
-    ))
+    session.add(
+        TaskProgressRow(  # ty: ignore[missing-argument]
+            user_id=jet.user_id,
+            task_def_id=seeded_task_defs["T1"].id,
+            status="completed",
+            progress=1.0,
+            completed_at=datetime.now(timezone.utc) - timedelta(days=10),
+        )
+    )
     await session.commit()
 
-    week = (await client.get(
-        "/api/v1/rank/users?period=week", headers=jet.headers
-    )).json()
-    all_time = (await client.get(
-        "/api/v1/rank/users?period=all_time", headers=jet.headers
-    )).json()
+    week = (await client.get("/api/v1/rank/users?period=week", headers=jet.headers)).json()
+    all_time = (await client.get("/api/v1/rank/users?period=all_time", headers=jet.headers)).json()
 
     jet_week = next(i for i in week["items"] if i["user"]["id"] == str(jet.user_id))
     jet_all = next(i for i in all_time["items"] if i["user"]["id"] == str(jet.user_id))
@@ -108,34 +104,36 @@ async def test_rank_users_week_filters_out_old_completions(
     assert jet_all["week_points"] == 0
 
 
-async def test_rank_users_garbage_cursor_returns_400(client: AsyncClient) -> None:
+async def test_rank_users_garbage_cursor_returns_400(
+    client: AsyncClient,
+) -> None:
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
-    r = await client.get(
-        "/api/v1/rank/users?cursor=not-a-real-cursor", headers=jet.headers
-    )
+    r = await client.get("/api/v1/rank/users?cursor=not-a-real-cursor", headers=jet.headers)
     assert r.status_code == 400
 
 
-async def test_rank_users_wrong_shape_cursor_returns_400(client: AsyncClient) -> None:
+async def test_rank_users_wrong_shape_cursor_returns_400(
+    client: AsyncClient,
+) -> None:
     """A cursor whose payload shape is wrong must 400, not 500."""
     from backend.services.pagination import encode_cursor
+
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     wrong = encode_cursor([True, "2026-04-18T00:00:00+00:00", "not-a-uuid"])
-    r = await client.get(
-        f"/api/v1/rank/users?cursor={wrong}", headers=jet.headers
-    )
+    r = await client.get(f"/api/v1/rank/users?cursor={wrong}", headers=jet.headers)
     assert r.status_code == 400
 
 
-async def test_rank_users_ties_break_by_user_id(
-    session: AsyncSession, client: AsyncClient, seeded_task_defs
-) -> None:
+async def test_rank_users_ties_break_by_user_id(session: AsyncSession, client: AsyncClient, seeded_task_defs) -> None:
     """Users with equal points must sort deterministically by str(id) ascending."""
     a = await sign_in_and_complete(client, "a@example.com", "A")
     b = await sign_in_and_complete(client, "b@example.com", "B")
     for u in (a, b):
-        await client.post(f"/api/v1/tasks/{seeded_task_defs['T1'].id}/submit",
-                          json=_INTEREST, headers=u.headers)
+        await client.post(
+            f"/api/v1/tasks/{seeded_task_defs['T1'].id}/submit",
+            json=_INTEREST,
+            headers=u.headers,
+        )
     data = (await client.get("/api/v1/rank/users?period=all_time", headers=a.headers)).json()
     ids = [i["user"]["id"] for i in data["items"]]
     assert ids == sorted(ids)

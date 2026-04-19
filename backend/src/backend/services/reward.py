@@ -7,9 +7,7 @@ from backend.contract import Reward as ContractReward
 from backend.db.models import RewardRow, TaskDefRow, UserRow
 
 
-async def create_reward_if_bonus(
-    session: AsyncSession, *, user: UserRow, task_def: TaskDefRow
-) -> RewardRow | None:
+async def create_reward_if_bonus(session: AsyncSession, *, user: UserRow, task_def: TaskDefRow) -> RewardRow | None:
     if task_def.bonus is None:
         return None
     row = RewardRow(  # ty: ignore[missing-argument]
@@ -37,14 +35,16 @@ def row_to_contract_reward(row: RewardRow) -> ContractReward:
     )
 
 
-async def list_rewards_for(
-    session: AsyncSession, user: UserRow
-) -> list[ContractReward]:
+async def list_rewards_for(session: AsyncSession, user: UserRow) -> list[ContractReward]:
     rows = (
-        await session.execute(
-            select(RewardRow)
-            .where(RewardRow.user_id == user.id)  # ty: ignore[invalid-argument-type]
-            .order_by(RewardRow.earned_at.desc())  # ty: ignore[unresolved-attribute]
+        (
+            await session.execute(
+                select(RewardRow)
+                .where(RewardRow.user_id == user.id)  # ty: ignore[invalid-argument-type]
+                .order_by(RewardRow.earned_at.desc())  # ty: ignore[unresolved-attribute]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return [row_to_contract_reward(r) for r in rows]

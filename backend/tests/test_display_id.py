@@ -2,7 +2,10 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.db.models import UserRow
-from backend.services.display_id import generate_team_display_id, generate_user_display_id
+from backend.services.display_id import (
+    generate_team_display_id,
+    generate_user_display_id,
+)
 
 
 async def test_user_display_id_from_email(session: AsyncSession) -> None:

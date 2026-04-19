@@ -31,9 +31,7 @@ async def sign_in(client: AsyncClient, email: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {r.json()['access_token']}"}
 
 
-async def sign_in_and_complete(
-    client: AsyncClient, email: str, zh_name: str = "X"
-) -> SignedInUser:
+async def sign_in_and_complete(client: AsyncClient, email: str, zh_name: str = "X") -> SignedInUser:
     """Sign in + complete profile (auto-creates led team). Returns
     headers, user_id, and the auto-created led_team_id."""
     headers = await sign_in(client, email)

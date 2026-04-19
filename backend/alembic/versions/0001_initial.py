@@ -35,11 +35,20 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_news_items_pinned"), "news_items", ["pinned"], unique=False)
-    op.create_index(op.f("ix_news_items_published_at"), "news_items", ["published_at"], unique=False)
+    op.create_index(
+        op.f("ix_news_items_published_at"),
+        "news_items",
+        ["published_at"],
+        unique=False,
+    )
     op.create_table(
         "task_defs",
         sa.Column("id", sa.Uuid(), nullable=False),
-        sa.Column("display_id", sqlmodel.sql.sqltypes.AutoString(length=16), nullable=False),
+        sa.Column(
+            "display_id",
+            sqlmodel.sql.sqltypes.AutoString(length=16),
+            nullable=False,
+        ),
         sa.Column("title", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("summary", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("description", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
@@ -55,12 +64,25 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_task_defs_display_id"), "task_defs", ["display_id"], unique=True)
+    op.create_index(
+        op.f("ix_task_defs_display_id"),
+        "task_defs",
+        ["display_id"],
+        unique=True,
+    )
     op.create_table(
         "users",
         sa.Column("id", sa.Uuid(), nullable=False),
-        sa.Column("display_id", sqlmodel.sql.sqltypes.AutoString(length=16), nullable=False),
-        sa.Column("email", sqlmodel.sql.sqltypes.AutoString(length=320), nullable=False),
+        sa.Column(
+            "display_id",
+            sqlmodel.sql.sqltypes.AutoString(length=16),
+            nullable=False,
+        ),
+        sa.Column(
+            "email",
+            sqlmodel.sql.sqltypes.AutoString(length=320),
+            nullable=False,
+        ),
         sa.Column("zh_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.Column("en_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.Column("nickname", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
@@ -134,8 +156,18 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("user_id", "task_def_id", name="uq_progress_user_task"),
     )
-    op.create_index(op.f("ix_task_progress_task_def_id"), "task_progress", ["task_def_id"], unique=False)
-    op.create_index(op.f("ix_task_progress_user_id"), "task_progress", ["user_id"], unique=False)
+    op.create_index(
+        op.f("ix_task_progress_task_def_id"),
+        "task_progress",
+        ["task_def_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_task_progress_user_id"),
+        "task_progress",
+        ["user_id"],
+        unique=False,
+    )
     op.create_table(
         "task_step_defs",
         sa.Column("id", sa.Uuid(), nullable=False),
@@ -149,11 +181,20 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("task_def_id", "order", name="uq_step_order"),
     )
-    op.create_index(op.f("ix_task_step_defs_task_def_id"), "task_step_defs", ["task_def_id"], unique=False)
+    op.create_index(
+        op.f("ix_task_step_defs_task_def_id"),
+        "task_step_defs",
+        ["task_def_id"],
+        unique=False,
+    )
     op.create_table(
         "teams",
         sa.Column("id", sa.Uuid(), nullable=False),
-        sa.Column("display_id", sqlmodel.sql.sqltypes.AutoString(length=16), nullable=False),
+        sa.Column(
+            "display_id",
+            sqlmodel.sql.sqltypes.AutoString(length=16),
+            nullable=False,
+        ),
         sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("alias", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.Column("topic", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
@@ -187,8 +228,18 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_join_requests_team_id"), "join_requests", ["team_id"], unique=False)
-    op.create_index(op.f("ix_join_requests_user_id"), "join_requests", ["user_id"], unique=False)
+    op.create_index(
+        op.f("ix_join_requests_team_id"),
+        "join_requests",
+        ["team_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_join_requests_user_id"),
+        "join_requests",
+        ["user_id"],
+        unique=False,
+    )
     op.create_table(
         "task_step_progress",
         sa.Column("id", sa.Uuid(), nullable=False),
@@ -206,8 +257,18 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("user_id", "step_id", name="uq_step_progress_user_step"),
     )
-    op.create_index(op.f("ix_task_step_progress_step_id"), "task_step_progress", ["step_id"], unique=False)
-    op.create_index(op.f("ix_task_step_progress_user_id"), "task_step_progress", ["user_id"], unique=False)
+    op.create_index(
+        op.f("ix_task_step_progress_step_id"),
+        "task_step_progress",
+        ["step_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_task_step_progress_user_id"),
+        "task_step_progress",
+        ["user_id"],
+        unique=False,
+    )
     op.create_table(
         "team_memberships",
         sa.Column("team_id", sa.Uuid(), nullable=False),

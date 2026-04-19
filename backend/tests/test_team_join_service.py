@@ -32,13 +32,17 @@ async def test_create_join_request_happy_path(session: AsyncSession) -> None:
     assert req.user_id == outsider.id
 
 
-async def test_create_join_request_rejects_self_leader(session: AsyncSession) -> None:
+async def test_create_join_request_rejects_self_leader(
+    session: AsyncSession,
+) -> None:
     leader, _, team = await _make_leader_and_outsider(session)
     with pytest.raises(JoinConflict):
         await create_join_request(session, team=team, requester=leader)
 
 
-async def test_create_join_request_rejects_duplicate_pending(session: AsyncSession) -> None:
+async def test_create_join_request_rejects_duplicate_pending(
+    session: AsyncSession,
+) -> None:
     _, outsider, team = await _make_leader_and_outsider(session)
     await create_join_request(session, team=team, requester=outsider)
     await session.commit()
@@ -59,7 +63,9 @@ async def test_create_join_request_rejects_if_already_joined_elsewhere(
         await create_join_request(session, team=team, requester=outsider)
 
 
-async def test_approve_moves_requester_to_members(session: AsyncSession) -> None:
+async def test_approve_moves_requester_to_members(
+    session: AsyncSession,
+) -> None:
     _, outsider, team = await _make_leader_and_outsider(session)
     req = await create_join_request(session, team=team, requester=outsider)
     await session.commit()
@@ -67,14 +73,20 @@ async def test_approve_moves_requester_to_members(session: AsyncSession) -> None
     await session.commit()
     assert req.status == "approved"
     links = (
-        await session.execute(
-            select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
+        (
+            await session.execute(
+                select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     assert any(link.user_id == outsider.id for link in links)
 
 
-async def test_reject_marks_status_but_not_member(session: AsyncSession) -> None:
+async def test_reject_marks_status_but_not_member(
+    session: AsyncSession,
+) -> None:
     _, outsider, team = await _make_leader_and_outsider(session)
     req = await create_join_request(session, team=team, requester=outsider)
     await session.commit()
@@ -82,10 +94,14 @@ async def test_reject_marks_status_but_not_member(session: AsyncSession) -> None
     await session.commit()
     assert req.status == "rejected"
     links = (
-        await session.execute(
-            select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
+        (
+            await session.execute(
+                select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     assert links == []
 
 
@@ -96,8 +112,12 @@ async def test_leave_removes_membership(session: AsyncSession) -> None:
     await leave_team(session, team=team, user=outsider)
     await session.commit()
     links = (
-        await session.execute(
-            select(TeamMembershipRow).where(TeamMembershipRow.user_id == outsider.id)  # ty: ignore[invalid-argument-type]
+        (
+            await session.execute(
+                select(TeamMembershipRow).where(TeamMembershipRow.user_id == outsider.id)  # ty: ignore[invalid-argument-type]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     assert links == []

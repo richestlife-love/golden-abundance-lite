@@ -13,7 +13,8 @@ async def test_approve_adds_member(client: AsyncClient) -> None:
     out = await sign_in_and_complete(client, "out@example.com", "外人")
     req = (
         await client.post(
-            f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
+            f"/api/v1/teams/{jet.led_team_id}/join-requests",
+            headers=out.headers,
         )
     ).json()
 
@@ -33,18 +34,19 @@ async def test_team_can_grow_past_cap(client: AsyncClient) -> None:
     # Leader + 6 approved members = 7 > cap (default 6).
     for i in range(6):
         out = await sign_in_and_complete(client, f"m{i}@example.com", f"M{i}")
-        req = (await client.post(
-            f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
-        )).json()
+        req = (
+            await client.post(
+                f"/api/v1/teams/{jet.led_team_id}/join-requests",
+                headers=out.headers,
+            )
+        ).json()
         r = await client.post(
             f"/api/v1/teams/{jet.led_team_id}/join-requests/{req['id']}/approve",
             headers=jet.headers,
         )
         assert r.status_code == 200, f"approve #{i} failed: {r.text}"
 
-    detail = (await client.get(
-        f"/api/v1/teams/{jet.led_team_id}", headers=jet.headers
-    )).json()
+    detail = (await client.get(f"/api/v1/teams/{jet.led_team_id}", headers=jet.headers)).json()
     # 6 members in `members` (leader excluded from the members list).
     assert len(detail["members"]) == 6
 
@@ -54,7 +56,8 @@ async def test_approve_non_leader_403(client: AsyncClient) -> None:
     out = await sign_in_and_complete(client, "out@example.com", "外人")
     req = (
         await client.post(
-            f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
+            f"/api/v1/teams/{jet.led_team_id}/join-requests",
+            headers=out.headers,
         )
     ).json()
     response = await client.post(
@@ -69,7 +72,8 @@ async def test_reject_204(client: AsyncClient) -> None:
     out = await sign_in_and_complete(client, "out@example.com", "外人")
     req = (
         await client.post(
-            f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
+            f"/api/v1/teams/{jet.led_team_id}/join-requests",
+            headers=out.headers,
         )
     ).json()
     response = await client.post(
@@ -84,7 +88,8 @@ async def test_reject_non_leader_403(client: AsyncClient) -> None:
     out = await sign_in_and_complete(client, "out@example.com", "外人")
     req = (
         await client.post(
-            f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
+            f"/api/v1/teams/{jet.led_team_id}/join-requests",
+            headers=out.headers,
         )
     ).json()
     response = await client.post(
@@ -103,9 +108,7 @@ async def test_reject_unknown_team_404(client: AsyncClient) -> None:
     assert r.status_code == 404
 
 
-async def test_approve_grants_challenge_reward_at_cap(
-    client: AsyncClient, session: AsyncSession
-) -> None:
+async def test_approve_grants_challenge_reward_at_cap(client: AsyncClient, session: AsyncSession) -> None:
     """Positive branch of maybe_grant_challenge_rewards.
 
     Seeds a bonused challenge TaskDef with cap=2 (no seeded_task_defs
@@ -137,7 +140,8 @@ async def test_approve_grants_challenge_reward_at_cap(
     out = await sign_in_and_complete(client, "out@example.com", "外人")
     req = (
         await client.post(
-            f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
+            f"/api/v1/teams/{jet.led_team_id}/join-requests",
+            headers=out.headers,
         )
     ).json()
     approve = await client.post(
@@ -148,11 +152,19 @@ async def test_approve_grants_challenge_reward_at_cap(
 
     # Query rewards directly via the DB — GET /me/rewards lands in Phase 5d.
     jet_rewards = (
-        await session.execute(select(RewardRow).where(RewardRow.user_id == jet.user_id))  # ty: ignore[invalid-argument-type]
-    ).scalars().all()
+        (
+            await session.execute(select(RewardRow).where(RewardRow.user_id == jet.user_id))  # ty: ignore[invalid-argument-type]
+        )
+        .scalars()
+        .all()
+    )
     out_rewards = (
-        await session.execute(select(RewardRow).where(RewardRow.user_id == out.user_id))  # ty: ignore[invalid-argument-type]
-    ).scalars().all()
+        (
+            await session.execute(select(RewardRow).where(RewardRow.user_id == out.user_id))  # ty: ignore[invalid-argument-type]
+        )
+        .scalars()
+        .all()
+    )
     assert any(r.bonus == "挑戰紀念章" for r in jet_rewards), jet_rewards
     assert any(r.bonus == "挑戰紀念章" for r in out_rewards), out_rewards
 

@@ -55,7 +55,9 @@ def postgres_container() -> Iterator[PostgresContainer]:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def engine(postgres_container: PostgresContainer) -> AsyncIterator[AsyncEngine]:
+async def engine(
+    postgres_container: PostgresContainer,
+) -> AsyncIterator[AsyncEngine]:
     url = postgres_container.get_connection_url()
 
     with pytest.MonkeyPatch.context() as mp:

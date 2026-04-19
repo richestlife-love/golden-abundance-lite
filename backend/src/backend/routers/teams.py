@@ -74,7 +74,8 @@ async def update_team(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found")
     if team.leader_id != me.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only the team leader can update it"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the team leader can update it",
         )
     for field_name, value in body.model_dump(exclude_unset=True).items():
         setattr(team, field_name, value)
@@ -134,9 +135,7 @@ async def cancel_join_request(
     await session.commit()
 
 
-@router.post(
-    "/{team_id}/join-requests/{req_id}/approve", response_model=ContractTeam
-)
+@router.post("/{team_id}/join-requests/{req_id}/approve", response_model=ContractTeam)
 async def approve_request(
     team_id: UUID,
     req_id: UUID,
@@ -148,7 +147,8 @@ async def approve_request(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found")
     if team.leader_id != me.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only the leader can approve"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the leader can approve",
         )
     req = await session.get(JoinRequestRow, req_id)
     if req is None or req.team_id != team_id:
@@ -174,7 +174,8 @@ async def reject_request(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found")
     if team.leader_id != me.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only the leader can reject"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the leader can reject",
         )
     req = await session.get(JoinRequestRow, req_id)
     if req is None or req.team_id != team_id:
@@ -194,7 +195,8 @@ async def leave(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found")
     if team.leader_id == me.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Leaders cannot leave their own team"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Leaders cannot leave their own team",
         )
     await leave_team(session, team=team, user=me)
     await session.commit()

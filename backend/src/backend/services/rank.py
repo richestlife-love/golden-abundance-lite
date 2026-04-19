@@ -43,7 +43,11 @@ from backend.db.models import (
     TeamRow,
     UserRow,
 )
-from backend.services.pagination import InvalidCursor, decode_cursor, encode_cursor
+from backend.services.pagination import (
+    InvalidCursor,
+    decode_cursor,
+    encode_cursor,
+)
 
 
 def _since(period: RankPeriod) -> datetime | None:
@@ -55,9 +59,7 @@ def _since(period: RankPeriod) -> datetime | None:
     return None
 
 
-async def _user_points_window_and_week(
-    session: AsyncSession, period: RankPeriod
-) -> dict[UUID, tuple[int, int]]:
+async def _user_points_window_and_week(session: AsyncSession, period: RankPeriod) -> dict[UUID, tuple[int, int]]:
     """Return ``{user_id: (window_pts, week_pts)}`` in a single round-trip.
 
     ``window_pts`` sums points earned inside the requested ``period``'s
@@ -122,9 +124,7 @@ def _slice_after_cursor(
             cursor_pts = int(payload["pts"])
             cursor_id_str = str(payload["id"])
         except (KeyError, TypeError, ValueError) as exc:
-            raise InvalidCursor(
-                f"rank cursor missing/invalid pts/id: {exc}"
-            ) from exc
+            raise InvalidCursor(f"rank cursor missing/invalid pts/id: {exc}") from exc
         for idx, (pts, eid) in enumerate(sorted_entries):
             if pts < cursor_pts or (pts == cursor_pts and str(eid) > cursor_id_str):
                 start_idx = idx
@@ -145,10 +145,7 @@ async def leaderboard_users(
 ) -> Paginated[UserRankEntry]:
     pts_by_user = await _user_points_window_and_week(session, period)
 
-    users = {
-        u.id: u
-        for u in (await session.execute(select(UserRow))).scalars().all()
-    }
+    users = {u.id: u for u in (await session.execute(select(UserRow))).scalars().all()}
     all_entries: list[tuple[int, UUID]] = sorted(
         ((pts_by_user.get(uid, (0, 0))[0], uid) for uid in users),
         key=lambda kv: (-kv[0], str(kv[1])),
@@ -200,12 +197,10 @@ async def leaderboard_teams(
         team_member_ids[team_id].append(user_id)
 
     totals: dict[UUID, int] = {
-        tid: sum(pts_by_user.get(uid, (0, 0))[0] for uid in uids)
-        for tid, uids in team_member_ids.items()
+        tid: sum(pts_by_user.get(uid, (0, 0))[0] for uid in uids) for tid, uids in team_member_ids.items()
     }
     week_totals: dict[UUID, int] = {
-        tid: sum(pts_by_user.get(uid, (0, 0))[1] for uid in uids)
-        for tid, uids in team_member_ids.items()
+        tid: sum(pts_by_user.get(uid, (0, 0))[1] for uid in uids) for tid, uids in team_member_ids.items()
     }
 
     all_entries: list[tuple[int, UUID]] = sorted(
@@ -223,7 +218,9 @@ async def leaderboard_teams(
                     UserRow.id.in_([t.leader_id for t in teams])  # ty: ignore[unresolved-attribute]
                 )
             )
-        ).scalars().all()
+        )
+        .scalars()
+        .all()
     }
 
     items: list[TeamRankEntry] = []

@@ -34,13 +34,14 @@ from backend.services.pagination import SortCol, paginate_keyset
 def user_to_ref(row: UserRow) -> ContractUserRef:
     name = row.zh_name or row.nickname or row.email.split("@", 1)[0]
     return ContractUserRef(
-        id=row.id, display_id=row.display_id, name=name, avatar_url=row.avatar_url
+        id=row.id,
+        display_id=row.display_id,
+        name=name,
+        avatar_url=row.avatar_url,
     )
 
 
-async def caller_team_totals(
-    session: AsyncSession, user: UserRow
-) -> tuple[int, int]:
+async def caller_team_totals(session: AsyncSession, user: UserRow) -> tuple[int, int]:
     """Return ``(led_total, joined_total)`` for ``user``.
 
     ``led_total`` is the headcount of the team the user leads (1 leader +
@@ -55,10 +56,14 @@ async def caller_team_totals(
     led_total = 0
     if led is not None:
         led_mems = (
-            await session.execute(
-                select(TeamMembershipRow).where(TeamMembershipRow.team_id == led.id)  # ty: ignore[invalid-argument-type]
+            (
+                await session.execute(
+                    select(TeamMembershipRow).where(TeamMembershipRow.team_id == led.id)  # ty: ignore[invalid-argument-type]
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         led_total = 1 + len(led_mems)
 
     joined_link = (
@@ -69,12 +74,16 @@ async def caller_team_totals(
     joined_total = 0
     if joined_link is not None:
         joined_mems = (
-            await session.execute(
-                select(TeamMembershipRow).where(
-                    TeamMembershipRow.team_id == joined_link.team_id  # ty: ignore[invalid-argument-type]
+            (
+                await session.execute(
+                    select(TeamMembershipRow).where(
+                        TeamMembershipRow.team_id == joined_link.team_id  # ty: ignore[invalid-argument-type]
+                    )
                 )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         joined_total = 1 + len(joined_mems)
 
     return led_total, joined_total
@@ -95,25 +104,31 @@ async def create_led_team(session: AsyncSession, user: UserRow) -> TeamRow:
     return team
 
 
-async def row_to_contract_team(
-    session: AsyncSession, team: TeamRow, *, caller_id: UUID
-) -> ContractTeam:
+async def row_to_contract_team(session: AsyncSession, team: TeamRow, *, caller_id: UUID) -> ContractTeam:
     leader = await session.get(UserRow, team.leader_id)
     assert leader is not None  # FK-guaranteed
 
     memberships = (
-        await session.execute(
-            select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
+        (
+            await session.execute(
+                select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     member_user_ids = [m.user_id for m in memberships]
     members: list[ContractUserRef] = []
     if member_user_ids:
         member_rows = (
-            await session.execute(
-                select(UserRow).where(UserRow.id.in_(member_user_ids))  # ty: ignore[unresolved-attribute]
+            (
+                await session.execute(
+                    select(UserRow).where(UserRow.id.in_(member_user_ids))  # ty: ignore[unresolved-attribute]
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         members = [user_to_ref(u) for u in member_rows]
 
     if caller_id == team.leader_id:
@@ -126,13 +141,17 @@ async def row_to_contract_team(
     requests: list[ContractJoinRequest] | None
     if role == "leader":
         join_rows = (
-            await session.execute(
-                select(JoinRequestRow)
-                .where(JoinRequestRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
-                .where(JoinRequestRow.status == "pending")  # ty: ignore[invalid-argument-type]
-                .order_by(JoinRequestRow.requested_at.asc())  # ty: ignore[unresolved-attribute]
+            (
+                await session.execute(
+                    select(JoinRequestRow)
+                    .where(JoinRequestRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
+                    .where(JoinRequestRow.status == "pending")  # ty: ignore[invalid-argument-type]
+                    .order_by(JoinRequestRow.requested_at.asc())  # ty: ignore[unresolved-attribute]
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         requests = []
         for jr in join_rows:
             requester = await session.get(UserRow, jr.user_id)
@@ -218,9 +237,7 @@ class JoinConflict(Exception):
     """Business-rule violation during join-request creation."""
 
 
-async def create_join_request(
-    session: AsyncSession, *, team: TeamRow, requester: UserRow
-) -> JoinRequestRow:
+async def create_join_request(session: AsyncSession, *, team: TeamRow, requester: UserRow) -> JoinRequestRow:
     if team.leader_id == requester.id:
         raise JoinConflict("Leaders cannot request to join their own team")
 
@@ -262,9 +279,7 @@ async def create_join_request(
     return req
 
 
-async def approve_join_request(
-    session: AsyncSession, *, team: TeamRow, req: JoinRequestRow
-) -> None:
+async def approve_join_request(session: AsyncSession, *, team: TeamRow, req: JoinRequestRow) -> None:
     req.status = "approved"
     session.add(req)
     session.add(TeamMembershipRow(team_id=team.id, user_id=req.user_id))  # ty: ignore[missing-argument]
@@ -273,21 +288,29 @@ async def approve_join_request(
     # Skip the reward cascade when no bonused challenges exist —
     # default seed has no bonuses, saving an N+1 per approval.
     challenge_defs = (
-        await session.execute(
-            select(TaskDefRow)
-            .where(TaskDefRow.is_challenge.is_(True))  # ty: ignore[unresolved-attribute]
-            .where(TaskDefRow.bonus.is_not(None))  # ty: ignore[unresolved-attribute]
+        (
+            await session.execute(
+                select(TaskDefRow)
+                .where(TaskDefRow.is_challenge.is_(True))  # ty: ignore[unresolved-attribute]
+                .where(TaskDefRow.bonus.is_not(None))  # ty: ignore[unresolved-attribute]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     if not challenge_defs:
         return
 
     # Post-flush: query includes the just-added membership.
     memberships = (
-        await session.execute(
-            select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
+        (
+            await session.execute(
+                select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     member_ids = [team.leader_id] + [row.user_id for row in memberships]
     for uid in member_ids:
         user_row = await session.get(UserRow, uid)
@@ -315,9 +338,7 @@ async def leave_team(session: AsyncSession, *, team: TeamRow, user: UserRow) -> 
         await session.flush()
 
 
-async def maybe_grant_challenge_rewards(
-    session: AsyncSession, *, user: UserRow
-) -> None:
+async def maybe_grant_challenge_rewards(session: AsyncSession, *, user: UserRow) -> None:
     """Create RewardRows for any bonused challenge TaskDef where the user
     now meets cap. Idempotent. No-op when the user has no team
     (total == 0) or no bonused challenges exist.
@@ -328,12 +349,16 @@ async def maybe_grant_challenge_rewards(
     one reward without rolling back either caller's transaction.
     """
     challenge_defs = (
-        await session.execute(
-            select(TaskDefRow)
-            .where(TaskDefRow.is_challenge.is_(True))  # ty: ignore[unresolved-attribute]
-            .where(TaskDefRow.bonus.is_not(None))  # ty: ignore[unresolved-attribute]
+        (
+            await session.execute(
+                select(TaskDefRow)
+                .where(TaskDefRow.is_challenge.is_(True))  # ty: ignore[unresolved-attribute]
+                .where(TaskDefRow.bonus.is_not(None))  # ty: ignore[unresolved-attribute]
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     if not challenge_defs:
         return
 

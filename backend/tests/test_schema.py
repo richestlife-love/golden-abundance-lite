@@ -11,7 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlmodel import SQLModel
 
 
-async def test_migration_produces_every_model_table(engine: AsyncEngine) -> None:
+async def test_migration_produces_every_model_table(
+    engine: AsyncEngine,
+) -> None:
     expected = {t.name for t in SQLModel.metadata.sorted_tables}
     async with engine.connect() as c:
         rows = await c.execute(text("SELECT tablename FROM pg_tables WHERE schemaname='public'"))

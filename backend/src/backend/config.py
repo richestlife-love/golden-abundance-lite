@@ -33,7 +33,12 @@ class Settings(BaseSettings):
     )
     jwt_secret: str = Field(default=_DEV_JWT_SECRET, min_length=32)
     jwt_ttl_seconds: int = Field(default=86400, ge=60)
-    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173", "http://localhost:8000"])
+    cors_origins: list[str] = Field(
+        default_factory=lambda: [
+            "http://localhost:5173",
+            "http://localhost:8000",
+        ]
+    )
 
     @field_validator("cors_origins", mode="before")
     @classmethod

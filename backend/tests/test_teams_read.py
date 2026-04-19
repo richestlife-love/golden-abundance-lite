@@ -15,7 +15,9 @@ async def test_list_teams_returns_all(client: AsyncClient) -> None:
     assert len(data["items"]) == 2
 
 
-async def test_list_teams_filters_by_leader_display_id(client: AsyncClient) -> None:
+async def test_list_teams_filters_by_leader_display_id(
+    client: AsyncClient,
+) -> None:
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     me_response = await client.get("/api/v1/me", headers=jet.headers)
     jet_display_id = me_response.json()["display_id"]
@@ -29,7 +31,9 @@ async def test_list_teams_filters_by_leader_display_id(client: AsyncClient) -> N
     assert len(response.json()["items"]) == 1
 
 
-async def test_team_detail_leader_sees_empty_requests_list(client: AsyncClient) -> None:
+async def test_team_detail_leader_sees_empty_requests_list(
+    client: AsyncClient,
+) -> None:
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
 
     response = await client.get(f"/api/v1/teams/{jet.led_team_id}", headers=jet.headers)
@@ -38,7 +42,9 @@ async def test_team_detail_leader_sees_empty_requests_list(client: AsyncClient) 
     assert response.json()["requests"] == []
 
 
-async def test_team_detail_outsider_sees_null_requests(client: AsyncClient) -> None:
+async def test_team_detail_outsider_sees_null_requests(
+    client: AsyncClient,
+) -> None:
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     out = await sign_in_and_complete(client, "out@example.com", "外人")
 
@@ -54,21 +60,24 @@ async def test_team_detail_404(client: AsyncClient) -> None:
     assert response.status_code == 404
 
 
-async def test_team_detail_member_sees_null_requests(client: AsyncClient) -> None:
+async def test_team_detail_member_sees_null_requests(
+    client: AsyncClient,
+) -> None:
     """Non-leader members must see `requests = null`, not the pending-request list."""
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     out = await sign_in_and_complete(client, "out@example.com", "外人")
 
-    req = (await client.post(
-        f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
-    )).json()
+    req = (
+        await client.post(
+            f"/api/v1/teams/{jet.led_team_id}/join-requests",
+            headers=out.headers,
+        )
+    ).json()
     await client.post(
         f"/api/v1/teams/{jet.led_team_id}/join-requests/{req['id']}/approve",
         headers=jet.headers,
     )
-    response = await client.get(
-        f"/api/v1/teams/{jet.led_team_id}", headers=out.headers
-    )
+    response = await client.get(f"/api/v1/teams/{jet.led_team_id}", headers=out.headers)
     data = response.json()
     assert data["role"] == "member"
     assert data["requests"] is None
@@ -104,7 +113,5 @@ async def test_list_teams_cursor_walks_to_end(client: AsyncClient) -> None:
 
 async def test_list_teams_malformed_cursor_400(client: AsyncClient) -> None:
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
-    response = await client.get(
-        "/api/v1/teams?cursor=not-a-real-cursor!!!", headers=jet.headers
-    )
+    response = await client.get("/api/v1/teams?cursor=not-a-real-cursor!!!", headers=jet.headers)
     assert response.status_code == 400

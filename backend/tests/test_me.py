@@ -68,12 +68,18 @@ async def test_401_sets_www_authenticate_bearer(client: AsyncClient) -> None:
     assert r.headers.get("WWW-Authenticate") == "Bearer"
 
 
-async def test_me_rejects_jwt_signed_with_wrong_secret(client: AsyncClient) -> None:
+async def test_me_rejects_jwt_signed_with_wrong_secret(
+    client: AsyncClient,
+) -> None:
     """Router-level pin: a syntactically valid HS256 JWT with a wrong key → 401."""
     import jwt as pyjwt
 
     forged = pyjwt.encode(
-        {"sub": "00000000-0000-0000-0000-000000000000", "email": "x@e.com", "exp": 9_999_999_999},
+        {
+            "sub": "00000000-0000-0000-0000-000000000000",
+            "email": "x@e.com",
+            "exp": 9_999_999_999,
+        },
         "attacker-secret-32-bytes-long-padding",
         algorithm="HS256",
     )
@@ -86,7 +92,11 @@ async def test_me_rejects_alg_none_jwt(client: AsyncClient) -> None:
     import jwt as pyjwt
 
     none_alg = pyjwt.encode(
-        {"sub": "00000000-0000-0000-0000-000000000000", "email": "x@e.com", "exp": 9_999_999_999},
+        {
+            "sub": "00000000-0000-0000-0000-000000000000",
+            "email": "x@e.com",
+            "exp": 9_999_999_999,
+        },
         key="",
         algorithm="none",
     )

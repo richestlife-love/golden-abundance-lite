@@ -19,7 +19,9 @@ async def test_upsert_is_idempotent(session: AsyncSession) -> None:
     assert first.id == second.id
 
 
-async def test_row_to_contract_user_derives_name_from_zh_name(session: AsyncSession) -> None:
+async def test_row_to_contract_user_derives_name_from_zh_name(
+    session: AsyncSession,
+) -> None:
     user = await upsert_user_by_email(session, email="x@example.com")
     user.zh_name = "簡傑特"
     user.nickname = "Jet"
@@ -27,7 +29,9 @@ async def test_row_to_contract_user_derives_name_from_zh_name(session: AsyncSess
     assert contract.name == "簡傑特"
 
 
-async def test_row_to_contract_user_falls_back_to_nickname(session: AsyncSession) -> None:
+async def test_row_to_contract_user_falls_back_to_nickname(
+    session: AsyncSession,
+) -> None:
     user = await upsert_user_by_email(session, email="y@example.com")
     user.zh_name = None
     user.nickname = "Jet"
@@ -35,13 +39,17 @@ async def test_row_to_contract_user_falls_back_to_nickname(session: AsyncSession
     assert contract.name == "Jet"
 
 
-async def test_row_to_contract_user_falls_back_to_email_local_part(session: AsyncSession) -> None:
+async def test_row_to_contract_user_falls_back_to_email_local_part(
+    session: AsyncSession,
+) -> None:
     user = await upsert_user_by_email(session, email="foo@example.com")
     contract = row_to_contract_user(user)
     assert contract.name == "foo"
 
 
-async def test_row_to_contract_user_treats_empty_strings_as_absent(session: AsyncSession) -> None:
+async def test_row_to_contract_user_treats_empty_strings_as_absent(
+    session: AsyncSession,
+) -> None:
     """Empty ``zh_name``/``nickname`` must fall through to the next option."""
     user = await upsert_user_by_email(session, email="bar@example.com")
     user.zh_name = ""

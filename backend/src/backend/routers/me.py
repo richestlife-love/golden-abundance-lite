@@ -41,7 +41,8 @@ async def complete_profile(
 ) -> MeProfileCreateResponse:
     if me.profile_complete:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Profile already complete."
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Profile already complete.",
         )
     # Atomic: all profile fields + flag + led team, single commit.
     me.zh_name = body.zh_name
@@ -99,11 +100,7 @@ async def get_me_teams(
 
     return MeTeamsResponse(
         led=await row_to_contract_team(session, led_row, caller_id=me.id) if led_row else None,
-        joined=(
-            await row_to_contract_team(session, joined_row, caller_id=me.id)
-            if joined_row
-            else None
-        ),
+        joined=(await row_to_contract_team(session, joined_row, caller_id=me.id) if joined_row else None),
     )
 
 

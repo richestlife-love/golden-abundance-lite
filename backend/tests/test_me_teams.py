@@ -13,7 +13,9 @@ async def test_get_me_teams_led_only_when_fresh(client: AsyncClient) -> None:
     assert data["led"]["role"] == "leader"
 
 
-async def test_get_me_teams_both_null_before_profile(client: AsyncClient) -> None:
+async def test_get_me_teams_both_null_before_profile(
+    client: AsyncClient,
+) -> None:
     headers = await sign_in(client, "noprof@example.com")
     response = await client.get("/api/v1/me/teams", headers=headers)
     assert response.status_code == 200

@@ -29,7 +29,12 @@ def test_decode_rejects_token_signed_with_different_secret() -> None:
     import jwt as pyjwt
 
     forged = pyjwt.encode(
-        {"sub": str(uuid4()), "email": "e@example.com", "iat": 0, "exp": 9_999_999_999},
+        {
+            "sub": str(uuid4()),
+            "email": "e@example.com",
+            "iat": 0,
+            "exp": 9_999_999_999,
+        },
         "attacker-secret-not-ours",
         algorithm="HS256",
     )

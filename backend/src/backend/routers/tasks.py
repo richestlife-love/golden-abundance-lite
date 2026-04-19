@@ -11,7 +11,11 @@ from backend.contract import Task as ContractTask
 from backend.contract import TaskSubmissionResponse
 from backend.db.models import TaskDefRow, UserRow
 from backend.db.session import get_session
-from backend.services.task import TaskSubmitError, row_to_contract_task, submit_task
+from backend.services.task import (
+    TaskSubmitError,
+    row_to_contract_task,
+    submit_task,
+)
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 

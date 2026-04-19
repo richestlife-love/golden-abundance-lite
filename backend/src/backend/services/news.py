@@ -29,9 +29,7 @@ def _row_to_contract(row: NewsItemRow) -> ContractNewsItem:
     )
 
 
-async def list_news(
-    session: AsyncSession, *, cursor: str | None, limit: int
-) -> Paginated[ContractNewsItem]:
+async def list_news(session: AsyncSession, *, cursor: str | None, limit: int) -> Paginated[ContractNewsItem]:
     stmt = select(NewsItemRow)
     page, next_cursor = await paginate_keyset(
         session,

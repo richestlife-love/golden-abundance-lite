@@ -14,18 +14,14 @@ async def test_task_status_todo_by_default(session: AsyncSession, seeded_task_de
     assert task.progress is None
 
 
-async def test_task_status_locked_when_prereq_unmet(
-    session: AsyncSession, seeded_task_defs
-) -> None:
+async def test_task_status_locked_when_prereq_unmet(session: AsyncSession, seeded_task_defs) -> None:
     user = await upsert_user_by_email(session, email="jet@example.com")
     await session.flush()
     task = await row_to_contract_task(session, seeded_task_defs["T2"], caller=user)
     assert task.status == "locked"
 
 
-async def test_task_status_unlocks_when_prereq_completed(
-    session: AsyncSession, seeded_task_defs
-) -> None:
+async def test_task_status_unlocks_when_prereq_completed(session: AsyncSession, seeded_task_defs) -> None:
     user = await upsert_user_by_email(session, email="jet@example.com")
     await session.flush()
     session.add(
@@ -41,18 +37,14 @@ async def test_task_status_unlocks_when_prereq_completed(
     assert task.status == "todo"
 
 
-async def test_task_status_expired_for_past_due(
-    session: AsyncSession, seeded_task_defs
-) -> None:
+async def test_task_status_expired_for_past_due(session: AsyncSession, seeded_task_defs) -> None:
     user = await upsert_user_by_email(session, email="jet@example.com")
     await session.flush()
     task = await row_to_contract_task(session, seeded_task_defs["T4"], caller=user)
     assert task.status == "expired"
 
 
-async def test_challenge_task_computes_team_progress(
-    session: AsyncSession, seeded_task_defs
-) -> None:
+async def test_challenge_task_computes_team_progress(session: AsyncSession, seeded_task_defs) -> None:
     from backend.db.models import TeamMembershipRow
     from backend.services.team import create_led_team
 
@@ -73,9 +65,7 @@ async def test_challenge_task_computes_team_progress(
     assert task.status == "in_progress"
 
 
-async def test_challenge_at_cap_is_completed(
-    session: AsyncSession, seeded_task_defs
-) -> None:
+async def test_challenge_at_cap_is_completed(session: AsyncSession, seeded_task_defs) -> None:
     """When total == cap, status must flip to 'completed' (reward trigger edge)."""
     from backend.db.models import TeamMembershipRow
     from backend.services.team import create_led_team
@@ -96,9 +86,7 @@ async def test_challenge_at_cap_is_completed(
     assert task.status == "completed"
 
 
-async def test_challenge_joined_total_wins_when_higher(
-    session: AsyncSession, seeded_task_defs
-) -> None:
+async def test_challenge_joined_total_wins_when_higher(session: AsyncSession, seeded_task_defs) -> None:
     """Spec §1.3: total = max(led_total, joined_total).
 
     A caller leading a 2-person team but joined to a 5-person team should
@@ -132,9 +120,7 @@ async def test_challenge_joined_total_wins_when_higher(
     assert task.team_progress.total == 5
 
 
-async def test_list_caller_tasks_returns_all(
-    session: AsyncSession, seeded_task_defs
-) -> None:
+async def test_list_caller_tasks_returns_all(session: AsyncSession, seeded_task_defs) -> None:
     user = await upsert_user_by_email(session, email="jet@example.com")
     await session.flush()
     tasks = await list_caller_tasks(session, caller=user)
