@@ -87,16 +87,16 @@ export default function TaskDetailScreen({
   const onCta = () => {
     if (cta.disabled) return;
     if (status === "locked" && unmet.length > 0) {
-      onOpenTask && onOpenTask(unmet[0]);
+      onOpenTask(unmet[0]);
       return;
     }
     // Team task — route to 我的 page for team management
     if (isTeamTask) {
-      onGoMe && onGoMe();
+      onGoMe();
       return;
     }
     // Route to the correct form based on task id
-    onStartTask && onStartTask(t.id);
+    onStartTask(t.id);
   };
 
   const prereqTasks = (t.requires || [])
@@ -551,7 +551,7 @@ export default function TaskDetailScreen({
                   return (
                     <div
                       key={p.id}
-                      onClick={() => onOpenTask && onOpenTask(p.id)}
+                      onClick={() => onOpenTask(p.id)}
                       style={{
                         display: "flex",
                         alignItems: "center",
