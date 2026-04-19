@@ -55,8 +55,9 @@ async def complete_profile(
 
     team = await create_led_team(session, me)
     await session.commit()
-    await session.refresh(me)
-    await session.refresh(team)
+    # No refresh needed: the backend session is configured with
+    # expire_on_commit=False, so `me` and `team` retain their attributes
+    # across the commit boundary.
 
     return MeProfileCreateResponse(
         user=row_to_contract_user(me),

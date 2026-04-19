@@ -26,6 +26,33 @@ async def test_create_join_request_leader_to_own_team_409(client: AsyncClient) -
     assert response.status_code == 409
 
 
+async def test_create_join_request_existing_member_to_same_team_409(
+    client: AsyncClient,
+) -> None:
+    """A user who is already a member of team X cannot post a join-request
+    to team X. Exercises the `existing_membership is not None` branch in
+    `create_join_request`, which the any-team and pending checks don't
+    cover (both fire ahead of it for the same-team case only after a
+    successful approve → leave → rejoin-same-team sequence)."""
+    jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
+    out = await sign_in_and_complete(client, "out@example.com", "外人")
+    req = (
+        await client.post(
+            f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
+        )
+    ).json()
+    await client.post(
+        f"/api/v1/teams/{jet.led_team_id}/join-requests/{req['id']}/approve",
+        headers=jet.headers,
+    )
+    # `out` is now a member of jet's team. Posting another join-request
+    # to the same team should 409.
+    response = await client.post(
+        f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
+    )
+    assert response.status_code == 409
+
+
 async def test_create_join_request_duplicate_pending_409(client: AsyncClient) -> None:
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     out = await sign_in_and_complete(client, "out@example.com", "外人")
@@ -43,6 +70,16 @@ async def test_create_join_request_404_for_unknown_team(client: AsyncClient) -> 
         headers=out.headers,
     )
     assert response.status_code == 404
+
+
+async def test_cancel_unknown_req_404(client: AsyncClient) -> None:
+    """DELETE /join-requests/{unknown} → 404."""
+    jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
+    r = await client.delete(
+        f"/api/v1/teams/{jet.led_team_id}/join-requests/{uuid4()}",
+        headers=jet.headers,
+    )
+    assert r.status_code == 404
 
 
 async def test_cancel_join_request_by_requester(client: AsyncClient) -> None:

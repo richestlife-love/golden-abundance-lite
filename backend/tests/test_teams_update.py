@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from httpx import AsyncClient
 
 from tests.helpers import sign_in_and_complete
@@ -38,3 +40,13 @@ async def test_patch_team_rejects_unknown_field(client: AsyncClient) -> None:
         headers=jet.headers,
     )
     assert r.status_code == 422
+
+
+async def test_patch_unknown_team_404(client: AsyncClient) -> None:
+    jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
+    r = await client.patch(
+        f"/api/v1/teams/{uuid4()}",
+        json={"topic": "x"},
+        headers=jet.headers,
+    )
+    assert r.status_code == 404

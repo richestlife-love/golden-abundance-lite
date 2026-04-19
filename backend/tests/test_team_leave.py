@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from httpx import AsyncClient
 
 from tests.helpers import sign_in_and_complete
@@ -32,3 +34,12 @@ async def test_member_can_leave(client: AsyncClient) -> None:
     # Caller's joined team is now null
     me_teams = await client.get("/api/v1/me/teams", headers=out.headers)
     assert me_teams.json()["joined"] is None
+
+
+async def test_leave_unknown_team_404(client: AsyncClient) -> None:
+    jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
+    r = await client.post(
+        f"/api/v1/teams/{uuid4()}/leave",
+        headers=jet.headers,
+    )
+    assert r.status_code == 404

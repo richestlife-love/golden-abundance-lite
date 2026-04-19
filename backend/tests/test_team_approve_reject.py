@@ -79,6 +79,30 @@ async def test_reject_204(client: AsyncClient) -> None:
     assert response.status_code == 204
 
 
+async def test_reject_non_leader_403(client: AsyncClient) -> None:
+    jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
+    out = await sign_in_and_complete(client, "out@example.com", "外人")
+    req = (
+        await client.post(
+            f"/api/v1/teams/{jet.led_team_id}/join-requests", headers=out.headers
+        )
+    ).json()
+    response = await client.post(
+        f"/api/v1/teams/{jet.led_team_id}/join-requests/{req['id']}/reject",
+        headers=out.headers,
+    )
+    assert response.status_code == 403
+
+
+async def test_reject_unknown_team_404(client: AsyncClient) -> None:
+    jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
+    r = await client.post(
+        f"/api/v1/teams/{uuid4()}/join-requests/{uuid4()}/reject",
+        headers=jet.headers,
+    )
+    assert r.status_code == 404
+
+
 async def test_approve_grants_challenge_reward_at_cap(
     client: AsyncClient, session: AsyncSession
 ) -> None:
@@ -184,16 +208,6 @@ async def test_reject_unknown_req_404(client: AsyncClient) -> None:
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     r = await client.post(
         f"/api/v1/teams/{jet.led_team_id}/join-requests/{uuid4()}/reject",
-        headers=jet.headers,
-    )
-    assert r.status_code == 404
-
-
-async def test_cancel_unknown_req_404(client: AsyncClient) -> None:
-    """DELETE /join-requests/{unknown} → 404."""
-    jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
-    r = await client.delete(
-        f"/api/v1/teams/{jet.led_team_id}/join-requests/{uuid4()}",
         headers=jet.headers,
     )
     assert r.status_code == 404

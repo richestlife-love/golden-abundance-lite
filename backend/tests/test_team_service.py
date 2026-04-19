@@ -78,6 +78,49 @@ async def test_search_team_refs_filters_by_leader_display_id(session: AsyncSessi
     assert page.items[0].leader.id == jet.id
 
 
+async def test_search_team_refs_filters_by_q_on_name(session: AsyncSession) -> None:
+    """q does an ILIKE match against name OR alias."""
+    jet = await upsert_user_by_email(session, email="jet@example.com")
+    jet.zh_name = "簡傑特"
+    wei = await upsert_user_by_email(session, email="wei@example.com")
+    wei.zh_name = "偉"
+    await session.flush()
+    jet_team = await create_led_team(session, jet)
+    jet_team.alias = "金富有小隊"
+    wei_team = await create_led_team(session, wei)
+    wei_team.alias = "完全無關"
+    await session.commit()
+
+    # Name match (default team name contains zh_name + "的團隊")
+    by_name = await search_team_refs(
+        session, q="簡傑特", topic=None, leader_display_id=None, cursor=None, limit=20
+    )
+    assert [t.id for t in by_name.items] == [jet_team.id]
+
+    # Alias match
+    by_alias = await search_team_refs(
+        session, q="金富有", topic=None, leader_display_id=None, cursor=None, limit=20
+    )
+    assert [t.id for t in by_alias.items] == [jet_team.id]
+
+
+async def test_search_team_refs_filters_by_topic(session: AsyncSession) -> None:
+    """topic is an exact-match filter (not ILIKE)."""
+    jet = await upsert_user_by_email(session, email="jet@example.com")
+    wei = await upsert_user_by_email(session, email="wei@example.com")
+    await session.flush()
+    jet_team = await create_led_team(session, jet)
+    jet_team.topic = "長者陪伴"
+    wei_team = await create_led_team(session, wei)
+    wei_team.topic = "社區服務"
+    await session.commit()
+
+    page = await search_team_refs(
+        session, q=None, topic="長者陪伴", leader_display_id=None, cursor=None, limit=20
+    )
+    assert [t.id for t in page.items] == [jet_team.id]
+
+
 async def test_user_to_ref_does_not_leak_pii(session: AsyncSession) -> None:
     """UserRef must not expose email/phone/line_id/etc. to other team members."""
     user = await upsert_user_by_email(session, email="jet@example.com")

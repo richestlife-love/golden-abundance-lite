@@ -56,6 +56,9 @@ async def row_to_contract_team(
     session: AsyncSession, team: TeamRow, *, caller_id: UUID
 ) -> ContractTeam:
     leader = await session.get(UserRow, team.leader_id)
+    # Unreachable under normal operation — teams.leader_id is a non-null
+    # FK to users.id. Defensive raise so a corrupted-DB state surfaces as
+    # a 500 rather than a NoneType attribute error in the mapper below.
     if leader is None:
         raise RuntimeError(
             f"Data integrity: team {team.id} references missing leader {team.leader_id}"
@@ -234,21 +237,30 @@ async def approve_join_request(
     await session.flush()
 
     # Team just grew — reward any user on this team whose challenge-task
-    # cap is now met. Safe no-op today (T3.bonus is None in the seed), but
-    # prevents a silent reward loss if a future challenge ships with a
-    # non-null bonus. Every leader + member's team size went up by 1.
-    member_ids = [team.leader_id, req.user_id] + [
-        row.user_id
-        for row in (
-            await session.execute(
-                select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
-            )
-        ).scalars().all()
-    ]
-    # dedupe while preserving order
-    seen: set = set()
-    unique_member_ids = [uid for uid in member_ids if not (uid in seen or seen.add(uid))]
-    for uid in unique_member_ids:
+    # cap is now met. Short-circuit when no bonused challenges exist (the
+    # default Phase-5 seed: T3.bonus is None) so we skip the per-member
+    # reward cascade entirely instead of burning N × (3–4 SELECTs) per
+    # approval. This keeps the branch ready for when a bonused challenge
+    # does ship, without paying for it today.
+    challenge_defs = (
+        await session.execute(
+            select(TaskDefRow)
+            .where(TaskDefRow.is_challenge.is_(True))  # ty: ignore[unresolved-attribute]
+            .where(TaskDefRow.bonus.is_not(None))  # ty: ignore[unresolved-attribute]
+        )
+    ).scalars().all()
+    if not challenge_defs:
+        return
+
+    # Post-flush: the query returns the just-added membership, so
+    # leader + memberships covers every team member exactly once.
+    memberships = (
+        await session.execute(
+            select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
+        )
+    ).scalars().all()
+    member_ids = [team.leader_id] + [row.user_id for row in memberships]
+    for uid in member_ids:
         user_row = await session.get(UserRow, uid)
         if user_row is not None:
             await maybe_grant_challenge_rewards(session, user=user_row)
