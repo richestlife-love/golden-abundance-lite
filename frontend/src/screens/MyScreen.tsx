@@ -798,7 +798,7 @@ export default function MyScreen({
         {/* Account menu list removed — logout moved to top bar */}
       </div>
 
-      <BottomNav current="me" muted={muted} onNavigate={onNavigate} />
+      <BottomNav muted={muted} />
     </div>
   );
 }

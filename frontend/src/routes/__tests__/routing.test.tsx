@@ -34,3 +34,27 @@ describe("public routes", () => {
     });
   });
 });
+
+describe("authed simple routes", () => {
+  it("renders home at /home when authed + complete", async () => {
+    renderRoute("/home", { seed: "authed-complete" });
+    // BottomNav.tsx:55 renders "首页" (Simplified) — match exactly.
+    await waitFor(() => {
+      expect(screen.getByText("首页")).toBeInTheDocument();
+    });
+  });
+
+  it("redirects guest /home to /", async () => {
+    const { router } = renderRoute("/home");
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/");
+    });
+  });
+
+  it("redirects authed-incomplete /home to /welcome", async () => {
+    const { router } = renderRoute("/home", { seed: "authed-incomplete" });
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/welcome");
+    });
+  });
+});

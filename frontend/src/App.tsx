@@ -23,9 +23,7 @@ import TeamForm from "./screens/TeamForm";
 // ─── App ──────────────────────────────────────────────────────
 function App() {
   const [screen, setScreen] = useState<ScreenId>("landing");
-  const [rewardsFrom, setRewardsFrom] = useState<"home" | "me">("home");
   const navigateTo = (next: ScreenId) => {
-    if (next === "rewards") setRewardsFrom(screen === "me" ? "me" : "home");
     setScreen(next);
   };
   const [user, setUser] = useState<User | null>(null);
@@ -301,19 +299,11 @@ function App() {
           onSubmit={handleProfileUpdate}
         />
       )}
-      {screen === "home" && (
-        <HomeScreen
-          user={user}
-          tasks={tasks}
-          onSignOut={handleSignOut}
-          onNavigate={navigateTo}
-          onOpenTask={openTask}
-        />
-      )}
+      {screen === "home" && <HomeScreen />}
       {screen === "tasks" && (
         <TasksScreen tasks={tasks} onNavigate={setScreen} onOpenTask={openTask} />
       )}
-      {screen === "rank" && <RankScreen user={user} tasks={tasks} onNavigate={setScreen} />}
+      {screen === "rank" && <RankScreen />}
       {screen === "taskDetail" && (
         <TaskDetailScreen
           tasks={tasks}
@@ -355,9 +345,7 @@ function App() {
           onOpenTask={openTask}
         />
       )}
-      {screen === "rewards" && (
-        <RewardsScreen user={user} tasks={tasks} onBack={() => setScreen(rewardsFrom)} />
-      )}
+      {screen === "rewards" && <RewardsScreen />}
       {successData && <FormSuccessOverlay {...successData} onDone={() => setSuccessData(null)} />}
     </div>
   );

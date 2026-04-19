@@ -15,7 +15,7 @@ function WelcomeRoute() {
       }}
       onSubmit={(profile) => {
         handleProfileComplete(profile);
-        navigate({ to: "/home" as never });
+        navigate({ to: "/home" });
       }}
     />
   );
@@ -26,7 +26,7 @@ export const welcomeRoute = createRoute({
   path: "/welcome",
   beforeLoad: ({ context }) => {
     if (!context.auth.user) throw redirect({ to: "/sign-in" });
-    if (context.auth.profileComplete) throw redirect({ to: "/home" as never });
+    if (context.auth.profileComplete) throw redirect({ to: "/home" });
   },
   component: WelcomeRoute,
 });

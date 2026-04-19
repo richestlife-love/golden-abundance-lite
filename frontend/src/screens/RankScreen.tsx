@@ -1,15 +1,10 @@
+import { useAppState } from "../state/AppStateContext";
 import { fs } from "../utils";
 import { useState } from "react";
 import BottomNav from "../ui/BottomNav";
-import type { User, Task, ScreenId } from "../types";
 
-type Props = {
-  user: User | null;
-  tasks: Task[];
-  onNavigate: (screen: ScreenId) => void;
-};
-
-export default function RankScreen({ user, tasks, onNavigate }: Props) {
+export default function RankScreen() {
+  const { user, tasks } = useAppState();
   const bg = "var(--bg)";
   const fg = "var(--fg)";
   const muted = "var(--muted)";
@@ -19,13 +14,13 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
   const [tab, setTab] = useState("personal"); // personal | team | challenge
   const [period, setPeriod] = useState("month"); // week | month | all
 
-  const myPoints = (tasks || [])
+  const myPoints = tasks
     .filter((t) => t.status === "completed")
     .reduce((s, t) => s + t.points, 0);
   const myName = user?.nickname || user?.zhName || user?.name || "你";
 
   // Challenge tasks available for leaderboard
-  const challenges = (tasks || []).filter((t) => t.isChallenge);
+  const challenges = tasks.filter((t) => t.isChallenge);
   const [selectedChallengeId, setSelectedChallengeId] = useState<number | null>(
     challenges[0]?.id ?? null,
   );
@@ -1375,7 +1370,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
         )}
       </div>
 
-      <BottomNav current="rank" muted={muted} onNavigate={onNavigate} />
+      <BottomNav muted={muted} />
     </div>
   );
 }

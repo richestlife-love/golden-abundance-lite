@@ -9,12 +9,15 @@ import { indexRoute } from "./routes/index";
 import { authedRoute } from "./routes/_authed";
 import { signInRoute } from "./routes/sign-in";
 import { welcomeRoute } from "./routes/welcome";
+import { homeRoute } from "./routes/_authed.home";
+import { leaderboardRoute } from "./routes/_authed.leaderboard";
+import { rewardsRoute } from "./routes/_authed.rewards";
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
   signInRoute,
   welcomeRoute,
-  authedRoute.addChildren([]),
+  authedRoute.addChildren([homeRoute, leaderboardRoute, rewardsRoute]),
 ]);
 
 export function createAppRouter(opts?: {

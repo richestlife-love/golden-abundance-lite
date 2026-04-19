@@ -1,21 +1,19 @@
+import { useRouter } from "@tanstack/react-router";
+import { useAppState } from "../state/AppStateContext";
 import { fs } from "../utils";
 import MyRewards from "./MyRewards";
-import type { User, Task } from "../types";
 
-type Props = {
-  user: User | null;
-  tasks: Task[];
-  onBack: () => void;
-};
-
-export default function RewardsScreen({ user, tasks, onBack }: Props) {
+export default function RewardsScreen() {
+  const router = useRouter();
+  const onBack = () => router.history.back();
+  const { user, tasks } = useAppState();
   const bg = "var(--bg)";
   const fg = "var(--fg)";
   const muted = "var(--muted)";
   const cardBg = "#FFFBE6";
   const cardBorder = "1px solid rgba(254,199,1,0.22)";
 
-  const totalPoints = (tasks || [])
+  const totalPoints = tasks
     .filter((t) => t.status === "completed")
     .reduce((s, t) => s + t.points, 0);
   const displayName = user?.nickname || user?.zhName || user?.name || "志工";

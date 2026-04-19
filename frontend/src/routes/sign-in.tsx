@@ -25,7 +25,7 @@ export const signInRoute = createRoute({
   path: "/sign-in",
   beforeLoad: ({ context }) => {
     if (context.auth.user) {
-      throw redirect({ to: context.auth.profileComplete ? ("/home" as never) : "/welcome" });
+      throw redirect({ to: context.auth.profileComplete ? "/home" : "/welcome" });
     }
   },
   component: SignInRoute,

@@ -1,11 +1,14 @@
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { fs } from "../utils";
 import type { ReactNode } from "react";
-import type { ScreenId } from "../types";
 
-type Props = {
-  current: ScreenId;
-  muted: string;
-  onNavigate: (screen: ScreenId) => void;
+type TabKey = "home" | "tasks" | "rank" | "me";
+
+const TAB_TO_PATH: Record<TabKey, string> = {
+  home: "/home",
+  tasks: "/tasks",
+  rank: "/leaderboard",
+  me: "/me",
 };
 
 const iconProps = {
@@ -25,7 +28,6 @@ const HomeIcon = () => (
     <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" />
   </svg>
 );
-
 const TasksIcon = () => (
   <svg {...iconProps}>
     <rect x="6" y="4" width="12" height="17" rx="2" />
@@ -33,7 +35,6 @@ const TasksIcon = () => (
     <path d="M9 12l2 2 4-4" />
   </svg>
 );
-
 const RankIcon = () => (
   <svg {...iconProps}>
     <path d="M7 3h10v4a5 5 0 0 1-10 0V3z" />
@@ -43,7 +44,6 @@ const RankIcon = () => (
     <path d="M8 21h8" />
   </svg>
 );
-
 const MeIcon = () => (
   <svg {...iconProps}>
     <circle cx="12" cy="8" r="4" />
@@ -51,14 +51,16 @@ const MeIcon = () => (
   </svg>
 );
 
-const ITEMS: { key: ScreenId; label: string; icon: ReactNode }[] = [
+const ITEMS: { key: TabKey; label: string; icon: ReactNode }[] = [
   { key: "home", label: "首页", icon: <HomeIcon /> },
   { key: "tasks", label: "任务", icon: <TasksIcon /> },
   { key: "rank", label: "排行", icon: <RankIcon /> },
   { key: "me", label: "我的", icon: <MeIcon /> },
 ];
 
-export default function BottomNav({ current, muted, onNavigate }: Props) {
+export default function BottomNav({ muted }: { muted: string }) {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   return (
     <div
       style={{
@@ -73,14 +75,16 @@ export default function BottomNav({ current, muted, onNavigate }: Props) {
       }}
     >
       {ITEMS.map((n) => {
-        const active = n.key === current;
+        const path = TAB_TO_PATH[n.key];
+        // Active when the current path is the tab's path or a descendant (e.g. /tasks/3 keeps "任务" active).
+        const active = pathname === path || pathname.startsWith(path + "/");
         return (
           <button
             key={n.key}
             type="button"
             aria-label={n.label}
             aria-current={active ? "page" : undefined}
-            onClick={() => onNavigate && onNavigate(n.key)}
+            onClick={() => navigate({ to: path })}
             style={{
               display: "flex",
               flexDirection: "column",

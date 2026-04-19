@@ -272,7 +272,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
         </div>
       </div>
 
-      <BottomNav current="tasks" muted={muted} onNavigate={onNavigate} />
+      <BottomNav muted={muted} />
     </div>
   );
 }
