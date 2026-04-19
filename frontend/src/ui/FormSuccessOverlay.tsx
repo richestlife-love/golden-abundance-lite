@@ -4,7 +4,7 @@ import type { SuccessData } from '../types';
 type Props = SuccessData & { onDone: () => void };
 
 export default function FormSuccessOverlay({
-  color = "#cb9f01",
+  color,
   points,
   bonus,
   title = "任務完成！",

@@ -19,7 +19,6 @@ import TextInput from './ui/TextInput';
 import Textarea from './ui/Textarea';
 import ChipGroup from './ui/ChipGroup';
 import SubmitButton from './ui/SubmitButton';
-import MenuRow from './ui/MenuRow';
 import FormSuccessOverlay from './ui/FormSuccessOverlay';
 
 // ─── Landing screen ───────────────────────────────────────────
