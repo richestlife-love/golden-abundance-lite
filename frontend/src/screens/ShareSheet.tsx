@@ -1,4 +1,5 @@
 import { fs } from "../utils";
+import { useEffect, useRef } from "react";
 import type { Team } from "../types";
 
 type Props = {
@@ -34,6 +35,17 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
   const sheetBg = "#FFFFFF";
   const previewBg = "rgba(254,210,52,0.15)";
 
+  const copyButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKey);
+    copyButtonRef.current?.focus();
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
   return (
     <div
       onClick={onClose}
@@ -49,6 +61,9 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
       }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="分享團隊邀請"
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%",
@@ -117,6 +132,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
             <button
               key={a.key}
               type="button"
+              aria-label={`分享到 ${a.label}`}
               onClick={onCopy}
               title={`分享到 ${a.label}`}
               style={{
@@ -166,6 +182,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
         {/* Copy + close row */}
         <div style={{ display: "flex", gap: 8 }}>
           <button
+            ref={copyButtonRef}
             type="button"
             onClick={onCopy}
             style={{

@@ -173,10 +173,17 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
             filteredTeams.map((team) => {
               const isPending = pendingJoin === team.id;
               return (
-                <div
+                <button
                   key={team.id}
+                  type="button"
+                  aria-pressed={isPending}
+                  aria-label={`選擇團隊 ${team.name}`}
                   onClick={() => setPendingJoin(isPending ? null : team.id)}
                   style={{
+                    color: "inherit",
+                    font: "inherit",
+                    textAlign: "left",
+                    width: "100%",
                     padding: 12,
                     borderRadius: 14,
                     background: isPending
@@ -256,7 +263,7 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
                   >
                     {isPending ? "✓ 已選" : "選擇"}
                   </div>
-                </div>
+                </button>
               );
             })
           )}

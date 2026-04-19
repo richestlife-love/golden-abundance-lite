@@ -107,7 +107,9 @@ export default function HomeScreen({
               金富有 · 志工
             </div>
           </div>
-          <div
+          <button
+            type="button"
+            aria-label="登出"
             onClick={onSignOut}
             title="登出"
             style={{
@@ -123,16 +125,26 @@ export default function HomeScreen({
               fontWeight: 600,
               cursor: "pointer",
               boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+              border: "none",
+              padding: 0,
+              font: "inherit",
             }}
           >
             {(user?.name || "你")[0]}
-          </div>
+          </button>
         </div>
 
         {/* Points card */}
-        <div
+        <button
+          type="button"
+          aria-label="查看獎勵"
           onClick={() => onNavigate("rewards")}
           style={{
+            display: "block",
+            width: "100%",
+            textAlign: "left",
+            font: "inherit",
+            color: "inherit",
             borderRadius: 22,
             background: "linear-gradient(135deg, #FFF9DC 0%, #FFE892 70%, #FFDB5E 100%)",
             border: "1px solid rgba(254,199,1,0.4)",
@@ -430,7 +442,7 @@ export default function HomeScreen({
               </div>
             )}
           </div>
-        </div>
+        </button>
 
         {/* Section header */}
         <div
@@ -444,12 +456,22 @@ export default function HomeScreen({
           }}
         >
           <div style={{ fontSize: fs(16), fontWeight: 700, color: fg }}>探索任务</div>
-          <div
+          <button
+            type="button"
             onClick={() => onNavigate("tasks")}
-            style={{ fontSize: fs(12), color: muted, cursor: "pointer" }}
+            style={{
+              fontSize: fs(12),
+              color: muted,
+              cursor: "pointer",
+              border: "none",
+              background: "transparent",
+              padding: 0,
+              font: "inherit",
+              fontFamily: "inherit",
+            }}
           >
             查看全部 →
-          </div>
+          </button>
         </div>
 
         {/* Tasks — active only on home */}

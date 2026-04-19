@@ -65,9 +65,15 @@ export default function TaskCard({
   const logoColor = status === "expired" ? "#8a82a8" : "#fff";
 
   return (
-    <div
+    <button
+      type="button"
+      aria-label={`開啟任務 ${t.title}`}
       onClick={() => onOpen(t.id)}
       style={{
+        color: "inherit",
+        font: "inherit",
+        textAlign: "left",
+        width: "100%",
         position: "relative",
         padding: "14px 14px",
         borderRadius: 18,
@@ -310,6 +316,6 @@ export default function TaskCard({
           </div>
         )}
       </div>
-    </div>
+    </button>
   );
 }

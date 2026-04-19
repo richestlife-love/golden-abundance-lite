@@ -1180,6 +1180,9 @@ export default function TeamCard({
           }}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="確認退出團隊"
             onClick={(e) => e.stopPropagation()}
             style={{
               width: "100%",

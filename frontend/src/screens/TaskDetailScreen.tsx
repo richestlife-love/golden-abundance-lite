@@ -548,16 +548,23 @@ export default function TaskDetailScreen({
                 {prereqTasks.map((p) => {
                   const done = p.status === "completed";
                   return (
-                    <div
+                    <button
                       key={p.id}
+                      type="button"
+                      aria-label={`開啟前置任務 ${p.title}`}
                       onClick={() => onOpenTask(p.id)}
                       style={{
+                        color: "inherit",
+                        font: "inherit",
+                        textAlign: "left",
+                        width: "100%",
                         display: "flex",
                         alignItems: "center",
                         gap: 10,
                         padding: "8px 10px",
                         borderRadius: 12,
                         background: "rgba(255,255,255,0.5)",
+                        border: "none",
                         cursor: "pointer",
                       }}
                     >
@@ -598,7 +605,7 @@ export default function TaskDetailScreen({
                         {done ? "已完成" : p.status === "in_progress" ? "進行中" : "待開始"}
                       </div>
                       <span style={{ color: muted, fontSize: fs(12) }}>›</span>
-                    </div>
+                    </button>
                   );
                 })}
               </div>

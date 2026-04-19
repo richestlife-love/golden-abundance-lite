@@ -327,9 +327,15 @@ export default function MyScreen({
                 </div>
                 {user?.id && (
                   <span
+                    role="button"
+                    tabIndex={0}
+                    aria-label={userIdCopied ? "已複製用戶 ID" : "點擊複製用戶 ID"}
                     onClick={copyUserId}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") copyUserId(e);
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        copyUserId(e);
+                      }
                     }}
                     title={userIdCopied ? "已複製" : "點擊複製 ID"}
                     style={{

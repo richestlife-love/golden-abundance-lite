@@ -1,5 +1,5 @@
 import { fs } from "../utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Team } from "../types";
 
 type Props = {
@@ -14,6 +14,15 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
   const [value, setValue] = useState(team.alias || "");
   const sheetBg = "#FFFFFF";
   const inputBg = "rgba(254,210,52,0.15)";
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
   return (
     <div
       onClick={onClose}
@@ -29,6 +38,9 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
       }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="設定團隊組名"
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%",

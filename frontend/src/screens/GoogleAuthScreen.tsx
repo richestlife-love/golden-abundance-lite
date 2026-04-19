@@ -121,16 +121,24 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
             }}
           >
             {accounts.map((a) => (
-              <div
+              <button
                 key={a.email}
+                type="button"
+                aria-label={`使用 ${a.name} (${a.email}) 登入`}
                 onClick={() => pickAccount(a)}
                 style={{
+                  color: "inherit",
+                  font: "inherit",
+                  textAlign: "left",
+                  width: "100%",
                   display: "flex",
                   alignItems: "center",
                   gap: 16,
                   padding: "14px 16px",
                   cursor: "pointer",
+                  border: "none",
                   borderBottom: "1px solid #DADCE0",
+                  background: "transparent",
                   transition: "background 0.15s",
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#F8F9FA")}
@@ -169,16 +177,24 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
                     {a.email}
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
-            <div
+            <button
+              type="button"
+              aria-label="使用其他账号登入"
               onClick={useAnother}
               style={{
+                color: "inherit",
+                font: "inherit",
+                textAlign: "left",
+                width: "100%",
                 display: "flex",
                 alignItems: "center",
                 gap: 16,
                 padding: "14px 16px",
                 cursor: "pointer",
+                border: "none",
+                background: "transparent",
                 transition: "background 0.15s",
               }}
               onMouseEnter={(e) => (e.currentTarget.style.background = "#F8F9FA")}
@@ -207,7 +223,7 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
                 </svg>
               </div>
               <div style={{ fontSize: fs(14), color: "#202124" }}>使用其他账号</div>
-            </div>
+            </button>
           </div>
         )}
 
