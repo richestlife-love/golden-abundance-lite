@@ -1,12 +1,14 @@
 # API Contract — Design
 
 - **Date:** 2026-04-19
-- **Phase:** 2 of the prototype-to-production migration plan
+- **Phase:** 2 of the [production launch plan](../../production-launch-plan.md)
 - **Status:** Design approved; ready for implementation planning
 
 ## Overview
 
-Define the wire-format contract between the `frontend/` React app and the forthcoming FastAPI service in `backend/`. The contract is a standalone deliverable — Pydantic models and a human-readable endpoint catalog — produced before the backend is built, so backend work can proceed in parallel with the frontend's Vite/TypeScript migration (Phase 1) without re-negotiating shapes later.
+This spec is the Phase 2 deliverable of the overall [production launch plan](../../production-launch-plan.md). It defines the wire-format contract between the `frontend/` React app and the forthcoming FastAPI service in `backend/` — Pydantic models and a human-readable endpoint catalog — produced before the backend is built, so backend work can proceed in parallel with the frontend's Vite/TypeScript migration (Phase 1) without re-negotiating shapes later.
+
+**Scope narrowed from the plan.** The plan's Phase 2 originally listed "stub FastAPI endpoints returning mock data server-side" alongside the Pydantic models; during brainstorming we narrowed Phase 2 to **contract-only** — no running server — because the user will build the backend in parallel from this spec. A runnable stub, if wanted later, would be an addendum before Phase 5. The plan doc should be updated to match (see §9).
 
 The contract is consumed by:
 
@@ -434,6 +436,7 @@ justfile                         Add recipe: `just contract-validate` →
 - **Notifications.** No push or email endpoints.
 - **Admin surface.** No admin endpoints for managing tasks, news, or users. CMS concerns are deferred.
 
-## 9. Next step
+## 9. Next steps & plan-doc reconciliation
 
-Invoke the `writing-plans` skill to produce an implementation plan for Phase 2 — the ordered set of tasks that produces the files listed in §7.
+1. **Update `docs/production-launch-plan.md` Phase 2** to match the narrowed scope — replace "Stub FastAPI endpoints returning mock data server-side" with a note that a runnable stub was deferred (either to a Phase 2.5 addendum or folded into Phase 5). Keep the Pydantic-models bullet. Keep validation as a `validate_examples.py` smoke test (no running server).
+2. **Invoke the `writing-plans` skill** to produce an implementation plan for Phase 2 — the ordered set of tasks that produces the files listed in §7.
