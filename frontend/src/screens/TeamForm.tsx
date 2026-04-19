@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import FormShell from '../ui/FormShell';
 import FieldLabel from '../ui/FieldLabel';
-import TextInput from '../ui/TextInput';
 import SubmitButton from '../ui/SubmitButton';
 import { MOCK_TEAMS } from '../data';
 import type { Team } from '../types';
