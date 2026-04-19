@@ -1,6 +1,4 @@
-# golden-abundance-lite
-
-Landing page prototype for 金富有志工 (Golden Abundance volunteers).
+# Golden Abundance Lite 金富有志工
 
 React + Babel standalone, rendered in the browser — no build step.
 
@@ -8,7 +6,7 @@ React + Babel standalone, rendered in the browser — no build step.
 
 ```sh
 just serve          # http://localhost:8000
-just serve 3000     # custom port
+just tunnel         # https://subvitalized-occupative-katelyn.ngrok-free.dev
 ```
 
 Requires [`just`](https://github.com/casey/just) and [`uv`](https://github.com/astral-sh/uv).
