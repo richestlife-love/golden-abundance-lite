@@ -3,9 +3,8 @@
 
 import { useState } from 'react';
 import { TASKS } from './data';
-import { getEffectiveStatus } from './utils';
+import type { ScreenId, User, Task, SuccessData, Team } from './types';
 import GlobalStyles from './ui/GlobalStyles';
-import BottomNav from './ui/BottomNav';
 import FormSuccessOverlay from './ui/FormSuccessOverlay';
 import LandingScreen from './screens/LandingScreen';
 import GoogleAuthScreen from './screens/GoogleAuthScreen';
@@ -23,29 +22,29 @@ import TeamForm from './screens/TeamForm';
 
 // ─── App ──────────────────────────────────────────────────────
 function App() {
-  const [screen, setScreen] = useState("landing");
-  const [rewardsFrom, setRewardsFrom] = useState("home");
-  const navigateTo = (next) => {
+  const [screen, setScreen] = useState<ScreenId>("landing");
+  const [rewardsFrom, setRewardsFrom] = useState<"home" | "me">("home");
+  const navigateTo = (next: ScreenId) => {
     if (next === "rewards") setRewardsFrom(screen === "me" ? "me" : "home");
     setScreen(next);
   };
-  const [user, setUser] = useState(null);
-  const [currentTaskId, setCurrentTaskId] = useState(null);
-  const [tasks, setTasks] = useState(TASKS);
-  const [successData, setSuccessData] = useState(null);
-  const [ledTeam, setLedTeam] = useState(null);
-  const [joinedTeam, setJoinedTeam] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [currentTaskId, setCurrentTaskId] = useState<number | null>(null);
+  const [tasks, setTasks] = useState<Task[]>(TASKS);
+  const [successData, setSuccessData] = useState<SuccessData | null>(null);
+  const [ledTeam, setLedTeam] = useState<Team | null>(null);
+  const [joinedTeam, setJoinedTeam] = useState<Team | null>(null);
 
-  const openTask = (id) => {
+  const openTask = (id: number) => {
     setCurrentTaskId(id);
     setScreen("taskDetail");
   };
-  const openTaskForm = (id) => {
+  const openTaskForm = (id: number) => {
     setCurrentTaskId(id);
     setScreen("form");
   };
 
-  const userIdFromEmail = (email) =>
+  const userIdFromEmail = (email: string): string =>
     "U" +
     (email || "guest@x.com")
       .split("@")[0]
@@ -54,17 +53,18 @@ function App() {
       .slice(0, 6)
       .padEnd(4, "0");
 
-  const handleSignIn = (rawUser) => {
+  const handleSignIn = (rawUser: Pick<User, 'email' | 'name' | 'avatar'>) => {
     const uid = userIdFromEmail(rawUser.email);
-    const fullUser = { ...rawUser, id: uid };
+    const fullUser: User = { ...rawUser, id: uid };
     setUser(fullUser);
     // Route new users to profile setup first
     setScreen("profileSetup");
   };
 
-  const handleProfileComplete = (profile) => {
+  const handleProfileComplete = (profile: Partial<User>) => {
     setUser((prev) => {
-      const merged = {
+      if (!prev) return prev;
+      const merged: User = {
         ...prev,
         name: profile.zhName || prev.name,
         zhName: profile.zhName,
@@ -79,7 +79,7 @@ function App() {
       };
       const displayName = merged.name;
       // Auto-create the user's own team
-      const myTeam = {
+      const myTeam: Team = {
         id: "T-" + prev.id.replace(/^U/, ""),
         role: "leader",
         name: `${displayName}的團隊`,
@@ -115,20 +115,23 @@ function App() {
     });
   };
 
-  const handleProfileUpdate = (profile) => {
-    setUser((prev) => ({
-      ...prev,
-      name: profile.zhName || prev.name,
-      zhName: profile.zhName,
-      enName: profile.enName,
-      nickname: profile.nickname,
-      phone: profile.phone,
-      phoneCode: profile.phoneCode,
-      lineId: profile.lineId,
-      telegramId: profile.telegramId,
-      country: profile.country,
-      location: profile.location,
-    }));
+  const handleProfileUpdate = (profile: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        name: profile.zhName || prev.name,
+        zhName: profile.zhName,
+        enName: profile.enName,
+        nickname: profile.nickname,
+        phone: profile.phone,
+        phoneCode: profile.phoneCode,
+        lineId: profile.lineId,
+        telegramId: profile.telegramId,
+        country: profile.country,
+        location: profile.location,
+      };
+    });
     setScreen("profile");
   };
 
@@ -140,7 +143,7 @@ function App() {
   };
 
   // Compute team progress for task 3 from BOTH teams
-  const syncTeamTask = (led, joined) => {
+  const syncTeamTask = (led: Team | null, joined: Team | null) => {
     setTasks((prev) => {
       const idx = prev.findIndex((t) => t.id === 3);
       if (idx < 0) return prev;
@@ -154,7 +157,7 @@ function App() {
       // Highest total wins for the task
       const total = Math.max(ledTotal, joinedTotal);
       const complete = total >= cap;
-      const updated = {
+      const updated: Task = {
         ...t,
         status:
           !led && !joined ? "todo" : complete ? "completed" : "in_progress",
@@ -169,8 +172,8 @@ function App() {
   };
 
   // Joining a team only — every user already leads their own team
-  const joinTeam = (teamData) => {
-    const newTeam = { ...teamData, role: "member" };
+  const joinTeam = (teamData: Omit<Team, 'role'>) => {
+    const newTeam: Team = { ...teamData, role: "member" };
     setJoinedTeam(newTeam);
     syncTeamTask(ledTeam, newTeam);
     setSuccessData({
@@ -191,32 +194,34 @@ function App() {
     syncTeamTask(ledTeam, null);
   };
 
-  const approveRequest = (reqId) => {
+  const approveRequest = (reqId: string) => {
     if (!ledTeam) return;
     const req = (ledTeam.requests || []).find((r) => r.id === reqId);
     if (!req) return;
-    const updated = {
+    const updated: Team = {
       ...ledTeam,
       members: [
         ...ledTeam.members,
         { id: req.id, name: req.name, avatar: req.avatar },
       ],
-      requests: ledTeam.requests.filter((r) => r.id !== reqId),
+      requests: (ledTeam.requests || []).filter((r) => r.id !== reqId),
     };
     setLedTeam(updated);
     syncTeamTask(updated, joinedTeam);
     if (updated.members.length + 1 >= 6) {
       const t3 = tasks.find((x) => x.id === 3);
-      setSuccessData({
-        color: t3.color,
-        points: t3.points,
-        bonus: t3.bonus,
-        title: "組隊完成！",
-      });
+      if (t3) {
+        setSuccessData({
+          color: t3.color,
+          points: t3.points,
+          bonus: t3.bonus,
+          title: "組隊完成！",
+        });
+      }
     }
   };
 
-  const rejectRequest = (reqId) => {
+  const rejectRequest = (reqId: string) => {
     if (!ledTeam) return;
     setLedTeam({
       ...ledTeam,
@@ -224,7 +229,7 @@ function App() {
     });
   };
 
-  const renameTeam = (alias) => {
+  const renameTeam = (alias: string) => {
     if (!ledTeam) return;
     setLedTeam({ ...ledTeam, alias });
   };
@@ -232,16 +237,16 @@ function App() {
   // Demo helper: simulate a member's request being approved externally
   const simulateJoinApproved = () => {
     if (!joinedTeam || joinedTeam.status !== "pending") return;
-    const approved = { ...joinedTeam, status: "approved" };
+    const approved: Team = { ...joinedTeam, status: "approved" };
     setJoinedTeam(approved);
     syncTeamTask(ledTeam, approved);
   };
 
-  const completeTask = (id) => {
+  const completeTask = (id: number) => {
     const idx = tasks.findIndex((t) => t.id === id);
     if (idx < 0) return;
     const t = tasks[idx];
-    const updated = {
+    const updated: Task = {
       ...t,
       status: "completed",
       steps: (t.steps || []).map((s) => ({ ...s, done: true })),
