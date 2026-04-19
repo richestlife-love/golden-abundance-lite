@@ -74,7 +74,7 @@ export default function TaskCard({
 
   return (
     <div
-      onClick={() => onOpen && onOpen(t.id)}
+      onClick={() => onOpen(t.id)}
       style={{
         position: "relative",
         padding: "14px 14px",
