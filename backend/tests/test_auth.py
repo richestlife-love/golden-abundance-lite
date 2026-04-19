@@ -58,7 +58,6 @@ async def test_sign_in_case_variations_are_same_user(client: AsyncClient) -> Non
     assert r1.json()["user"]["id"] == r2.json()["user"]["id"]
 
 
-@pytest.mark.skip(reason="requires /me — enabled in C7")
 async def test_two_sign_ins_yield_two_valid_tokens(client: AsyncClient) -> None:
     """No revocation in Phase 5 — both tokens remain valid until exp."""
     r1 = await client.post("/api/v1/auth/google", json={"id_token": "jet@example.com"})
