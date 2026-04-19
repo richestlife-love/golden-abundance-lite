@@ -72,13 +72,6 @@ export default function MyScreen({
     setTimeout(() => setUserIdCopied(false), 1800);
   };
 
-  const completedCount = (tasks || []).filter(
-    (t) => t.status === "completed",
-  ).length;
-  const teamCount =
-    (ledTeam ? 1 : 0) +
-    (joinedTeam && joinedTeam.status === "approved" ? 1 : 0);
-
   return (
     <div
       style={{
