@@ -46,7 +46,7 @@ you need the schema.
 | `team.py`        | `Team`, `JoinRequest`, `TeamUpdate`, `MeTeamsResponse`, `MeProfileCreateResponse` |
 | `user.py`        | `User`, `ProfileCreate`, `ProfileUpdate`                                         |
 | `endpoints.md`   | Human-readable endpoint catalog                                                  |
-| `examples/`      | One JSON fixture per endpoint, grouped by domain                                 |
+| `examples/`      | JSON fixtures named by endpoint (flat directory)                                 |
 | `validate_examples.py` | Smoke test: loads each fixture and validates against its Pydantic model    |
 
 ## Validate
