@@ -61,6 +61,35 @@ function App() {
     setScreen("profileSetup");
   };
 
+  // Compute team progress for task 3 from BOTH teams
+  const syncTeamTask = (led: Team | null, joined: Team | null) => {
+    setTasks((prev) => {
+      const idx = prev.findIndex((t) => t.id === 3);
+      if (idx < 0) return prev;
+      const t = prev[idx];
+      const cap = t.cap || 6;
+      const ledTotal = led ? led.members.length + 1 : 0;
+      const joinedTotal =
+        joined && joined.status === "approved"
+          ? (joined.currentCount || 0) + 1
+          : 0;
+      // Highest total wins for the task
+      const total = Math.max(ledTotal, joinedTotal);
+      const complete = total >= cap;
+      const updated: Task = {
+        ...t,
+        status:
+          !led && !joined ? "todo" : complete ? "completed" : "in_progress",
+        progress: Math.min(1, total / cap),
+        teamProgress:
+          led || joined ? { total, cap, ledTotal, joinedTotal } : null,
+      };
+      const n = [...prev];
+      n[idx] = updated;
+      return n;
+    });
+  };
+
   const handleProfileComplete = (profile: Partial<User>) => {
     setUser((prev) => {
       if (!prev) return prev;
@@ -140,35 +169,6 @@ function App() {
     setLedTeam(null);
     setJoinedTeam(null);
     setScreen("landing");
-  };
-
-  // Compute team progress for task 3 from BOTH teams
-  const syncTeamTask = (led: Team | null, joined: Team | null) => {
-    setTasks((prev) => {
-      const idx = prev.findIndex((t) => t.id === 3);
-      if (idx < 0) return prev;
-      const t = prev[idx];
-      const cap = t.cap || 6;
-      const ledTotal = led ? led.members.length + 1 : 0;
-      const joinedTotal =
-        joined && joined.status === "approved"
-          ? (joined.currentCount || 0) + 1
-          : 0;
-      // Highest total wins for the task
-      const total = Math.max(ledTotal, joinedTotal);
-      const complete = total >= cap;
-      const updated: Task = {
-        ...t,
-        status:
-          !led && !joined ? "todo" : complete ? "completed" : "in_progress",
-        progress: Math.min(1, total / cap),
-        teamProgress:
-          led || joined ? { total, cap, ledTotal, joinedTotal } : null,
-      };
-      const n = [...prev];
-      n[idx] = updated;
-      return n;
-    });
   };
 
   // Joining a team only — every user already leads their own team
