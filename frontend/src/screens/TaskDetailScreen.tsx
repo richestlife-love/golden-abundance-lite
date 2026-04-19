@@ -1,32 +1,33 @@
+import { useNavigate } from "@tanstack/react-router";
+import { useAppState } from "../state/AppStateContext";
+import { taskDetailRoute } from "../routes/_authed.tasks.$taskId";
 import { getEffectiveStatus, fs } from "../utils";
-import { TASKS } from "../data";
 import type { Task } from "../types";
 
-type Props = {
-  tasks: Task[];
-  taskId: number | null;
-  onBack: () => void;
-  onOpenTask: (id: number) => void;
-  onStartTask: (id: number) => void;
-  onGoMe: () => void;
-};
+export default function TaskDetailScreen() {
+  const navigate = useNavigate();
+  const { tasks } = useAppState();
+  const { taskId: taskIdParam } = taskDetailRoute.useParams();
+  const id = Number(taskIdParam);
+  const onBack = () => navigate({ to: "/tasks" });
+  const onOpenTask = (nextId: number) =>
+    navigate({ to: "/tasks/$taskId", params: { taskId: String(nextId) } });
+  const onStartTask = (forId: number) =>
+    navigate({
+      to: "/tasks/$taskId/start",
+      params: { taskId: String(forId) },
+      state: { fromDetail: true },
+    });
+  // /me route is added in Task 8; navigate to /home until then.
+  const onGoMe = () => navigate({ to: "/home" });
 
-export default function TaskDetailScreen({
-  tasks: tasksProp,
-  taskId,
-  onBack,
-  onOpenTask,
-  onStartTask,
-  onGoMe,
-}: Props) {
   const bg = "var(--bg)";
   const cardBg = "var(--card)";
   const cardBorder = "1px solid var(--card-strong)";
   const muted = "var(--muted)";
   const fg = "var(--fg)";
 
-  const tasks = tasksProp || TASKS;
-  const t = tasks.find((x) => x.id === taskId);
+  const t = tasks.find((x) => x.id === id);
   if (!t) {
     return (
       <div

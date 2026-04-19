@@ -58,3 +58,23 @@ describe("authed simple routes", () => {
     });
   });
 });
+
+describe("task routes", () => {
+  it("renders task detail at /tasks/3", async () => {
+    const { router } = renderRoute("/tasks/3", { seed: "authed-complete" });
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/tasks/3");
+    });
+    // TASKS[2].title is "組隊挑戰" (Traditional — present in data.ts).
+    await waitFor(() => {
+      expect(screen.getByText("組隊挑戰")).toBeInTheDocument();
+    });
+  });
+
+  it("redirects /tasks/3/start on cold load to /tasks/3", async () => {
+    const { router } = renderRoute("/tasks/3/start", { seed: "authed-complete" });
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/tasks/3");
+    });
+  });
+});

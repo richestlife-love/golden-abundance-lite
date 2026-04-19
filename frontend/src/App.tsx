@@ -37,12 +37,7 @@ function App() {
     setCurrentTaskId(id);
     setScreen("taskDetail");
   };
-  const openTaskForm = (id: number) => {
-    setCurrentTaskId(id);
-    setScreen("form");
-  };
-
-  const userIdFromEmail = (email: string): string =>
+const userIdFromEmail = (email: string): string =>
     "U" +
     (email || "guest@x.com")
       .split("@")[0]
@@ -300,20 +295,9 @@ function App() {
         />
       )}
       {screen === "home" && <HomeScreen />}
-      {screen === "tasks" && (
-        <TasksScreen tasks={tasks} onNavigate={setScreen} onOpenTask={openTask} />
-      )}
+      {screen === "tasks" && <TasksScreen />}
       {screen === "rank" && <RankScreen />}
-      {screen === "taskDetail" && (
-        <TaskDetailScreen
-          tasks={tasks}
-          taskId={currentTaskId}
-          onBack={() => setScreen("tasks")}
-          onOpenTask={openTask}
-          onStartTask={openTaskForm}
-          onGoMe={() => setScreen("me")}
-        />
-      )}
+      {screen === "taskDetail" && <TaskDetailScreen />}
       {screen === "form" && currentTaskId === 1 && (
         <InterestForm onCancel={() => setScreen("taskDetail")} onSubmit={() => completeTask(1)} />
       )}

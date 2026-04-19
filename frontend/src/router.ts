@@ -12,12 +12,20 @@ import { welcomeRoute } from "./routes/welcome";
 import { homeRoute } from "./routes/_authed.home";
 import { leaderboardRoute } from "./routes/_authed.leaderboard";
 import { rewardsRoute } from "./routes/_authed.rewards";
+import { tasksRoute } from "./routes/_authed.tasks";
+import { taskDetailRoute } from "./routes/_authed.tasks.$taskId";
+import { taskStartRoute } from "./routes/_authed.tasks.$taskId.start";
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
   signInRoute,
   welcomeRoute,
-  authedRoute.addChildren([homeRoute, leaderboardRoute, rewardsRoute]),
+  authedRoute.addChildren([
+    homeRoute,
+    tasksRoute.addChildren([taskDetailRoute.addChildren([taskStartRoute])]),
+    leaderboardRoute,
+    rewardsRoute,
+  ]),
 ]);
 
 export function createAppRouter(opts?: {

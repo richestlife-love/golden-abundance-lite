@@ -11,8 +11,8 @@ export default function HomeScreen() {
     handleSignOut();
     navigate({ to: "/" });
   };
-  // /tasks/$taskId route is added in Task 7; use history navigation until then.
-  const onOpenTask = (_id: number) => navigate({ to: "/tasks" as never });
+  const onOpenTask = (id: number) =>
+    navigate({ to: "/tasks/$taskId", params: { taskId: String(id) } });
 
   const bg = "var(--bg)";
   const activeTasks = tasks.filter((t) => {
@@ -451,7 +451,7 @@ export default function HomeScreen() {
           <div style={{ fontSize: fs(16), fontWeight: 700, color: fg }}>探索任务</div>
           <button
             type="button"
-            onClick={() => navigate({ to: "/tasks" as never })}
+            onClick={() => navigate({ to: "/tasks" })}
             style={{
               fontSize: fs(12),
               color: muted,
