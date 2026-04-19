@@ -1,10 +1,28 @@
-# Run full CI (lint, format, typecheck). pytest re-added in Phase 5 when real handler tests land.
+# Run full CI (lint, format, typecheck, contract fixtures, tests).
 ci:
   uv sync --all-extras --dev
   uv run ruff check --fix
   uv run ruff format
   uv run ty check
+  uv run python -m backend.contract.validate_examples
+  uv run pytest
 
 # Validate example JSON fixtures against the Pydantic contract models
 contract-validate:
   uv run python -m backend.contract.validate_examples
+
+# Run the FastAPI dev server on http://localhost:8000 with reload
+dev port="8000":
+  uv run fastapi dev src/backend/server.py --port {{port}}
+
+# Start local Postgres (docker compose)
+db-up:
+  docker compose up -d --wait
+
+# Stop local Postgres
+db-down:
+  docker compose down
+
+# Run pytest only
+test *args:
+  uv run pytest {{args}}
