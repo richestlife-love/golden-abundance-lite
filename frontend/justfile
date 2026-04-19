@@ -1,3 +1,5 @@
+set dotenv-filename := ".env.local"
+
 # Run full CI (install, lint, format, typecheck + bundle). Mirrors backend's `ci`.
 ci:
     pnpm install
@@ -9,6 +11,6 @@ ci:
 dev:
     pnpm run dev
 
-# Expose local port 5173 (https) via a reserved ngrok hostname
+# Expose local port 5173 (https) via the ngrok host in .env.local
 tunnel:
-    ngrok http --url=subvitalized-occupative-katelyn.ngrok-free.dev --scheme=https 5173
+    ngrok http --url=$VITE_ALLOWED_HOSTS --scheme=https 5173
