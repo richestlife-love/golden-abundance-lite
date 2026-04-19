@@ -580,7 +580,7 @@ function LaunchOverlay({ onDone }) {
 }
 
 // ─── Landing screen ───────────────────────────────────────────
-function LandingScreen({ tweaks, isDesktop, onStart }) {
+function LandingScreen({ tweaks, onStart }) {
   const getInitial = () => {
     const w = Math.min(
       typeof window !== "undefined" ? window.innerWidth : 390,
@@ -658,79 +658,16 @@ function LandingScreen({ tweaks, isDesktop, onStart }) {
       ref={rootRef}
       data-screen-label="Landing"
       style={{
+        flex: 1,
         position: "relative",
         overflow: "hidden",
-        width: isDesktop ? "min(420px, calc(100vw - 48px))" : "100vw",
-        height: isDesktop
-          ? "min(860px, calc(100vh - 48px))"
-          : "min(100vh, 100dvh)",
-        maxHeight: "100vh",
-        borderRadius: isDesktop ? 44 : 0,
         background: "#fff",
-        boxShadow: isDesktop
-          ? "0 40px 100px rgba(100,80,1,0.22), 0 10px 30px rgba(100,80,1,0.12), 0 0 0 1px rgba(0,0,0,0.05)"
-          : "none",
         display: "flex",
         flexDirection: "column",
+        color: dark ? "#fff" : "#241c00",
       }}
     >
       <Bg />
-
-      {/* Fake status bar */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 3,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "14px 24px 6px",
-          fontFamily: '-apple-system, "SF Pro", system-ui',
-          fontSize: 15,
-          fontWeight: 600,
-          color: dark ? "#fff" : "#241c00",
-        }}
-      >
-        <span>9:41</span>
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          <svg
-            width="17"
-            height="11"
-            viewBox="0 0 17 11"
-            fill={dark ? "#fff" : "#241c00"}
-          >
-            <rect x="0" y="6.5" width="3" height="4.5" rx="0.6" />
-            <rect x="4.5" y="4.5" width="3" height="6.5" rx="0.6" />
-            <rect x="9" y="2.5" width="3" height="8.5" rx="0.6" />
-            <rect x="13.5" y="0" width="3" height="11" rx="0.6" />
-          </svg>
-          <svg width="24" height="11" viewBox="0 0 24 11">
-            <rect
-              x="0.5"
-              y="0.5"
-              width="20"
-              height="10"
-              rx="2.5"
-              stroke={dark ? "#fff" : "#241c00"}
-              fill="none"
-              opacity="0.5"
-            />
-            <rect
-              x="2"
-              y="2"
-              width="17"
-              height="7"
-              rx="1.5"
-              fill={dark ? "#fff" : "#241c00"}
-            />
-            <path
-              d="M22 3.5v4c0.7 -0.3 1.2 -1 1.2 -2s-0.5 -1.7 -1.2 -2z"
-              fill={dark ? "#fff" : "#241c00"}
-              opacity="0.4"
-            />
-          </svg>
-        </div>
-      </div>
 
       {/* Main content */}
       <div
@@ -844,26 +781,6 @@ function LandingScreen({ tweaks, isDesktop, onStart }) {
         </div>
       </div>
 
-      {/* Home indicator */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 3,
-          display: "flex",
-          justifyContent: "center",
-          paddingBottom: 8,
-          flexShrink: 0,
-        }}
-      >
-        <div
-          style={{
-            width: 134,
-            height: 5,
-            borderRadius: 100,
-            background: dark ? "rgba(255,255,255,0.7)" : "rgba(26,21,48,0.25)",
-          }}
-        />
-      </div>
     </div>
   );
 }
@@ -963,92 +880,8 @@ function TweaksPanel({ visible, tweaks, setTweaks }) {
   );
 }
 
-// ─── Screen shell (phone-shaped on desktop, edge-to-edge on mobile) ─────────
-function ScreenShell({ children, isDesktop, bg, dark }) {
-  return (
-    <div
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        width: isDesktop ? "min(420px, calc(100vw - 48px))" : "100vw",
-        height: isDesktop ? "min(860px, calc(100vh - 48px))" : "100vh",
-        maxHeight: "100vh",
-        borderRadius: isDesktop ? 44 : 0,
-        background: bg,
-        boxShadow: isDesktop
-          ? "0 40px 100px rgba(100,80,1,0.22), 0 10px 30px rgba(100,80,1,0.12), 0 0 0 1px rgba(0,0,0,0.05)"
-          : "none",
-        display: "flex",
-        flexDirection: "column",
-        color: dark ? "#fff" : "#241c00",
-        fontFamily: '"Noto Sans SC", "PingFang SC", -apple-system, sans-serif',
-      }}
-    >
-      {/* Status bar */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 3,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "14px 24px 6px",
-          fontFamily: '-apple-system, "SF Pro", system-ui',
-          fontSize: 15,
-          fontWeight: 600,
-          color: dark ? "#fff" : "#241c00",
-        }}
-      >
-        <span>9:41</span>
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          <svg
-            width="17"
-            height="11"
-            viewBox="0 0 17 11"
-            fill={dark ? "#fff" : "#241c00"}
-          >
-            <rect x="0" y="6.5" width="3" height="4.5" rx="0.6" />
-            <rect x="4.5" y="4.5" width="3" height="6.5" rx="0.6" />
-            <rect x="9" y="2.5" width="3" height="8.5" rx="0.6" />
-            <rect x="13.5" y="0" width="3" height="11" rx="0.6" />
-          </svg>
-          <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
-            <rect
-              x="0.5"
-              y="0.5"
-              width="20"
-              height="11"
-              rx="2.5"
-              stroke={dark ? "#fff" : "#241c00"}
-              strokeOpacity="0.5"
-            />
-            <rect
-              x="2"
-              y="2"
-              width="17"
-              height="8"
-              rx="1"
-              fill={dark ? "#fff" : "#241c00"}
-            />
-            <rect
-              x="21.5"
-              y="4"
-              width="1.5"
-              height="4"
-              rx="0.5"
-              fill={dark ? "#fff" : "#241c00"}
-              fillOpacity="0.5"
-            />
-          </svg>
-        </div>
-      </div>
-      {children}
-    </div>
-  );
-}
-
 // ─── Google Auth Screen ───────────────────────────────────────
-function GoogleAuthScreen({ isDesktop, tweaks, onCancel, onSuccess }) {
+function GoogleAuthScreen({ tweaks, onCancel, onSuccess }) {
   // Stages: 'chooser' -> 'loading' -> success
   const [stage, setStage] = useState("chooser");
   const [selected, setSelected] = useState(null);
@@ -1075,7 +908,16 @@ function GoogleAuthScreen({ isDesktop, tweaks, onCancel, onSuccess }) {
   };
 
   return (
-    <ScreenShell isDesktop={isDesktop} dark={false} bg="#FFFFFF">
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: "#FFFFFF",
+        color: "#241c00",
+        overflow: "hidden",
+      }}
+    >
       <div
         style={{
           flex: 1,
@@ -1313,7 +1155,7 @@ function GoogleAuthScreen({ isDesktop, tweaks, onCancel, onSuccess }) {
           </div>
         )}
       </div>
-    </ScreenShell>
+    </div>
   );
 }
 
@@ -2047,7 +1889,6 @@ function NewsBoard({ dark, fg, muted, cardBg, cardBorder }) {
 
 // ─── Home Screen ──────────────────────────────────────────────
 function HomeScreen({
-  isDesktop,
   tweaks,
   user,
   tasks: tasksProp,
@@ -2108,7 +1949,16 @@ function HomeScreen({
   const homeWeekDelta = 76;
 
   return (
-    <ScreenShell isDesktop={isDesktop} dark={dark} bg={bg}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: bg,
+        color: dark ? "#fff" : "#241c00",
+        overflow: "hidden",
+      }}
+    >
       <div
         style={{
           flex: 1,
@@ -2586,7 +2436,7 @@ function HomeScreen({
         muted={muted}
         onNavigate={onNavigate}
       />
-    </ScreenShell>
+    </div>
   );
 }
 
@@ -2642,7 +2492,6 @@ function BottomNav({ current, dark, muted, onNavigate }) {
 
 // ─── Tasks Screen ─────────────────────────────────────────────
 function TasksScreen({
-  isDesktop,
   tweaks,
   tasks: tasksProp,
   onNavigate,
@@ -2698,7 +2547,16 @@ function TasksScreen({
   ];
 
   return (
-    <ScreenShell isDesktop={isDesktop} dark={dark} bg={bg}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: bg,
+        color: dark ? "#fff" : "#241c00",
+        overflow: "hidden",
+      }}
+    >
       <div
         style={{
           flex: 1,
@@ -2928,13 +2786,12 @@ function TasksScreen({
         muted={muted}
         onNavigate={onNavigate}
       />
-    </ScreenShell>
+    </div>
   );
 }
 
 // ─── Task Detail Screen ──────────────────────────────────────
 function TaskDetailScreen({
-  isDesktop,
   tweaks,
   tasks: tasksProp,
   taskId,
@@ -2956,9 +2813,18 @@ function TaskDetailScreen({
   const t = tasks.find((x) => x.id === taskId);
   if (!t) {
     return (
-      <ScreenShell isDesktop={isDesktop} dark={dark} bg={bg}>
+      <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: bg,
+        color: dark ? "#fff" : "#241c00",
+        overflow: "hidden",
+      }}
+    >
         <div style={{ padding: 20, color: fg }}>找不到任務</div>
-      </ScreenShell>
+      </div>
     );
   }
 
@@ -3022,7 +2888,16 @@ function TaskDetailScreen({
     .filter(Boolean);
 
   return (
-    <ScreenShell isDesktop={isDesktop} dark={dark} bg={bg}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: bg,
+        color: dark ? "#fff" : "#241c00",
+        overflow: "hidden",
+      }}
+    >
       <div
         style={{
           flex: 1,
@@ -3919,12 +3794,12 @@ function TaskDetailScreen({
           </button>
         </div>
       </div>
-    </ScreenShell>
+    </div>
   );
 }
 
 // ─── 排行 (Rank) Screen ────────────────────────────────────────
-function RankScreen({ isDesktop, tweaks, user, tasks, onNavigate }) {
+function RankScreen({ tweaks, user, tasks, onNavigate }) {
   const dark = tweaks.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const fg = dark ? "#fff" : "#241c00";
@@ -4448,7 +4323,16 @@ function RankScreen({ isDesktop, tweaks, user, tasks, onNavigate }) {
   const rankLabels = ["2", "1", "3"];
 
   return (
-    <ScreenShell isDesktop={isDesktop} dark={dark} bg={bg}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: bg,
+        color: dark ? "#fff" : "#241c00",
+        overflow: "hidden",
+      }}
+    >
       <div
         style={{
           flex: 1,
@@ -5331,7 +5215,7 @@ function RankScreen({ isDesktop, tweaks, user, tasks, onNavigate }) {
         muted={muted}
         onNavigate={onNavigate}
       />
-    </ScreenShell>
+    </div>
   );
 }
 
@@ -6063,7 +5947,7 @@ function MyRewards({
 }
 
 // ─── Rewards Screen (full page) ───────────────────────────────
-function RewardsScreen({ isDesktop, tweaks, user, tasks, onBack }) {
+function RewardsScreen({ tweaks, user, tasks, onBack }) {
   const dark = tweaks.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const fg = dark ? "#fff" : "#241c00";
@@ -6080,7 +5964,16 @@ function RewardsScreen({ isDesktop, tweaks, user, tasks, onBack }) {
   const initial = (displayName || "U").slice(0, 1).toUpperCase();
 
   return (
-    <ScreenShell isDesktop={isDesktop} dark={dark} bg={bg}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: bg,
+        color: dark ? "#fff" : "#241c00",
+        overflow: "hidden",
+      }}
+    >
       {/* Top bar */}
       <div
         style={{
@@ -6247,13 +6140,12 @@ function RewardsScreen({ isDesktop, tweaks, user, tasks, onBack }) {
           hideHeader
         />
       </div>
-    </ScreenShell>
+    </div>
   );
 }
 
 // ─── My (我的) Screen ─────────────────────────────────────────
 function MyScreen({
-  isDesktop,
   tweaks,
   user,
   ledTeam,
@@ -6315,7 +6207,16 @@ function MyScreen({
     (joinedTeam && joinedTeam.status === "approved" ? 1 : 0);
 
   return (
-    <ScreenShell isDesktop={isDesktop} dark={dark} bg={bg}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: bg,
+        color: dark ? "#fff" : "#241c00",
+        overflow: "hidden",
+      }}
+    >
       <div
         style={{
           flex: 1,
@@ -7127,7 +7028,7 @@ function MyScreen({
         muted={muted}
         onNavigate={onNavigate}
       />
-    </ScreenShell>
+    </div>
   );
 }
 
@@ -8972,7 +8873,6 @@ function ShareSheet({
 
 // ─── Task Form Screens ───────────────────────────────────────
 function FormShell({
-  isDesktop,
   dark,
   bg,
   title,
@@ -8984,7 +8884,16 @@ function FormShell({
   const fg = dark ? "#fff" : "#241c00";
   const muted = dark ? "rgba(255,255,255,0.6)" : "rgba(50,40,0,0.6)";
   return (
-    <ScreenShell isDesktop={isDesktop} dark={dark} bg={bg}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: bg,
+        color: dark ? "#fff" : "#241c00",
+        overflow: "hidden",
+      }}
+    >
       <div
         style={{
           flex: 1,
@@ -9093,7 +9002,7 @@ function FormShell({
           </div>
         )}
       </div>
-    </ScreenShell>
+    </div>
   );
 }
 
@@ -9268,7 +9177,7 @@ function SubmitButton({ label, onClick, disabled, color = "#cb9f01", dark }) {
 }
 
 // Onboarding — profile setup for new users (after Google sign-in)
-function ProfileScreen({ isDesktop, tweaks, user, onBack, onEdit }) {
+function ProfileScreen({ tweaks, user, onBack, onEdit }) {
   const dark = tweaks.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const fg = dark ? "#fff" : "#241c00";
@@ -9328,7 +9237,16 @@ function ProfileScreen({ isDesktop, tweaks, user, onBack, onEdit }) {
   const initial = (user?.zhName || user?.name || "U").slice(0, 1).toUpperCase();
 
   return (
-    <ScreenShell isDesktop={isDesktop} dark={dark} bg={bg}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: bg,
+        color: dark ? "#fff" : "#241c00",
+        overflow: "hidden",
+      }}
+    >
       {/* Top bar */}
       <div
         style={{
@@ -9587,13 +9505,12 @@ function ProfileScreen({ isDesktop, tweaks, user, onBack, onEdit }) {
           ))}
         </div>
       </div>
-    </ScreenShell>
+    </div>
   );
 }
 
 // Onboarding — profile setup for new users (after Google sign-in)
 function ProfileSetupForm({
-  isDesktop,
   tweaks,
   user,
   initial,
@@ -9759,7 +9676,6 @@ function ProfileSetupForm({
 
   return (
     <FormShell
-      isDesktop={isDesktop}
       dark={dark}
       bg={bg}
       title={title}
@@ -10037,7 +9953,7 @@ function ProfileSetupForm({
 }
 
 // Task 1 — Interest & skills form
-function InterestForm({ isDesktop, tweaks, onCancel, onSubmit }) {
+function InterestForm({ tweaks, onCancel, onSubmit }) {
   const dark = tweaks.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const muted = dark ? "rgba(255,255,255,0.6)" : "rgba(50,40,0,0.6)";
@@ -10067,7 +9983,6 @@ function InterestForm({ isDesktop, tweaks, onCancel, onSubmit }) {
 
   return (
     <FormShell
-      isDesktop={isDesktop}
       dark={dark}
       bg={bg}
       title="填寫志工表單"
@@ -10186,7 +10101,7 @@ function InterestForm({ isDesktop, tweaks, onCancel, onSubmit }) {
 }
 
 // Task 2 — Ticket form
-function TicketForm({ isDesktop, tweaks, onCancel, onSubmit }) {
+function TicketForm({ tweaks, onCancel, onSubmit }) {
   const dark = tweaks.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const cardBg = dark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.6)";
@@ -10211,7 +10126,6 @@ function TicketForm({ isDesktop, tweaks, onCancel, onSubmit }) {
 
   return (
     <FormShell
-      isDesktop={isDesktop}
       dark={dark}
       bg={bg}
       title="夏季盛會報名"
@@ -10404,7 +10318,7 @@ const MOCK_TEAMS = [
 ];
 
 // Task 3 — Join a team (search by team ID, name, or leader)
-function TeamForm({ isDesktop, tweaks, onCancel, onSubmit }) {
+function TeamForm({ tweaks, onCancel, onSubmit }) {
   const dark = tweaks.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const fg = dark ? "#fff" : "#241c00";
@@ -10485,7 +10399,6 @@ function TeamForm({ isDesktop, tweaks, onCancel, onSubmit }) {
 
   return (
     <FormShell
-      isDesktop={isDesktop}
       dark={dark}
       bg={bg}
       title="加入團隊"
@@ -11045,41 +10958,26 @@ function App() {
     );
   };
 
-  const [isDesktop, setIsDesktop] = useState(
-    typeof window !== "undefined" ? window.innerWidth >= 640 : false,
-  );
-
-  useEffect(() => {
-    const onResize = () => setIsDesktop(window.innerWidth >= 640);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
   return (
     <div
       style={{
         minHeight: "100vh",
         width: "100vw",
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: isDesktop ? "24px" : 0,
-        boxSizing: "border-box",
+        flexDirection: "column",
         background: tweaks.background === "night" ? "#1a1400" : "#F2ECDC",
-        fontFamily: "-apple-system, system-ui",
+        fontFamily: '"Noto Sans SC", "PingFang SC", -apple-system, sans-serif',
         overflow: "hidden",
       }}
     >
       {screen === "landing" && (
         <LandingScreen
           tweaks={tweaks}
-          isDesktop={isDesktop}
           onStart={() => setScreen("auth")}
         />
       )}
       {screen === "auth" && (
         <GoogleAuthScreen
-          isDesktop={isDesktop}
           tweaks={tweaks}
           onCancel={() => setScreen("landing")}
           onSuccess={handleSignIn}
@@ -11087,7 +10985,6 @@ function App() {
       )}
       {screen === "profileSetup" && (
         <ProfileSetupForm
-          isDesktop={isDesktop}
           tweaks={tweaks}
           user={user}
           onCancel={() => {
@@ -11099,7 +10996,6 @@ function App() {
       )}
       {screen === "profile" && (
         <ProfileScreen
-          isDesktop={isDesktop}
           tweaks={tweaks}
           user={user}
           onBack={() => setScreen("me")}
@@ -11108,7 +11004,6 @@ function App() {
       )}
       {screen === "profileEdit" && (
         <ProfileSetupForm
-          isDesktop={isDesktop}
           tweaks={tweaks}
           user={user}
           initial={user}
@@ -11121,7 +11016,6 @@ function App() {
       )}
       {screen === "home" && (
         <HomeScreen
-          isDesktop={isDesktop}
           tweaks={tweaks}
           user={user}
           tasks={tasks}
@@ -11132,7 +11026,6 @@ function App() {
       )}
       {screen === "tasks" && (
         <TasksScreen
-          isDesktop={isDesktop}
           tweaks={tweaks}
           tasks={tasks}
           onNavigate={setScreen}
@@ -11141,7 +11034,6 @@ function App() {
       )}
       {screen === "rank" && (
         <RankScreen
-          isDesktop={isDesktop}
           tweaks={tweaks}
           user={user}
           tasks={tasks}
@@ -11150,7 +11042,6 @@ function App() {
       )}
       {screen === "taskDetail" && (
         <TaskDetailScreen
-          isDesktop={isDesktop}
           tweaks={tweaks}
           tasks={tasks}
           taskId={currentTaskId}
@@ -11162,7 +11053,6 @@ function App() {
       )}
       {screen === "form" && currentTaskId === 1 && (
         <InterestForm
-          isDesktop={isDesktop}
           tweaks={tweaks}
           onCancel={() => setScreen("taskDetail")}
           onSubmit={() => completeTask(1)}
@@ -11170,7 +11060,6 @@ function App() {
       )}
       {screen === "form" && currentTaskId === 2 && (
         <TicketForm
-          isDesktop={isDesktop}
           tweaks={tweaks}
           onCancel={() => setScreen("taskDetail")}
           onSubmit={() => completeTask(2)}
@@ -11178,7 +11067,6 @@ function App() {
       )}
       {screen === "form" && currentTaskId === 3 && (
         <TeamForm
-          isDesktop={isDesktop}
           tweaks={tweaks}
           onCancel={() => setScreen("me")}
           onSubmit={joinTeam}
@@ -11186,7 +11074,6 @@ function App() {
       )}
       {screen === "me" && (
         <MyScreen
-          isDesktop={isDesktop}
           tweaks={tweaks}
           user={user}
           ledTeam={ledTeam}
@@ -11210,7 +11097,6 @@ function App() {
       )}
       {screen === "rewards" && (
         <RewardsScreen
-          isDesktop={isDesktop}
           tweaks={tweaks}
           user={user}
           tasks={tasks}
