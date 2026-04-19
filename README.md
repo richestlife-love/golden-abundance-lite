@@ -30,3 +30,14 @@ Requires [`just`](https://github.com/casey/just) and Node 20+.
 - `src/ui/` — 17 shared presentational primitives
 - `src/screens/` — 18 screen/flow components
 - `src/assets/` — static images (fingerprinted by Vite)
+
+## Blame-friendly commits
+
+Reformat-only commits are listed in `.git-blame-ignore-revs`. Run once per
+clone so local `git blame` skips them:
+
+```sh
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+GitHub's blame UI honours the file automatically — no configuration needed.
