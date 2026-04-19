@@ -13,6 +13,7 @@ from typing import Any
 
 from pydantic import BaseModel, TypeAdapter
 
+from backend.contract.auth import AuthResponse, GoogleAuthRequest
 from backend.contract.common import Paginated
 from backend.contract.news import NewsItem
 from backend.contract.rank import TeamRankEntry, UserRankEntry
@@ -28,6 +29,8 @@ FIXTURES_DIR = Path(__file__).parent / "examples"
 # or a TypeAdapter (for compound types like list[Reward] or
 # Paginated[NewsItem]).
 FIXTURES: dict[str, Any] = {
+    "auth_google_request.json": GoogleAuthRequest,
+    "auth_google_response.json": AuthResponse,
     "user.json": User,
     "profile_create.json": ProfileCreate,
     "rewards_list.json": TypeAdapter(list[Reward]),
