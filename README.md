@@ -26,7 +26,7 @@ just ci                # ruff + ty
 just contract-validate # validate JSON fixtures against the Pydantic contract
 ```
 
-Requires [`just`](https://github.com/casey/just), Node 20+ (frontend), and [`uv`](https://github.com/astral-sh/uv) (backend).
+Requires [`just`](https://github.com/casey/just), Node 20+ with [`pnpm`](https://pnpm.io/) (frontend), and [`uv`](https://github.com/astral-sh/uv) (backend).
 
 ## Layout (frontend)
 

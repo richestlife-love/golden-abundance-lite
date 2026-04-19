@@ -3,4 +3,5 @@ dist
 dist-ssr
 .vite
 package-lock.json
+pnpm-lock.yaml
 src/assets

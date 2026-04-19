@@ -1,24 +1,24 @@
 default: serve
 
-# Install frontend deps (idempotent; npm ci-style when lockfile present).
+# Install frontend deps (idempotent; uses pnpm-lock.yaml when present).
 install:
-    npm install
+    pnpm install
 
 # Run the Vite dev server on http://localhost:8000
 serve: install
-    npm run dev
+    pnpm run dev
 
 # Type-check and build the production bundle into frontend/dist
 build: install
-    npm run build
+    pnpm run build
 
 # Format frontend sources with Prettier
 fmt: install
-    npm run format
+    pnpm run format
 
 # Verify formatting (CI-ready; exits non-zero on drift)
 fmt-check: install
-    npm run format:check
+    pnpm run format:check
 
 # Expose local port 8000 (https) via a reserved ngrok hostname
 tunnel:
