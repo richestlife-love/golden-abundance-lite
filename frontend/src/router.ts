@@ -6,8 +6,9 @@ import {
 } from "@tanstack/react-router";
 import { rootRoute, type RouterContext } from "./routes/__root";
 import { indexRoute } from "./routes/index";
+import { authedRoute } from "./routes/_authed";
 
-const routeTree = rootRoute.addChildren([indexRoute]);
+const routeTree = rootRoute.addChildren([indexRoute, authedRoute.addChildren([])]);
 
 export function createAppRouter(opts?: {
   history?: RouterHistory;

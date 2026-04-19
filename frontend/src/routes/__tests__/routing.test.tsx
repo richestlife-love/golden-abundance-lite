@@ -10,3 +10,10 @@ describe("router scaffolding", () => {
     });
   });
 });
+
+describe("_authed layout", () => {
+  it("is defined with the expected id", async () => {
+    const { authedRoute } = await import("../_authed");
+    expect(authedRoute.id).toContain("_authed");
+  });
+});
