@@ -1,8 +1,16 @@
 default: serve
 
-# Serve the design prototype on http://localhost:{{port}}
-serve port="8000":
-    uv run --no-project python -m http.server {{port}} --directory frontend
+# Install frontend deps (idempotent; npm ci-style when lockfile present).
+install:
+    npm --prefix frontend install
+
+# Run the Vite dev server on http://localhost:8000
+serve: install
+    npm --prefix frontend run dev
+
+# Type-check and build the production bundle into frontend/dist
+build: install
+    npm --prefix frontend run build
 
 # Expose local port 8000 (https) via a reserved ngrok hostname
 tunnel:

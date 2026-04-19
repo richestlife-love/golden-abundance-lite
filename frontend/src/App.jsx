@@ -1,7 +1,8 @@
 // React app page — 金富有志工
 // Full-viewport mobile-app landing. No device frame. Responsive, CTA always visible.
 
-const { useState, useEffect, useRef, useMemo } = React;
+import { useState, useEffect, useRef, useMemo } from 'react';
+import mascotHalfbodyUrl from './assets/mascot-halfbody.png';
 
 // ─── Global styles ────────────────────────────────────────────
 function GlobalStyles() {
@@ -92,7 +93,7 @@ function MascotHero({ size }) {
         />
       </svg>
       <img
-        src={`assets/mascot-halfbody.png?v=1`}
+        src={mascotHalfbodyUrl}
         style={{
           width: Math.min(s * 1.15, 560),
           height: Math.min(s * 1.05, 520),
@@ -10181,4 +10182,4 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+export default App;
