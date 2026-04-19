@@ -115,6 +115,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
           {apps.map((a) => (
             <button
               key={a.key}
+              type="button"
               onClick={onCopy}
               title={`分享到 ${a.label}`}
               style={{
@@ -164,6 +165,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
         {/* Copy + close row */}
         <div style={{ display: "flex", gap: 8 }}>
           <button
+            type="button"
             onClick={onCopy}
             style={{
               flex: 1,
@@ -184,6 +186,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
             {copied ? "✓ 已複製到剪貼簿" : "📋 複製訊息"}
           </button>
           <button
+            type="button"
             onClick={onClose}
             style={{
               padding: "12px 18px",

@@ -226,6 +226,7 @@ export default function TeamCard({
             </button>
           </div>
           <button
+            type="button"
             onClick={() => onCancelRequest?.()}
             style={{
               padding: "7px 12px",
@@ -380,6 +381,8 @@ export default function TeamCard({
                 <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{team.name}</span>
                 {isLeader && onRenameTeam && (
                   <button
+                    type="button"
+                    aria-label="編輯團隊名稱"
                     onClick={() => setRenameOpen(true)}
                     title={team.alias ? "編輯組名" : "新增組名"}
                     style={{
@@ -403,6 +406,7 @@ export default function TeamCard({
                 )}
                 {!isLeader && onLeaveTeam && (
                   <button
+                    type="button"
                     onClick={() => setLeaveConfirmOpen(true)}
                     title="退出團隊"
                     style={{
@@ -531,6 +535,7 @@ export default function TeamCard({
         {/* Prominent share invite — leader only */}
         {isLeader && (
           <button
+            type="button"
             onClick={() => setShareOpen(true)}
             style={{
               padding: "16px 18px",
@@ -1058,6 +1063,8 @@ export default function TeamCard({
                     {req.name}
                   </div>
                   <button
+                    type="button"
+                    aria-label="核准"
                     onClick={() => onApproveRequest && onApproveRequest(req.id)}
                     title="核准"
                     style={{
@@ -1081,6 +1088,8 @@ export default function TeamCard({
                     ✓
                   </button>
                   <button
+                    type="button"
+                    aria-label="拒絕"
                     onClick={() => onRejectRequest && onRejectRequest(req.id)}
                     title="拒絕"
                     style={{
@@ -1225,6 +1234,7 @@ export default function TeamCard({
             </div>
             <div style={{ display: "flex", gap: 10 }}>
               <button
+                type="button"
                 onClick={() => setLeaveConfirmOpen(false)}
                 style={{
                   flex: 1,
@@ -1242,6 +1252,7 @@ export default function TeamCard({
                 取消
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setLeaveConfirmOpen(false);
                   onLeaveTeam && onLeaveTeam();

@@ -90,6 +90,7 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
         <div style={{ display: "flex", gap: 8 }}>
           {team.alias && (
             <button
+              type="button"
               onClick={() => onSave("")}
               style={{
                 padding: "11px 14px",
@@ -107,6 +108,7 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
             </button>
           )}
           <button
+            type="button"
             onClick={onClose}
             style={{
               flex: team.alias ? "none" : 1,
@@ -124,6 +126,7 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
             取消
           </button>
           <button
+            type="button"
             disabled={!value.trim()}
             onClick={() => onSave(value.trim())}
             style={{

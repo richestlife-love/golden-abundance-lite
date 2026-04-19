@@ -44,6 +44,8 @@ export default function RewardsScreen({ user, tasks, onBack }: Props) {
         }}
       >
         <button
+          type="button"
+          aria-label="返回"
           onClick={onBack}
           style={{
             width: 40,

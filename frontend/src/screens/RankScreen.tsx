@@ -641,6 +641,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
           ].map((t) => (
             <button
               key={t.k}
+              type="button"
               onClick={() => setTab(t.k)}
               style={{
                 flex: 1,
@@ -680,6 +681,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
             {PERIODS.map((p) => (
               <button
                 key={p.key}
+                type="button"
                 onClick={() => setPeriod(p.key)}
                 style={{
                   padding: "5px 12px",
@@ -720,6 +722,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                 return (
                   <button
                     key={c.id}
+                    type="button"
                     onClick={() => setSelectedChallengeId(c.id)}
                     style={{
                       padding: "5px 12px",

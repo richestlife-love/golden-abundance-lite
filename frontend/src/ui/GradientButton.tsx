@@ -9,6 +9,7 @@ export default function GradientButton({ label, onClick }: Props) {
   const [pressed, setPressed] = useState(false);
   return (
     <button
+      type="button"
       onClick={onClick}
       onMouseDown={() => setPressed(true)}
       onMouseUp={() => setPressed(false)}

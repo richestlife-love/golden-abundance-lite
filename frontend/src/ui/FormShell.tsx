@@ -43,6 +43,7 @@ export default function FormShell({ bg, title, subtitle, onCancel, children, foo
           }}
         >
           <button
+            type="button"
             onClick={onCancel}
             style={{
               border: "none",

@@ -4,6 +4,7 @@ export default function SubmitButton({ label, onClick, disabled, color = "#cb9f0
   const muted = "rgba(40,30,70,0.45)";
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={disabled}
       style={{

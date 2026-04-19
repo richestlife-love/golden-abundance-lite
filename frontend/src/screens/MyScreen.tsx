@@ -112,6 +112,8 @@ export default function MyScreen({
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button
+              type="button"
+              aria-label="登出"
               onClick={onSignOut}
               title="登出"
               style={{
@@ -145,6 +147,8 @@ export default function MyScreen({
               </svg>
             </button>
             <button
+              type="button"
+              aria-label="設定"
               onClick={() => onNavigate("profile")}
               style={{
                 width: 36,
@@ -537,6 +541,7 @@ export default function MyScreen({
               return (
                 <button
                   key={t.id}
+                  type="button"
                   onClick={() => setTeamTab(t.id)}
                   style={{
                     flex: 1,
@@ -634,6 +639,7 @@ export default function MyScreen({
                     還沒加入任何團隊
                   </div>
                   <button
+                    type="button"
                     onClick={onBuildTeam}
                     style={{
                       padding: "8px 14px",
@@ -664,6 +670,7 @@ export default function MyScreen({
                       }}
                     >
                       <button
+                        type="button"
                         onClick={onSimulateJoinApproved}
                         title="Demo：模擬隊長核准申請"
                         style={{
@@ -741,6 +748,7 @@ export default function MyScreen({
                     尚未建立任何團隊
                   </div>
                   <button
+                    type="button"
                     onClick={() => onOpenTask(3)}
                     style={{
                       padding: "8px 14px",

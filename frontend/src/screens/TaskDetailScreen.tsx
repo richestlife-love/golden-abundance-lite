@@ -134,6 +134,7 @@ export default function TaskDetailScreen({
           }}
         >
           <button
+            type="button"
             onClick={onBack}
             style={{
               border: "none",
@@ -162,6 +163,8 @@ export default function TaskDetailScreen({
             返回
           </button>
           <button
+            type="button"
+            aria-label="分享"
             style={{
               border: "none",
               background: "transparent",
@@ -918,6 +921,7 @@ export default function TaskDetailScreen({
           }}
         >
           <button
+            type="button"
             onClick={onCta}
             disabled={cta.disabled}
             style={{

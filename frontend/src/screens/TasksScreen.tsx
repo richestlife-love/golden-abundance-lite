@@ -121,6 +121,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
             return (
               <button
                 key={tab.key}
+                type="button"
                 onClick={() => setFilter(tab.key)}
                 style={{
                   flexShrink: 0,

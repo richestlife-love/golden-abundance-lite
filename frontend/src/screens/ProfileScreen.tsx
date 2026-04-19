@@ -86,6 +86,8 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
         }}
       >
         <button
+          type="button"
+          aria-label="返回"
           onClick={onBack}
           style={{
             width: 40,
@@ -105,6 +107,7 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
         </button>
         <div style={{ fontSize: 16, fontWeight: 700, color: fg, flex: 1 }}>個人資料</div>
         <button
+          type="button"
           onClick={onEdit}
           style={{
             height: 32,

@@ -63,6 +63,8 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
           <GoogleLogo />
           {stage === "chooser" && (
             <button
+              type="button"
+              aria-label="關閉"
               onClick={onCancel}
               style={{
                 background: "none",
