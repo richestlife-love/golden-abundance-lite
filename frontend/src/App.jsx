@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import mascotHalfbodyUrl from './assets/mascot-halfbody.png';
-import { TASKS, MOCK_MEMBERS, MOCK_TEAMS } from './data';
+import { TASKS, MOCK_TEAMS } from './data';
 import { getEffectiveStatus } from './utils';
 
 // ─── Global styles ────────────────────────────────────────────
