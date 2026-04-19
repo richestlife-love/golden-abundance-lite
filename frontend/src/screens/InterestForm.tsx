@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState } from "react";
 import FormShell from "../ui/FormShell";
 import FieldLabel from "../ui/FieldLabel";
@@ -55,7 +56,7 @@ export default function InterestForm({ onCancel, onSubmit }: Props) {
         <FieldLabel required>興趣方向</FieldLabel>
         <div
           style={{
-            fontSize: 11,
+            fontSize: fs(11),
             color: muted,
             marginBottom: 10,
             marginTop: -4,
@@ -84,7 +85,7 @@ export default function InterestForm({ onCancel, onSubmit }: Props) {
         <FieldLabel>專長技能</FieldLabel>
         <div
           style={{
-            fontSize: 11,
+            fontSize: fs(11),
             color: muted,
             marginBottom: 10,
             marginTop: -4,

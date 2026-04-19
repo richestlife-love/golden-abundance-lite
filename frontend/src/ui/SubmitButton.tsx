@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 type Props = { label: string; onClick: () => void; disabled?: boolean; color?: string };
 
 export default function SubmitButton({ label, onClick, disabled, color = "#cb9f01" }: Props) {
@@ -13,7 +14,7 @@ export default function SubmitButton({ label, onClick, disabled, color = "#cb9f0
         borderRadius: 16,
         border: "none",
         cursor: disabled ? "default" : "pointer",
-        fontSize: 16,
+        fontSize: fs(16),
         fontWeight: 800,
         letterSpacing: 0.5,
         fontFamily: "inherit",

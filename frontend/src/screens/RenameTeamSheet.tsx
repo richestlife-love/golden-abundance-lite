@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState } from "react";
 import type { Team } from "../types";
 
@@ -55,12 +56,12 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
             }}
           />
         </div>
-        <div style={{ fontSize: 16, fontWeight: 800, color: fg, marginBottom: 2 }}>
+        <div style={{ fontSize: fs(16), fontWeight: 800, color: fg, marginBottom: 2 }}>
           設定團隊組名
         </div>
         <div
           style={{
-            fontSize: 12,
+            fontSize: fs(12),
             color: muted,
             marginBottom: 14,
             lineHeight: 1.5,
@@ -80,7 +81,7 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
             borderRadius: 12,
             background: inputBg,
             border: "1px solid rgba(254,210,52,0.35)",
-            fontSize: 15,
+            fontSize: fs(15),
             color: fg,
             fontFamily: "inherit",
             marginBottom: 14,
@@ -98,7 +99,7 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
                 border: "1px solid rgba(254,210,52,0.4)",
                 background: "transparent",
                 color: muted,
-                fontSize: 13,
+                fontSize: fs(13),
                 fontWeight: 600,
                 fontFamily: "inherit",
                 cursor: "pointer",
@@ -117,7 +118,7 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
               border: "1px solid rgba(254,210,52,0.4)",
               background: "transparent",
               color: muted,
-              fontSize: 13,
+              fontSize: fs(13),
               fontWeight: 600,
               fontFamily: "inherit",
               cursor: "pointer",
@@ -138,7 +139,7 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
                 ? "linear-gradient(135deg, var(--gold-light), var(--gold))"
                 : "rgba(254,210,52,0.25)",
               color: value.trim() ? "#fff" : muted,
-              fontSize: 13,
+              fontSize: fs(13),
               fontWeight: 800,
               fontFamily: "inherit",
               cursor: value.trim() ? "pointer" : "not-allowed",

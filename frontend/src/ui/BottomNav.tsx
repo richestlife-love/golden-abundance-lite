@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import type { ScreenId } from "../types";
 
 type Props = {
@@ -42,8 +43,8 @@ export default function BottomNav({ current, muted, onNavigate }: Props) {
               color: active ? "#fec701" : muted,
             }}
           >
-            <div style={{ fontSize: 18, lineHeight: 1 }}>{n.icon}</div>
-            <div style={{ fontSize: 10, fontWeight: active ? 700 : 500 }}>{n.label}</div>
+            <div style={{ fontSize: fs(18), lineHeight: 1 }}>{n.icon}</div>
+            <div style={{ fontSize: fs(10), fontWeight: active ? 700 : 500 }}>{n.label}</div>
           </div>
         );
       })}

@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import MyRewards from "./MyRewards";
 import type { User, Task } from "../types";
 
@@ -58,12 +59,12 @@ export default function RewardsScreen({ user, tasks, onBack }: Props) {
             justifyContent: "center",
             cursor: "pointer",
             color: fg,
-            fontSize: 20,
+            fontSize: fs(20),
           }}
         >
           ‹
         </button>
-        <div style={{ fontSize: 16, fontWeight: 700, color: fg, flex: 1 }}>我的獎勵</div>
+        <div style={{ fontSize: fs(16), fontWeight: 700, color: fg, flex: 1 }}>我的獎勵</div>
         <div style={{ width: 40 }} />
       </div>
 
@@ -126,7 +127,7 @@ export default function RewardsScreen({ user, tasks, onBack }: Props) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 26,
+                fontSize: fs(26),
                 fontWeight: 800,
                 color: "#fff",
                 boxShadow: "0 8px 22px rgba(254,199,1,0.4)",
@@ -138,7 +139,7 @@ export default function RewardsScreen({ user, tasks, onBack }: Props) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: fs(11),
                   fontWeight: 700,
                   color: muted,
                   letterSpacing: 0.5,
@@ -156,7 +157,7 @@ export default function RewardsScreen({ user, tasks, onBack }: Props) {
               >
                 <div
                   style={{
-                    fontSize: 36,
+                    fontSize: fs(36),
                     fontWeight: 900,
                     letterSpacing: -1,
                     fontFamily: "var(--font-serif)",

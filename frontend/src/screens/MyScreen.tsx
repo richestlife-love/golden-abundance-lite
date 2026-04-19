@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState } from "react";
 import type { MouseEvent, KeyboardEvent } from "react";
 import BottomNav from "../ui/BottomNav";
@@ -105,7 +106,7 @@ export default function MyScreen({
         >
           <div
             style={{
-              fontSize: 22,
+              fontSize: fs(22),
               fontWeight: 800,
               color: fg,
               letterSpacing: -0.3,
@@ -291,7 +292,7 @@ export default function MyScreen({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 28,
+                  fontSize: fs(28),
                   fontWeight: 800,
                   color: "#fff",
                   boxShadow: "0 8px 22px rgba(254,199,1,0.4), inset 0 2px 0 rgba(255,255,255,0.4)",
@@ -313,7 +314,7 @@ export default function MyScreen({
               >
                 <div
                   style={{
-                    fontSize: 21,
+                    fontSize: fs(21),
                     fontWeight: 800,
                     color: fg,
                     lineHeight: 1.2,
@@ -337,7 +338,7 @@ export default function MyScreen({
                       gap: 4,
                       padding: "3px 8px",
                       borderRadius: 8,
-                      fontSize: 11,
+                      fontSize: fs(11),
                       fontWeight: 700,
                       fontFamily: 'ui-monospace, "SF Mono", monospace',
                       letterSpacing: 0.3,
@@ -382,7 +383,7 @@ export default function MyScreen({
               </div>
               <div
                 style={{
-                  fontSize: 13,
+                  fontSize: fs(13),
                   color: muted,
                   marginTop: 3,
                   overflow: "hidden",
@@ -395,7 +396,7 @@ export default function MyScreen({
             </div>
             <div
               style={{
-                fontSize: 22,
+                fontSize: fs(22),
                 color: muted,
                 flexShrink: 0,
                 lineHeight: 1,
@@ -464,7 +465,7 @@ export default function MyScreen({
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: 15,
+                    fontSize: fs(15),
                     fontWeight: 800,
                     color: fg,
                     lineHeight: 1.2,
@@ -475,7 +476,7 @@ export default function MyScreen({
               </div>
               <div
                 style={{
-                  fontSize: 18,
+                  fontSize: fs(18),
                   fontWeight: 900,
                   letterSpacing: -0.3,
                   background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
@@ -492,7 +493,7 @@ export default function MyScreen({
               </div>
               <div
                 style={{
-                  fontSize: 20,
+                  fontSize: fs(20),
                   color: muted,
                   flexShrink: 0,
                   lineHeight: 1,
@@ -554,7 +555,7 @@ export default function MyScreen({
                     fontFamily: "inherit",
                     background: active ? t.softBg : "transparent",
                     color: active ? t.color : "rgba(120,90,0,0.45)",
-                    fontSize: 14,
+                    fontSize: fs(14),
                     fontWeight: 800,
                     letterSpacing: 0.5,
                     position: "relative",
@@ -569,7 +570,7 @@ export default function MyScreen({
                 >
                   <span
                     style={{
-                      fontSize: 15,
+                      fontSize: fs(15),
                       transform: active ? "scale(1.15)" : "scale(1)",
                       transition: "transform 0.22s ease",
                       display: "inline-block",
@@ -622,7 +623,7 @@ export default function MyScreen({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: 14,
+                      fontSize: fs(14),
                       color: "#3d7a2e",
                       flexShrink: 0,
                     }}
@@ -682,7 +683,7 @@ export default function MyScreen({
                           border: "1px dashed rgba(254,210,52,0.45)",
                           background: "transparent",
                           color: muted,
-                          fontSize: 10,
+                          fontSize: fs(10),
                           fontWeight: 700,
                           cursor: "pointer",
                           fontFamily: "inherit",
@@ -731,7 +732,7 @@ export default function MyScreen({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: 14,
+                      fontSize: fs(14),
                       color: muted,
                       flexShrink: 0,
                     }}
@@ -742,7 +743,7 @@ export default function MyScreen({
                     style={{
                       flex: 1,
                       minWidth: 0,
-                      fontSize: 12,
+                      fontSize: fs(12),
                       color: muted,
                       lineHeight: 1.4,
                     }}
@@ -759,7 +760,7 @@ export default function MyScreen({
                       cursor: "pointer",
                       background: "linear-gradient(135deg, #fec701, #fec701)",
                       color: "#fff",
-                      fontSize: 11,
+                      fontSize: fs(11),
                       fontWeight: 800,
                       fontFamily: "inherit",
                       boxShadow: "0 3px 10px rgba(254,210,52,0.4)",

@@ -1,4 +1,4 @@
-import { getEffectiveStatus } from "../utils";
+import { getEffectiveStatus, fs } from "../utils";
 import { TASKS } from "../data";
 import type { Task } from "../types";
 
@@ -146,7 +146,7 @@ export default function TaskDetailScreen({
               display: "inline-flex",
               alignItems: "center",
               gap: 4,
-              fontSize: 14,
+              fontSize: fs(14),
               fontWeight: 600,
               fontFamily: "inherit",
             }}
@@ -172,7 +172,7 @@ export default function TaskDetailScreen({
               padding: 8,
               borderRadius: 10,
               color: muted,
-              fontSize: 18,
+              fontSize: fs(18),
             }}
             title="分享"
           >
@@ -199,7 +199,7 @@ export default function TaskDetailScreen({
               position: "absolute",
               right: -20,
               bottom: -40,
-              fontSize: 220,
+              fontSize: fs(220),
               color: "rgba(255,255,255,0.13)",
               lineHeight: 1,
               fontWeight: 900,
@@ -220,7 +220,7 @@ export default function TaskDetailScreen({
               background: "rgba(255,255,255,0.25)",
               backdropFilter: "blur(8px)",
               color: "#fff",
-              fontSize: 11,
+              fontSize: fs(11),
               fontWeight: 700,
               letterSpacing: 0.5,
             }}
@@ -230,7 +230,7 @@ export default function TaskDetailScreen({
 
           <div
             style={{
-              fontSize: 26,
+              fontSize: fs(26),
               fontWeight: 800,
               color: "#fff",
               marginTop: 12,
@@ -244,7 +244,7 @@ export default function TaskDetailScreen({
 
           <div
             style={{
-              fontSize: 13,
+              fontSize: fs(13),
               color: "rgba(255,255,255,0.92)",
               marginTop: 6,
               lineHeight: 1.5,
@@ -274,7 +274,7 @@ export default function TaskDetailScreen({
                 background: "rgba(255,255,255,0.25)",
                 backdropFilter: "blur(8px)",
                 color: "#fff",
-                fontSize: 11,
+                fontSize: fs(11),
                 fontWeight: 700,
               }}
             >
@@ -291,11 +291,11 @@ export default function TaskDetailScreen({
                   background: "rgba(0,0,0,0.15)",
                   backdropFilter: "blur(8px)",
                   color: "#fff",
-                  fontSize: 11,
+                  fontSize: fs(11),
                   fontWeight: 600,
                 }}
               >
-                <span style={{ fontSize: 10 }}>⏱</span>
+                <span style={{ fontSize: fs(10) }}>⏱</span>
                 截止 {t.due}
                 {urgent ? ` · 剩 ${t.daysLeft} 天` : ""}
               </div>
@@ -311,7 +311,7 @@ export default function TaskDetailScreen({
                   background: "rgba(0,0,0,0.15)",
                   backdropFilter: "blur(8px)",
                   color: "#fff",
-                  fontSize: 11,
+                  fontSize: fs(11),
                   fontWeight: 600,
                 }}
               >
@@ -354,7 +354,7 @@ export default function TaskDetailScreen({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 22,
+                fontSize: fs(22),
                 boxShadow: "0 4px 14px rgba(255,180,80,0.35)",
               }}
             >
@@ -363,7 +363,7 @@ export default function TaskDetailScreen({
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: fs(11),
                   color: muted,
                   fontWeight: 600,
                   letterSpacing: 0.3,
@@ -373,7 +373,7 @@ export default function TaskDetailScreen({
               </div>
               <div
                 style={{
-                  fontSize: 20,
+                  fontSize: fs(20),
                   fontWeight: 800,
                   color: "#987701",
                   marginTop: 2,
@@ -384,8 +384,8 @@ export default function TaskDetailScreen({
                 }}
               >
                 <span>+{t.points}</span>
-                <span style={{ fontSize: 18 }}>★</span>
-                <span style={{ fontSize: 13, fontWeight: 700, opacity: 0.7 }}>星點</span>
+                <span style={{ fontSize: fs(18) }}>★</span>
+                <span style={{ fontSize: fs(13), fontWeight: 700, opacity: 0.7 }}>星點</span>
               </div>
             </div>
           </div>
@@ -444,7 +444,7 @@ export default function TaskDetailScreen({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 24,
+                  fontSize: fs(24),
                   color: "#fff",
                   boxShadow: "0 6px 18px rgba(148,120,207,0.45)",
                   position: "relative",
@@ -463,7 +463,7 @@ export default function TaskDetailScreen({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 11,
+                    fontSize: fs(11),
                     color: "#fff",
                     fontWeight: 800,
                     boxShadow: "0 2px 6px rgba(254,199,1,0.5)",
@@ -482,7 +482,7 @@ export default function TaskDetailScreen({
               >
                 <div
                   style={{
-                    fontSize: 10,
+                    fontSize: fs(10),
                     fontWeight: 700,
                     letterSpacing: 1.5,
                     color: "#7A5FC4",
@@ -493,7 +493,7 @@ export default function TaskDetailScreen({
                 </div>
                 <div
                   style={{
-                    fontSize: 16,
+                    fontSize: fs(16),
                     fontWeight: 800,
                     marginTop: 3,
                     color: fg,
@@ -505,7 +505,7 @@ export default function TaskDetailScreen({
                 </div>
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: fs(11),
                     color: muted,
                     marginTop: 3,
                     fontWeight: 600,
@@ -537,9 +537,9 @@ export default function TaskDetailScreen({
                   marginBottom: 10,
                 }}
               >
-                <span style={{ fontSize: 14 }}>🔗</span>
-                <div style={{ fontSize: 13, fontWeight: 700, color: fg }}>前置任務</div>
-                <div style={{ fontSize: 11, color: muted, marginLeft: "auto" }}>
+                <span style={{ fontSize: fs(14) }}>🔗</span>
+                <div style={{ fontSize: fs(13), fontWeight: 700, color: fg }}>前置任務</div>
+                <div style={{ fontSize: fs(11), color: muted, marginLeft: "auto" }}>
                   {prereqTasks.filter((p) => p.status === "completed").length}/{prereqTasks.length}{" "}
                   已完成
                 </div>
@@ -574,7 +574,7 @@ export default function TaskDetailScreen({
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          fontSize: 12,
+                          fontSize: fs(12),
                           fontWeight: 700,
                         }}
                       >
@@ -584,7 +584,7 @@ export default function TaskDetailScreen({
                         style={{
                           flex: 1,
                           minWidth: 0,
-                          fontSize: 13,
+                          fontSize: fs(13),
                           fontWeight: 600,
                           color: fg,
                           overflow: "hidden",
@@ -594,10 +594,10 @@ export default function TaskDetailScreen({
                       >
                         {p.title}
                       </div>
-                      <div style={{ fontSize: 11, color: muted }}>
+                      <div style={{ fontSize: fs(11), color: muted }}>
                         {done ? "已完成" : p.status === "in_progress" ? "進行中" : "待開始"}
                       </div>
-                      <span style={{ color: muted, fontSize: 12 }}>›</span>
+                      <span style={{ color: muted, fontSize: fs(12) }}>›</span>
                     </div>
                   );
                 })}
@@ -634,7 +634,7 @@ export default function TaskDetailScreen({
                     borderRadius: 12,
                     background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                     color: "#fff",
-                    fontSize: 18,
+                    fontSize: fs(18),
                     fontWeight: 700,
                     flexShrink: 0,
                     display: "flex",
@@ -645,20 +645,20 @@ export default function TaskDetailScreen({
                   ⚑
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: fg }}>組隊進度</div>
-                  <div style={{ fontSize: 11, color: muted, marginTop: 1 }}>
+                  <div style={{ fontSize: fs(13), fontWeight: 700, color: fg }}>組隊進度</div>
+                  <div style={{ fontSize: fs(11), color: muted, marginTop: 1 }}>
                     {teamHasTeam ? "集滿至少 6 人即可完成任務" : "尚未建立團隊"}
                   </div>
                 </div>
                 <div
                   style={{
-                    fontSize: 18,
+                    fontSize: fs(18),
                     fontWeight: 800,
                     color: teamHasTeam && teamState.total >= teamState.cap ? "#2E9B65" : fg,
                   }}
                 >
                   {teamHasTeam ? teamState.total : 0}
-                  <span style={{ fontSize: 13, color: muted, fontWeight: 600 }}>
+                  <span style={{ fontSize: fs(13), color: muted, fontWeight: 600 }}>
                     /{teamState?.cap || 6}
                   </span>
                 </div>
@@ -717,7 +717,7 @@ export default function TaskDetailScreen({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 10,
+                        fontSize: fs(10),
                         fontWeight: 700,
                         color: filled ? "#fff" : muted,
                         boxShadow: filled ? "0 3px 10px rgba(254,199,1,0.35)" : "none",
@@ -732,7 +732,7 @@ export default function TaskDetailScreen({
               {teamHasTeam && teamState.total < teamState.cap && (
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: fs(11),
                     color: muted,
                     marginTop: 12,
                     textAlign: "center",
@@ -745,7 +745,7 @@ export default function TaskDetailScreen({
               {teamHasTeam && teamState.total >= teamState.cap && (
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: fs(11),
                     marginTop: 12,
                     textAlign: "center",
                     color: "#2E9B65",
@@ -758,7 +758,7 @@ export default function TaskDetailScreen({
               {!teamHasTeam && (
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: fs(11),
                     color: muted,
                     marginTop: 12,
                     textAlign: "center",
@@ -790,8 +790,8 @@ export default function TaskDetailScreen({
                   marginBottom: 10,
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 700, color: fg }}>步驟進度</div>
-                <div style={{ fontSize: 12, color: muted, fontWeight: 600 }}>
+                <div style={{ fontSize: fs(13), fontWeight: 700, color: fg }}>步驟進度</div>
+                <div style={{ fontSize: fs(12), color: muted, fontWeight: 600 }}>
                   {completedSteps}/{totalSteps}
                 </div>
               </div>
@@ -833,7 +833,7 @@ export default function TaskDetailScreen({
                         background: s.done ? t.color : "transparent",
                         border: s.done ? "none" : `1.5px solid ${"rgba(120,110,150,0.3)"}`,
                         color: "#fff",
-                        fontSize: 11,
+                        fontSize: fs(11),
                         fontWeight: 700,
                         display: "flex",
                         alignItems: "center",
@@ -844,7 +844,7 @@ export default function TaskDetailScreen({
                     </div>
                     <div
                       style={{
-                        fontSize: 13,
+                        fontSize: fs(13),
                         color: fg,
                         textDecoration: s.done ? "line-through" : "none",
                         textDecorationColor: muted,
@@ -871,7 +871,7 @@ export default function TaskDetailScreen({
           >
             <div
               style={{
-                fontSize: 13,
+                fontSize: fs(13),
                 fontWeight: 700,
                 color: fg,
                 marginBottom: 6,
@@ -881,7 +881,7 @@ export default function TaskDetailScreen({
             </div>
             <div
               style={{
-                fontSize: 13,
+                fontSize: fs(13),
                 color: "rgba(40,30,70,0.8)",
                 lineHeight: 1.65,
                 textWrap: "pretty",
@@ -898,7 +898,7 @@ export default function TaskDetailScreen({
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
-                  fontSize: 11,
+                  fontSize: fs(11),
                   color: muted,
                 }}
               >
@@ -929,7 +929,7 @@ export default function TaskDetailScreen({
               height: 54,
               borderRadius: 16,
               cursor: cta.disabled ? "default" : "pointer",
-              fontSize: 16,
+              fontSize: fs(16),
               fontWeight: 800,
               letterSpacing: 0.5,
               fontFamily: "inherit",

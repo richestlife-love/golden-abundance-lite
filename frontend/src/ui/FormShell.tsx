@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import type { ReactNode } from "react";
 
 type Props = {
@@ -55,7 +56,7 @@ export default function FormShell({ bg, title, subtitle, onCancel, children, foo
               display: "inline-flex",
               alignItems: "center",
               gap: 4,
-              fontSize: 14,
+              fontSize: fs(14),
               fontWeight: 600,
               fontFamily: "inherit",
             }}
@@ -73,7 +74,7 @@ export default function FormShell({ bg, title, subtitle, onCancel, children, foo
           </button>
           <div
             style={{
-              fontSize: 15,
+              fontSize: fs(15),
               fontWeight: 700,
               color: fg,
               textAlign: "center",
@@ -89,7 +90,7 @@ export default function FormShell({ bg, title, subtitle, onCancel, children, foo
           <div
             style={{
               padding: "0 20px 4px",
-              fontSize: 12,
+              fontSize: fs(12),
               color: muted,
               textAlign: "center",
               flexShrink: 0,

@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState } from "react";
 import BottomNav from "../ui/BottomNav";
 import type { User, Task, ScreenId } from "../types";
@@ -589,7 +590,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
           <div>
             <div
               style={{
-                fontSize: 22,
+                fontSize: fs(22),
                 fontWeight: 900,
                 color: fg,
                 letterSpacing: -0.5,
@@ -597,7 +598,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
             >
               排行榜
             </div>
-            <div style={{ fontSize: 11, color: muted, marginTop: 2 }}>
+            <div style={{ fontSize: fs(11), color: muted, marginTop: 2 }}>
               {tab === "personal"
                 ? "志工星點排名"
                 : tab === "team"
@@ -614,7 +615,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
               borderRadius: 999,
               background: "linear-gradient(135deg, #FFE29A, #FFC070)",
               color: "#6B4000",
-              fontSize: 11,
+              fontSize: fs(11),
               fontWeight: 800,
               boxShadow: "0 3px 10px rgba(255,180,80,0.25)",
             }}
@@ -648,7 +649,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                 padding: "10px 0",
                 borderRadius: 14,
                 fontFamily: "inherit",
-                fontSize: 14,
+                fontSize: fs(14),
                 fontWeight: 800,
                 cursor: "pointer",
                 border: "none",
@@ -686,7 +687,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                 style={{
                   padding: "5px 12px",
                   borderRadius: 999,
-                  fontSize: 12,
+                  fontSize: fs(12),
                   fontWeight: 700,
                   fontFamily: "inherit",
                   cursor: "pointer",
@@ -715,7 +716,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
             }}
           >
             {challenges.length === 0 ? (
-              <div style={{ fontSize: 12, color: muted, padding: "5px 0" }}>暫無挑戰任務</div>
+              <div style={{ fontSize: fs(12), color: muted, padding: "5px 0" }}>暫無挑戰任務</div>
             ) : (
               challenges.map((c) => {
                 const active = c.id === selectedChallengeId;
@@ -727,7 +728,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                     style={{
                       padding: "5px 12px",
                       borderRadius: 999,
-                      fontSize: 12,
+                      fontSize: fs(12),
                       fontWeight: 700,
                       fontFamily: "inherit",
                       cursor: "pointer",
@@ -741,7 +742,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                       gap: 4,
                     }}
                   >
-                    <span style={{ fontSize: 11 }}>⚑</span>
+                    <span style={{ fontSize: fs(11) }}>⚑</span>
                     {c.title}
                   </button>
                 );
@@ -786,7 +787,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 22,
+                  fontSize: fs(22),
                   color: "#fff",
                   boxShadow: "0 4px 10px rgba(254,199,1,0.4)",
                 }}
@@ -796,7 +797,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
-                    fontSize: 14,
+                    fontSize: fs(14),
                     fontWeight: 800,
                     color: fg,
                     fontFamily: "var(--font-serif)",
@@ -810,7 +811,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                   style={{
                     display: "flex",
                     gap: 12,
-                    fontSize: 11,
+                    fontSize: fs(11),
                     color: muted,
                     fontWeight: 600,
                   }}
@@ -819,7 +820,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                     <b
                       style={{
                         color: "#987701",
-                        fontSize: 13,
+                        fontSize: fs(13),
                       }}
                     >
                       {currentChallengeData.totalTeams}
@@ -830,7 +831,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                     <b
                       style={{
                         color: "#987701",
-                        fontSize: 13,
+                        fontSize: fs(13),
                       }}
                     >
                       {currentChallengeData.totalUsers}
@@ -860,7 +861,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                     }}
                   />
                 </div>
-                <div style={{ fontSize: 10, color: muted, marginTop: 3 }}>
+                <div style={{ fontSize: fs(10), color: muted, marginTop: 3 }}>
                   完成率 {Math.round(currentChallengeData.completionRate * 100)}% (
                   {currentChallengeData.totalTeams}/{currentChallengeData.activeTeams} 報名團隊)
                 </div>
@@ -966,7 +967,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                           alignItems: "center",
                           justifyContent: "center",
                           color: "#fff",
-                          fontSize: isWinner ? 24 : 20,
+                          fontSize: fs(isWinner ? 24 : 20),
                           fontWeight: 800,
                           boxShadow: `0 8px 22px ${isWinner ? "rgba(254,199,1,0.5)" : "rgba(0,0,0,0.15)"}`,
                           border: `3px solid ${medal}`,
@@ -1002,7 +1003,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                             borderRadius: 999,
                             background: medal,
                             color: "var(--fg)",
-                            fontSize: 11,
+                            fontSize: fs(11),
                             fontWeight: 900,
                             display: "flex",
                             alignItems: "center",
@@ -1018,7 +1019,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                       <div
                         style={{
                           marginTop: 10,
-                          fontSize: isWinner ? 14 : 12,
+                          fontSize: fs(isWinner ? 14 : 12),
                           fontWeight: 800,
                           color: fg,
                           textAlign: "center",
@@ -1033,7 +1034,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                       </div>
                       <div
                         style={{
-                          fontSize: 10,
+                          fontSize: fs(10),
                           color: muted,
                           marginTop: 2,
                           textAlign: "center",
@@ -1059,7 +1060,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                             ? "linear-gradient(135deg, #FFE29A, #FFC070)"
                             : "rgba(254,199,1,0.18)",
                           color: isWinner ? "#6B4000" : "#987701",
-                          fontSize: 11,
+                          fontSize: fs(11),
                           fontWeight: 800,
                           boxShadow: isWinner ? "0 3px 10px rgba(255,180,80,0.3)" : "none",
                         }}
@@ -1081,7 +1082,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                           alignItems: "center",
                           justifyContent: "center",
                           color: isWinner ? "var(--fg)" : "var(--gold-dark)",
-                          fontSize: 28,
+                          fontSize: fs(28),
                           fontWeight: 900,
                           fontFamily: "var(--font-serif)",
                           boxShadow: isWinner
@@ -1111,7 +1112,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
             <div
               style={{
                 padding: "12px 16px 8px",
-                fontSize: 12,
+                fontSize: fs(12),
                 fontWeight: 700,
                 color: muted,
                 letterSpacing: 0.5,
@@ -1124,7 +1125,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
               <div
                 style={{
                   padding: "20px 16px",
-                  fontSize: 12,
+                  fontSize: fs(12),
                   color: muted,
                   textAlign: "center",
                 }}
@@ -1178,7 +1179,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                       style={{
                         width: 26,
                         textAlign: "center",
-                        fontSize: 14,
+                        fontSize: fs(14),
                         fontWeight: 800,
                         color: isMe ? "#987701" : muted,
                         fontFamily: "var(--font-serif)",
@@ -1198,7 +1199,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                         alignItems: "center",
                         justifyContent: "center",
                         color: "#fff",
-                        fontSize: 15,
+                        fontSize: fs(15),
                         fontWeight: 800,
                         boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
                       }}
@@ -1226,7 +1227,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div
                         style={{
-                          fontSize: 13,
+                          fontSize: fs(13),
                           fontWeight: 700,
                           color: fg,
                           overflow: "hidden",
@@ -1241,7 +1242,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                               marginLeft: 6,
                               padding: "1px 6px",
                               borderRadius: 6,
-                              fontSize: 9,
+                              fontSize: fs(9),
                               fontWeight: 800,
                               background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                               color: "var(--fg)",
@@ -1254,7 +1255,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                       </div>
                       <div
                         style={{
-                          fontSize: 10,
+                          fontSize: fs(10),
                           color: muted,
                           marginTop: 1,
                           overflow: "hidden",
@@ -1272,7 +1273,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                     {/* Points */}
                     <div
                       style={{
-                        fontSize: 14,
+                        fontSize: fs(14),
                         fontWeight: 800,
                         color: isMe ? "#987701" : fg,
                         fontFamily: "var(--font-serif)",
@@ -1314,7 +1315,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
               style={{
                 width: 36,
                 textAlign: "center",
-                fontSize: 11,
+                fontSize: fs(11),
                 fontWeight: 700,
                 color: muted,
               }}
@@ -1323,7 +1324,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
               <br />
               <span
                 style={{
-                  fontSize: 16,
+                  fontSize: fs(16),
                   fontWeight: 900,
                   color: "#987701",
                   fontFamily: "var(--font-serif)",
@@ -1342,7 +1343,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                 alignItems: "center",
                 justifyContent: "center",
                 color: "#fff",
-                fontSize: 14,
+                fontSize: fs(14),
                 fontWeight: 800,
                 flexShrink: 0,
               }}
@@ -1350,8 +1351,8 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
               {myName[0]}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: fg }}>{myName}</div>
-              <div style={{ fontSize: 10, color: muted }}>
+              <div style={{ fontSize: fs(13), fontWeight: 700, color: fg }}>{myName}</div>
+              <div style={{ fontSize: fs(10), color: muted }}>
                 {myRank <= 3
                   ? "太厲害了！你在前三名 🎉"
                   : myRank <= 10
@@ -1361,7 +1362,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
             </div>
             <div
               style={{
-                fontSize: 14,
+                fontSize: fs(14),
                 fontWeight: 800,
                 color: "#987701",
                 fontFamily: "var(--font-serif)",

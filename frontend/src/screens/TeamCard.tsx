@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState } from "react";
 import RenameTeamSheet from "./RenameTeamSheet";
 import ShareSheet from "./ShareSheet";
@@ -119,7 +120,7 @@ export default function TeamCard({
               borderRadius: 14,
               background: "linear-gradient(135deg, #A8D680, #6dae4a)",
               color: "#fff",
-              fontSize: 22,
+              fontSize: fs(22),
               flexShrink: 0,
               display: "flex",
               alignItems: "center",
@@ -132,7 +133,7 @@ export default function TeamCard({
           <div style={{ flex: 1, minWidth: 0 }}>
             <div
               style={{
-                fontSize: 15,
+                fontSize: fs(15),
                 fontWeight: 800,
                 color: fg,
                 lineHeight: 1.2,
@@ -161,7 +162,7 @@ export default function TeamCard({
               borderRadius: 999,
               background: team.leader.avatar,
               color: "#fff",
-              fontSize: 13,
+              fontSize: fs(13),
               fontWeight: 700,
               display: "flex",
               alignItems: "center",
@@ -172,7 +173,7 @@ export default function TeamCard({
             {team.leader.name[0]}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: fg }}>{team.leader.name}</div>
+            <div style={{ fontSize: fs(13), fontWeight: 700, color: fg }}>{team.leader.name}</div>
             <button
               type="button"
               onClick={copyId}
@@ -182,7 +183,7 @@ export default function TeamCard({
                 background: "transparent",
                 border: "none",
                 cursor: "pointer",
-                fontSize: 11,
+                fontSize: fs(11),
                 color: idCopied ? "#2E9B65" : muted,
                 marginTop: 2,
                 display: "inline-flex",
@@ -233,7 +234,7 @@ export default function TeamCard({
               cursor: "pointer",
               background: "transparent",
               color: muted,
-              fontSize: 12,
+              fontSize: fs(12),
               fontWeight: 600,
               fontFamily: "inherit",
               flexShrink: 0,
@@ -352,7 +353,7 @@ export default function TeamCard({
                   borderRadius: 999,
                   background: "rgba(255,255,255,0.6)",
                   border: rc.borderSoft,
-                  fontSize: 10,
+                  fontSize: fs(10),
                   fontWeight: 800,
                   letterSpacing: 1.2,
                   color: rc.primaryDeep,
@@ -364,7 +365,7 @@ export default function TeamCard({
               </div>
               <div
                 style={{
-                  fontSize: 22,
+                  fontSize: fs(22),
                   fontWeight: 800,
                   color: fg,
                   lineHeight: 1.15,
@@ -390,7 +391,7 @@ export default function TeamCard({
                       border: rc.borderStrong,
                       background: "rgba(255,255,255,0.85)",
                       color: rc.primary,
-                      fontSize: 11,
+                      fontSize: fs(11),
                       cursor: "pointer",
                       padding: 0,
                       lineHeight: 1,
@@ -414,7 +415,7 @@ export default function TeamCard({
                       cursor: "pointer",
                       background: "var(--card)",
                       color: muted,
-                      fontSize: 12,
+                      fontSize: fs(12),
                       fontWeight: 700,
                       fontFamily: "inherit",
                       display: "inline-flex",
@@ -430,7 +431,7 @@ export default function TeamCard({
               {isLeader && team.alias && (
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: fs(12),
                     color: muted,
                     marginTop: 4,
                     fontWeight: 600,
@@ -473,7 +474,7 @@ export default function TeamCard({
             >
               <div
                 style={{
-                  fontSize: 8,
+                  fontSize: fs(8),
                   fontWeight: 800,
                   letterSpacing: 0.8,
                   color: muted,
@@ -484,7 +485,7 @@ export default function TeamCard({
               </div>
               <div
                 style={{
-                  fontSize: 13,
+                  fontSize: fs(13),
                   fontWeight: 800,
                   color: idCopied ? "#2E9B65" : fg,
                   marginTop: 3,
@@ -588,7 +589,7 @@ export default function TeamCard({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 22,
+                fontSize: fs(22),
                 flexShrink: 0,
                 position: "relative",
                 zIndex: 1,
@@ -600,7 +601,7 @@ export default function TeamCard({
             <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
               <div
                 style={{
-                  fontSize: 10,
+                  fontSize: fs(10),
                   fontWeight: 800,
                   letterSpacing: 1.5,
                   color: "#8c6d00",
@@ -611,13 +612,13 @@ export default function TeamCard({
                   marginBottom: 3,
                 }}
               >
-                <span style={{ fontSize: 9 }}>✦</span> 組長專屬任務
+                <span style={{ fontSize: fs(9) }}>✦</span> 組長專屬任務
               </div>
               <div
                 style={{
                   fontWeight: 800,
                   lineHeight: 1.15,
-                  fontSize: 18,
+                  fontSize: fs(18),
                   color: "#5a4500",
                   fontFamily: "var(--font-serif)",
                   letterSpacing: -0.3,
@@ -628,7 +629,7 @@ export default function TeamCard({
               <div
                 style={{
                   marginTop: 5,
-                  fontSize: 11.5,
+                  fontSize: fs(11.5),
                   fontWeight: 700,
                   color: "#8c6d00",
                   display: "inline-flex",
@@ -645,7 +646,7 @@ export default function TeamCard({
                     color: "#fff",
                     boxShadow: "0 2px 6px rgba(200,160,0,0.4)",
                     fontWeight: 800,
-                    fontSize: 11,
+                    fontSize: fs(11),
                     letterSpacing: 0.3,
                   }}
                 >
@@ -659,7 +660,7 @@ export default function TeamCard({
                 borderRadius: 999,
                 background: "linear-gradient(135deg, #5a4500, #3d2f00)",
                 color: "#fff",
-                fontSize: 13,
+                fontSize: fs(13),
                 fontWeight: 800,
                 display: "inline-flex",
                 alignItems: "center",
@@ -712,7 +713,7 @@ export default function TeamCard({
                 fontWeight: 800,
                 color: muted,
                 letterSpacing: 1,
-                fontSize: 10,
+                fontSize: fs(10),
                 textTransform: "uppercase",
               }}
             >
@@ -732,7 +733,7 @@ export default function TeamCard({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 6,
-                  fontSize: 28,
+                  fontSize: fs(28),
                   fontWeight: 900,
                   lineHeight: 1,
                   color: fg,
@@ -740,13 +741,13 @@ export default function TeamCard({
                   letterSpacing: -0.8,
                 }}
               >
-                <span style={{ color: rc.starIcon, fontSize: 22 }}>★</span>
+                <span style={{ color: rc.starIcon, fontSize: fs(22) }}>★</span>
                 {teamPoints.toLocaleString()}
               </span>
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: fs(11),
                 fontWeight: 700,
                 color: rc.primary,
                 display: "inline-flex",
@@ -755,7 +756,7 @@ export default function TeamCard({
                 marginTop: 2,
               }}
             >
-              <span style={{ fontSize: 9 }}>▲</span>
+              <span style={{ fontSize: fs(9) }}>▲</span>
               本週 +{weekPoints.toLocaleString()}
             </div>
           </div>
@@ -774,7 +775,7 @@ export default function TeamCard({
                 fontWeight: 800,
                 color: muted,
                 letterSpacing: 1,
-                fontSize: 10,
+                fontSize: fs(10),
                 textTransform: "uppercase",
               }}
             >
@@ -790,7 +791,7 @@ export default function TeamCard({
             >
               <span
                 style={{
-                  fontSize: 14,
+                  fontSize: fs(14),
                   fontWeight: 800,
                   color: muted,
                   lineHeight: 1,
@@ -800,7 +801,7 @@ export default function TeamCard({
               </span>
               <span
                 style={{
-                  fontSize: 32,
+                  fontSize: fs(32),
                   fontWeight: 900,
                   lineHeight: 1,
                   color: rc.primary,
@@ -816,7 +817,7 @@ export default function TeamCard({
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: fs(11),
                 fontWeight: 700,
                 color: muted,
                 marginTop: 2,
@@ -842,7 +843,7 @@ export default function TeamCard({
                 fontWeight: 800,
                 color: fg,
                 letterSpacing: 0.5,
-                fontSize: 14,
+                fontSize: fs(14),
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
@@ -862,7 +863,7 @@ export default function TeamCard({
                 style={{
                   color: muted,
                   fontWeight: 600,
-                  fontSize: 12,
+                  fontSize: fs(12),
                 }}
               >
                 · {total} 人
@@ -899,7 +900,7 @@ export default function TeamCard({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: 10,
+                      fontSize: fs(10),
                       fontWeight: 800,
                       background:
                         i === 0
@@ -923,7 +924,7 @@ export default function TeamCard({
                       borderRadius: 999,
                       background: m.avatar,
                       color: "#fff",
-                      fontSize: 14,
+                      fontSize: fs(14),
                       fontWeight: 700,
                       display: "flex",
                       alignItems: "center",
@@ -946,7 +947,7 @@ export default function TeamCard({
                   >
                     <div
                       style={{
-                        fontSize: 15,
+                        fontSize: fs(15),
                         fontWeight: 700,
                         color: fg,
                         lineHeight: 1.2,
@@ -960,7 +961,7 @@ export default function TeamCard({
                     {m.isLeader && (
                       <span
                         style={{
-                          fontSize: 10,
+                          fontSize: fs(10),
                           fontWeight: 800,
                           color: rc.primary,
                           padding: "2px 8px",
@@ -976,7 +977,7 @@ export default function TeamCard({
                   </div>
                   <div
                     style={{
-                      fontSize: 14,
+                      fontSize: fs(14),
                       fontWeight: 800,
                       color: rc.primary,
                       fontFamily: "var(--font-serif)",
@@ -987,7 +988,7 @@ export default function TeamCard({
                       gap: 3,
                     }}
                   >
-                    <span style={{ fontSize: 11 }}>★</span>
+                    <span style={{ fontSize: fs(11) }}>★</span>
                     {m.points.toLocaleString()}
                   </div>
                 </div>
@@ -1039,7 +1040,7 @@ export default function TeamCard({
                       borderRadius: 999,
                       background: req.avatar,
                       color: "#fff",
-                      fontSize: 12,
+                      fontSize: fs(12),
                       fontWeight: 700,
                       flexShrink: 0,
                       display: "flex",
@@ -1053,7 +1054,7 @@ export default function TeamCard({
                     style={{
                       flex: 1,
                       minWidth: 0,
-                      fontSize: 13,
+                      fontSize: fs(13),
                       fontWeight: 700,
                       color: fg,
                     }}
@@ -1073,7 +1074,7 @@ export default function TeamCard({
                       cursor: "pointer",
                       background: "linear-gradient(135deg, #7FCFA3, #5BAE85)",
                       color: "#fff",
-                      fontSize: 14,
+                      fontSize: fs(14),
                       fontWeight: 800,
                       fontFamily: "inherit",
                       display: "flex",
@@ -1098,7 +1099,7 @@ export default function TeamCard({
                       cursor: "pointer",
                       background: "transparent",
                       color: muted,
-                      fontSize: 13,
+                      fontSize: fs(13),
                       fontWeight: 700,
                       fontFamily: "inherit",
                       display: "flex",
@@ -1125,7 +1126,7 @@ export default function TeamCard({
           >
             <div
               style={{
-                fontSize: 11,
+                fontSize: fs(11),
                 color: muted,
                 textAlign: "center",
                 padding: "10px",
@@ -1200,14 +1201,14 @@ export default function TeamCard({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 26,
+                fontSize: fs(26),
               }}
             >
               🚪
             </div>
             <div
               style={{
-                fontSize: 17,
+                fontSize: fs(17),
                 fontWeight: 800,
                 color: fg,
                 textAlign: "center",
@@ -1219,7 +1220,7 @@ export default function TeamCard({
             </div>
             <div
               style={{
-                fontSize: 13,
+                fontSize: fs(13),
                 color: muted,
                 textAlign: "center",
                 marginBottom: 18,
@@ -1241,7 +1242,7 @@ export default function TeamCard({
                   border: "1px solid rgba(120,90,0,0.18)",
                   background: "transparent",
                   color: fg,
-                  fontSize: 14,
+                  fontSize: fs(14),
                   fontWeight: 700,
                   fontFamily: "inherit",
                   cursor: "pointer",
@@ -1262,7 +1263,7 @@ export default function TeamCard({
                   border: "none",
                   background: "linear-gradient(135deg, #d66060, #b03e3e)",
                   color: "#fff",
-                  fontSize: 14,
+                  fontSize: fs(14),
                   fontWeight: 800,
                   fontFamily: "inherit",
                   cursor: "pointer",

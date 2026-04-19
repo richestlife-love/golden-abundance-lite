@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 type Props = {
   fg: string;
   muted: string;
@@ -134,14 +135,14 @@ export default function MyRewards({
                 background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                 fontWeight: 800,
                 letterSpacing: 0.3,
-                fontSize: 13,
+                fontSize: fs(13),
                 color: "#fff",
               }}
             >
               🎁 我的獎勵
             </div>
           </div>
-          <div style={{ fontSize: 11, color: muted, fontWeight: 600 }}>
+          <div style={{ fontSize: fs(11), color: muted, fontWeight: 600 }}>
             已解鎖 {unlockedCount} / {tiers.length}
           </div>
         </div>
@@ -197,8 +198,8 @@ export default function MyRewards({
                 {renderIcon("crown", 24)}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: fg }}>金牌志工達成 🎉</div>
-                <div style={{ fontSize: 11, color: muted, marginTop: 2 }}>你已解鎖所有階段獎勵</div>
+                <div style={{ fontSize: fs(14), fontWeight: 800, color: fg }}>金牌志工達成 🎉</div>
+                <div style={{ fontSize: fs(11), color: muted, marginTop: 2 }}>你已解鎖所有階段獎勵</div>
               </div>
             </div>
           ) : (
@@ -214,7 +215,7 @@ export default function MyRewards({
                 <div style={{ minWidth: 0 }}>
                   <div
                     style={{
-                      fontSize: 10,
+                      fontSize: fs(10),
                       fontWeight: 800,
                       letterSpacing: 0.6,
                       color: "#987701",
@@ -225,7 +226,7 @@ export default function MyRewards({
                   </div>
                   <div
                     style={{
-                      fontSize: 15,
+                      fontSize: fs(15),
                       fontWeight: 800,
                       color: fg,
                       marginTop: 2,
@@ -281,7 +282,7 @@ export default function MyRewards({
                   alignItems: "center",
                   justifyContent: "space-between",
                   marginTop: 8,
-                  fontSize: 11,
+                  fontSize: fs(11),
                   color: muted,
                   fontWeight: 600,
                 }}
@@ -312,8 +313,8 @@ export default function MyRewards({
           justifyContent: "space-between",
         }}
       >
-        <div style={{ fontSize: 13, fontWeight: 800, color: fg }}>階段徽章</div>
-        <div style={{ fontSize: 11, color: muted, fontWeight: 600 }}>
+        <div style={{ fontSize: fs(13), fontWeight: 800, color: fg }}>階段徽章</div>
+        <div style={{ fontSize: fs(11), color: muted, fontWeight: 600 }}>
           已解鎖 {unlockedCount} / {tiers.length}
         </div>
       </div>
@@ -392,7 +393,7 @@ export default function MyRewards({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: 10,
+                      fontSize: fs(10),
                       color: muted,
                     }}
                   >
@@ -410,7 +411,7 @@ export default function MyRewards({
                       borderRadius: 999,
                       background: "linear-gradient(135deg, #7FCFA3, #5BAE85)",
                       color: "#fff",
-                      fontSize: 11,
+                      fontSize: fs(11),
                       fontWeight: 900,
                       display: "flex",
                       alignItems: "center",
@@ -424,7 +425,7 @@ export default function MyRewards({
               </div>
               <div
                 style={{
-                  fontSize: 12,
+                  fontSize: fs(12),
                   fontWeight: 800,
                   color: fg,
                   textAlign: "center",
@@ -435,7 +436,7 @@ export default function MyRewards({
               </div>
               <div
                 style={{
-                  fontSize: 10,
+                  fontSize: fs(10),
                   color: muted,
                   marginTop: 3,
                   textAlign: "center",
@@ -447,7 +448,7 @@ export default function MyRewards({
               <div
                 style={{
                   marginTop: 6,
-                  fontSize: 10,
+                  fontSize: fs(10),
                   fontWeight: 800,
                   color: unlocked ? "#987701" : muted,
                 }}
@@ -469,10 +470,10 @@ export default function MyRewards({
           justifyContent: "space-between",
         }}
       >
-        <div style={{ fontSize: 13, fontWeight: 800, color: fg }}>星點紀錄</div>
+        <div style={{ fontSize: fs(13), fontWeight: 800, color: fg }}>星點紀錄</div>
         <div
           style={{
-            fontSize: 11,
+            fontSize: fs(11),
             color: muted,
             fontWeight: 600,
             cursor: "pointer",
@@ -586,7 +587,7 @@ export default function MyRewards({
                     key={"h-" + i}
                     style={{
                       padding: i === 0 ? "10px 14px 6px" : "10px 14px 6px",
-                      fontSize: 10,
+                      fontSize: fs(10),
                       fontWeight: 800,
                       letterSpacing: 0.8,
                       color: muted,
@@ -620,7 +621,7 @@ export default function MyRewards({
                       flexShrink: 0,
                       background: `linear-gradient(135deg, ${h.color}, ${h.gradEnd})`,
                       color: "#fff",
-                      fontSize: 15,
+                      fontSize: fs(15),
                       fontWeight: 800,
                       display: "flex",
                       alignItems: "center",
@@ -634,7 +635,7 @@ export default function MyRewards({
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div
                       style={{
-                        fontSize: 13,
+                        fontSize: fs(13),
                         fontWeight: 700,
                         color: fg,
                         lineHeight: 1.3,
@@ -649,7 +650,7 @@ export default function MyRewards({
                     </div>
                     <div
                       style={{
-                        fontSize: 10,
+                        fontSize: fs(10),
                         color: muted,
                         marginTop: 2,
                         display: "flex",
@@ -666,7 +667,7 @@ export default function MyRewards({
                   {/* Points */}
                   <div
                     style={{
-                      fontSize: 14,
+                      fontSize: fs(14),
                       fontWeight: 900,
                       lineHeight: 1,
                       color: "#987701",
@@ -677,7 +678,7 @@ export default function MyRewards({
                     +{h.points}
                     <span
                       style={{
-                        fontSize: 10,
+                        fontSize: fs(10),
                         fontWeight: 700,
                         marginLeft: 2,
                         opacity: 0.8,

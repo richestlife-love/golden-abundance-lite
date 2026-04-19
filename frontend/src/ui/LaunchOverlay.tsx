@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useEffect } from "react";
 
 type Props = {
@@ -37,7 +38,7 @@ export default function LaunchOverlay({ onDone }: Props) {
       />
       <div
         style={{
-          fontSize: 16,
+          fontSize: fs(16),
           fontWeight: 600,
           letterSpacing: 6,
           fontFamily: "var(--font-sans)",

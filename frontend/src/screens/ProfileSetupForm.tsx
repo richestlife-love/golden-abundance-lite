@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState } from "react";
 import FormShell from "../ui/FormShell";
 import FieldLabel from "../ui/FieldLabel";
@@ -223,7 +224,7 @@ export default function ProfileSetupForm({
             alignItems: "center",
             justifyContent: "center",
             color: "#fff",
-            fontSize: 16,
+            fontSize: fs(16),
             fontWeight: 800,
             flexShrink: 0,
             boxShadow: "0 4px 12px rgba(254,199,1,0.35)",
@@ -232,10 +233,10 @@ export default function ProfileSetupForm({
           {(user?.name || "U").slice(0, 1).toUpperCase()}
         </div>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: fg }}>{user?.name || "新志工"}</div>
+          <div style={{ fontSize: fs(14), fontWeight: 700, color: fg }}>{user?.name || "新志工"}</div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: fs(11),
               color: muted,
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -256,7 +257,7 @@ export default function ProfileSetupForm({
         <FieldLabel>英文姓名</FieldLabel>
         <div
           style={{
-            fontSize: 11,
+            fontSize: fs(11),
             color: muted,
             marginBottom: 10,
             marginTop: -4,
@@ -271,7 +272,7 @@ export default function ProfileSetupForm({
         <FieldLabel>暱稱 Nickname</FieldLabel>
         <div
           style={{
-            fontSize: 11,
+            fontSize: fs(11),
             color: muted,
             marginBottom: 10,
             marginTop: -4,
@@ -295,7 +296,7 @@ export default function ProfileSetupForm({
                 borderRadius: 12,
                 border: "1px solid rgba(254, 210, 52, 0.4)",
                 background: "rgba(255,255,255,0.85)",
-                fontSize: 14,
+                fontSize: fs(14),
                 color: "var(--fg)",
                 fontFamily: "inherit",
                 outline: "none",
@@ -317,7 +318,7 @@ export default function ProfileSetupForm({
                 top: "50%",
                 transform: "translateY(-50%)",
                 pointerEvents: "none",
-                fontSize: 10,
+                fontSize: fs(10),
                 color: "var(--muted)",
               }}
             >
@@ -334,7 +335,7 @@ export default function ProfileSetupForm({
         <FieldLabel>LINE ID</FieldLabel>
         <div
           style={{
-            fontSize: 11,
+            fontSize: fs(11),
             color: muted,
             marginBottom: 10,
             marginTop: -4,
@@ -349,7 +350,7 @@ export default function ProfileSetupForm({
         <FieldLabel>Telegram ID</FieldLabel>
         <div
           style={{
-            fontSize: 11,
+            fontSize: fs(11),
             color: muted,
             marginBottom: 10,
             marginTop: -4,
@@ -370,7 +371,7 @@ export default function ProfileSetupForm({
           <FieldLabel required>所在城市/地區</FieldLabel>
           <div
             style={{
-              fontSize: 11,
+              fontSize: fs(11),
               color: muted,
               marginBottom: 10,
               marginTop: -4,

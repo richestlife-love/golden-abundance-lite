@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState } from "react";
 import GoogleLogo from "../ui/GoogleLogo";
 import GoogleSpinner from "../ui/GoogleSpinner";
@@ -73,7 +74,7 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
                 margin: -8,
                 cursor: "pointer",
                 color: "#5F6368",
-                fontSize: 20,
+                fontSize: fs(20),
                 lineHeight: 1,
               }}
             >
@@ -87,7 +88,7 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
             <h1
               style={{
                 fontFamily: '"Google Sans", "Noto Sans SC", sans-serif',
-                fontSize: 24,
+                fontSize: fs(24),
                 fontWeight: 400,
                 color: "#202124",
                 margin: "0 0 6px",
@@ -98,7 +99,7 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
             </h1>
             <p
               style={{
-                fontSize: 14,
+                fontSize: fs(14),
                 color: "#5F6368",
                 margin: "0 0 4px",
                 fontFamily: '"Google Sans", "Noto Sans SC", sans-serif',
@@ -145,7 +146,7 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
                     alignItems: "center",
                     justifyContent: "center",
                     color: "#fff",
-                    fontSize: 14,
+                    fontSize: fs(14),
                     fontWeight: 600,
                     flexShrink: 0,
                   }}
@@ -153,10 +154,10 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
                   {a.name[0]}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, color: "#202124", fontWeight: 500 }}>{a.name}</div>
+                  <div style={{ fontSize: fs(14), color: "#202124", fontWeight: 500 }}>{a.name}</div>
                   <div
                     style={{
-                      fontSize: 12,
+                      fontSize: fs(12),
                       color: "#5F6368",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
@@ -203,7 +204,7 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
                   />
                 </svg>
               </div>
-              <div style={{ fontSize: 14, color: "#202124" }}>使用其他账号</div>
+              <div style={{ fontSize: fs(14), color: "#202124" }}>使用其他账号</div>
             </div>
           </div>
         )}
@@ -212,7 +213,7 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
           <div
             style={{
               padding: "20px 28px 0",
-              fontSize: 12,
+              fontSize: fs(12),
               color: "#5F6368",
               lineHeight: 1.5,
               animation: "fadeIn 0.6s 0.2s ease backwards",
@@ -248,15 +249,15 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
                 alignItems: "center",
                 justifyContent: "center",
                 color: "#fff",
-                fontSize: 22,
+                fontSize: fs(22),
                 fontWeight: 600,
               }}
             >
               {selected.name[0]}
             </div>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 14, color: "#5F6368", marginBottom: 4 }}>正在登录…</div>
-              <div style={{ fontSize: 13, color: "#202124" }}>{selected.email}</div>
+              <div style={{ fontSize: fs(14), color: "#5F6368", marginBottom: 4 }}>正在登录…</div>
+              <div style={{ fontSize: fs(13), color: "#202124" }}>{selected.email}</div>
             </div>
             <GoogleSpinner />
           </div>

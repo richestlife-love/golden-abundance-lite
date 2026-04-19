@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState } from "react";
 import FormShell from "../ui/FormShell";
 import FieldLabel from "../ui/FieldLabel";
@@ -46,7 +47,7 @@ export default function TicketForm({ onCancel, onSubmit }: Props) {
           borderRadius: 16,
           background: "linear-gradient(135deg, rgba(138,212,176,0.18), rgba(138,212,176,0.08))",
           border: `1px solid ${"rgba(138,212,176,0.4)"}`,
-          fontSize: 12,
+          fontSize: fs(12),
           color: "#2E7B5A",
           lineHeight: 1.5,
         }}
@@ -64,7 +65,7 @@ export default function TicketForm({ onCancel, onSubmit }: Props) {
       <div style={card}>
         <FieldLabel required>7/25 票券編號</FieldLabel>
         <TextInput value={ticket725} onChange={setTicket725} placeholder="例如：RL-0725-8420" />
-        <div style={{ fontSize: 11, color: muted, marginTop: 6 }}>
+        <div style={{ fontSize: fs(11), color: muted, marginTop: 6 }}>
           可於購票 Email 或錢包中找到 12 位編號
         </div>
       </div>

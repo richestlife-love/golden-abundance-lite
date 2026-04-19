@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState } from "react";
 import type { User } from "../types";
 
@@ -100,12 +101,12 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
             justifyContent: "center",
             cursor: "pointer",
             color: fg,
-            fontSize: 20,
+            fontSize: fs(20),
           }}
         >
           ‹
         </button>
-        <div style={{ fontSize: 16, fontWeight: 700, color: fg, flex: 1 }}>個人資料</div>
+        <div style={{ fontSize: fs(16), fontWeight: 700, color: fg, flex: 1 }}>個人資料</div>
         <button
           type="button"
           onClick={onEdit}
@@ -116,7 +117,7 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
             border: `1px solid ${accent}60`,
             background: "rgba(254,199,1,0.2)",
             color: accent,
-            fontSize: 13,
+            fontSize: fs(13),
             fontWeight: 700,
             fontFamily: "inherit",
             cursor: "pointer",
@@ -159,7 +160,7 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 30,
+              fontSize: fs(30),
               fontWeight: 800,
               color: "#fff",
               boxShadow: "0 8px 22px rgba(254,199,1,0.4)",
@@ -179,7 +180,7 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
             >
               <div
                 style={{
-                  fontSize: 20,
+                  fontSize: fs(20),
                   fontWeight: 800,
                   color: fg,
                   lineHeight: 1.2,
@@ -198,7 +199,7 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
                     gap: 4,
                     padding: "3px 9px",
                     borderRadius: 8,
-                    fontSize: 11,
+                    fontSize: fs(11),
                     fontWeight: 700,
                     fontFamily: 'ui-monospace, "SF Mono", monospace',
                     letterSpacing: 0.3,
@@ -242,7 +243,7 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
               )}
             </div>
             {user?.enName && (
-              <div style={{ fontSize: 12, color: muted, marginTop: 3 }}>{user.enName}</div>
+              <div style={{ fontSize: fs(12), color: muted, marginTop: 3 }}>{user.enName}</div>
             )}
           </div>
         </div>
@@ -278,17 +279,17 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 13,
+                  fontSize: fs(13),
                   fontWeight: 700,
                 }}
               >
                 {r.icon}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 11, color: muted, fontWeight: 500 }}>{r.label}</div>
+                <div style={{ fontSize: fs(11), color: muted, fontWeight: 500 }}>{r.label}</div>
                 <div
                   style={{
-                    fontSize: 14,
+                    fontSize: fs(14),
                     fontWeight: 600,
                     color: r.value ? fg : muted,
                     marginTop: 2,

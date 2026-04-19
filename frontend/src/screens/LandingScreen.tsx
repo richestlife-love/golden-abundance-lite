@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState, useEffect, useRef } from "react";
 import PaperBackground from "../ui/PaperBackground";
 import MascotHero from "../ui/MascotHero";
@@ -102,7 +103,7 @@ export default function LandingScreen({ onStart }: Props) {
             <span
               style={{
                 color: "#fff",
-                fontSize: 14,
+                fontSize: fs(14),
                 fontWeight: 900,
                 fontFamily: "var(--font-serif)",
               }}
@@ -112,7 +113,7 @@ export default function LandingScreen({ onStart }: Props) {
           </div>
           <span
             style={{
-              fontSize: 12,
+              fontSize: fs(12),
               fontWeight: 600,
               letterSpacing: 2,
               color: "#987701",
@@ -153,7 +154,7 @@ export default function LandingScreen({ onStart }: Props) {
             textAlign: "center",
             marginTop: 14,
             marginBottom: 22,
-            fontSize: 14,
+            fontSize: fs(14),
             fontWeight: 400,
             letterSpacing: 4,
             color: "#987701",

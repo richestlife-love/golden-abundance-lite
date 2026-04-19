@@ -1,5 +1,5 @@
 import { TASKS } from "../data";
-import { getEffectiveStatus } from "../utils";
+import { getEffectiveStatus, fs } from "../utils";
 import BottomNav from "../ui/BottomNav";
 import TaskCard from "./TaskCard";
 import type { User, Task, ScreenId } from "../types";
@@ -95,10 +95,10 @@ export default function HomeScreen({
           }}
         >
           <div>
-            <div style={{ fontSize: 13, color: muted, marginBottom: 2 }}>欢迎回来</div>
+            <div style={{ fontSize: fs(13), color: muted, marginBottom: 2 }}>欢迎回来</div>
             <div
               style={{
-                fontSize: 16,
+                fontSize: fs(16),
                 fontWeight: 600,
                 color: fg,
                 letterSpacing: 0.3,
@@ -119,7 +119,7 @@ export default function HomeScreen({
               alignItems: "center",
               justifyContent: "center",
               color: "#fff",
-              fontSize: 16,
+              fontSize: fs(16),
               fontWeight: 600,
               cursor: "pointer",
               boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
@@ -184,7 +184,7 @@ export default function HomeScreen({
               {/* Name */}
               <div
                 style={{
-                  fontSize: 28,
+                  fontSize: fs(28),
                   fontWeight: 800,
                   color: "#3a2800",
                   fontFamily: "var(--font-serif)",
@@ -206,14 +206,14 @@ export default function HomeScreen({
                       display: "inline-flex",
                       alignItems: "center",
                       gap: 5,
-                      fontSize: 13,
+                      fontSize: fs(13),
                       fontWeight: 800,
                       color: tierTextColor,
                       letterSpacing: 0.5,
                       whiteSpace: "nowrap",
                     }}
                   >
-                    <span style={{ fontSize: 15, lineHeight: 1 }}>{isBaby ? "🍼" : "🏅"}</span>
+                    <span style={{ fontSize: fs(15), lineHeight: 1 }}>{isBaby ? "🍼" : "🏅"}</span>
                     {tierName}
                   </div>
                 );
@@ -246,7 +246,7 @@ export default function HomeScreen({
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 9,
+                    fontSize: fs(9),
                     color: "#fff",
                     boxShadow: "0 2px 6px rgba(254,199,1,0.45)",
                   }}
@@ -255,7 +255,7 @@ export default function HomeScreen({
                 </span>
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: fs(11),
                     color: "#8c6d00",
                     letterSpacing: 1.2,
                     fontWeight: 700,
@@ -273,7 +273,7 @@ export default function HomeScreen({
               >
                 <div
                   style={{
-                    fontSize: 48,
+                    fontSize: fs(48),
                     fontWeight: 900,
                     letterSpacing: -1.5,
                     background: "linear-gradient(135deg, #cb9f01 0%, #fec701 45%, #cb9f01 100%)",
@@ -288,7 +288,7 @@ export default function HomeScreen({
                 </div>
                 <div
                   style={{
-                    fontSize: 30,
+                    fontSize: fs(30),
                     fontWeight: 800,
                     color: "#cb9f01",
                     lineHeight: 1,
@@ -398,7 +398,7 @@ export default function HomeScreen({
                             position: "absolute",
                             left: `${t.pct * 100}%`,
                             transform: "translateX(-50%)",
-                            fontSize: 9.5,
+                            fontSize: fs(9.5),
                             fontWeight: 700,
                             color: totalPoints >= t.value ? "#8c6d00" : muted,
                             letterSpacing: 0.2,
@@ -422,7 +422,7 @@ export default function HomeScreen({
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  fontSize: 12,
+                  fontSize: fs(12),
                   fontWeight: 700,
                   color: "#6B4FA8",
                 }}
@@ -444,10 +444,10 @@ export default function HomeScreen({
             animation: "fadeInUp 0.5s 0.1s ease backwards",
           }}
         >
-          <div style={{ fontSize: 16, fontWeight: 700, color: fg }}>探索任务</div>
+          <div style={{ fontSize: fs(16), fontWeight: 700, color: fg }}>探索任务</div>
           <div
             onClick={() => onNavigate("tasks")}
-            style={{ fontSize: 12, color: muted, cursor: "pointer" }}
+            style={{ fontSize: fs(12), color: muted, cursor: "pointer" }}
           >
             查看全部 →
           </div>
@@ -471,7 +471,7 @@ export default function HomeScreen({
                 border: cardBorder,
                 textAlign: "center",
                 color: muted,
-                fontSize: 13,
+                fontSize: fs(13),
               }}
             >
               暫無進行中任務

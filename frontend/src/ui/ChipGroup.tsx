@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 type MultiProps = {
   options: string[];
   value: string[];
@@ -38,7 +39,7 @@ export default function ChipGroup(props: Props) {
             style={{
               padding: "8px 14px",
               borderRadius: 999,
-              fontSize: 13,
+              fontSize: fs(13),
               fontWeight: 600,
               fontFamily: "inherit",
               cursor: "pointer",

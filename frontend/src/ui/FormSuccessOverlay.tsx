@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useEffect } from "react";
 import type { SuccessData } from "../types";
 
@@ -44,7 +45,7 @@ export default function FormSuccessOverlay({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: 54,
+            fontSize: fs(54),
             color: "#fff",
             margin: "0 auto 18px",
             boxShadow: `0 12px 36px ${color}60`,
@@ -55,7 +56,7 @@ export default function FormSuccessOverlay({
         </div>
         <div
           style={{
-            fontSize: 24,
+            fontSize: fs(24),
             fontWeight: 800,
             color: "#fff",
             letterSpacing: 0.3,
@@ -67,7 +68,7 @@ export default function FormSuccessOverlay({
         {points > 0 && (
           <div
             style={{
-              fontSize: 15,
+              fontSize: fs(15),
               fontWeight: 700,
               color: "#fedd67",
               marginBottom: 4,
@@ -79,7 +80,7 @@ export default function FormSuccessOverlay({
         {bonus && (
           <div
             style={{
-              fontSize: 13,
+              fontSize: fs(13),
               color: "#FFE8B8",
               display: "inline-flex",
               alignItems: "center",

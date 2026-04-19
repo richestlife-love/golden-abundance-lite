@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import type { Team } from "../types";
 
 type Props = {
@@ -77,10 +78,10 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
           />
         </div>
 
-        <div style={{ fontSize: 16, fontWeight: 800, color: fg, marginBottom: 2 }}>
+        <div style={{ fontSize: fs(16), fontWeight: 800, color: fg, marginBottom: 2 }}>
           分享團隊邀請
         </div>
-        <div style={{ fontSize: 12, color: muted, marginBottom: 14 }}>
+        <div style={{ fontSize: fs(12), color: muted, marginBottom: 14 }}>
           編號 {team.id}·將下列訊息分享到聊天
         </div>
 
@@ -91,7 +92,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
             borderRadius: 14,
             background: previewBg,
             border: "1px solid rgba(254,210,52,0.25)",
-            fontSize: 12.5,
+            fontSize: fs(12.5),
             lineHeight: 1.6,
             color: fg,
             whiteSpace: "pre-wrap",
@@ -141,7 +142,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 20,
+                  fontSize: fs(20),
                   fontWeight: 800,
                   boxShadow: "0 3px 8px rgba(0,0,0,0.12)",
                 }}
@@ -150,7 +151,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
               </div>
               <div
                 style={{
-                  fontSize: 10.5,
+                  fontSize: fs(10.5),
                   color: fg,
                   fontWeight: 600,
                   textAlign: "center",
@@ -177,7 +178,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
                 ? "linear-gradient(135deg, #7FCFA3, #5BAE85)"
                 : "linear-gradient(135deg, var(--gold-light), var(--gold))",
               color: "#fff",
-              fontSize: 13,
+              fontSize: fs(13),
               fontWeight: 800,
               fontFamily: "inherit",
               transition: "background 0.25s",
@@ -195,7 +196,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
               background: "transparent",
               cursor: "pointer",
               color: muted,
-              fontSize: 13,
+              fontSize: fs(13),
               fontWeight: 700,
               fontFamily: "inherit",
             }}

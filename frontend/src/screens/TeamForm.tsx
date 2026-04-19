@@ -1,3 +1,4 @@
+import { fs } from "../utils";
 import { useState, useMemo } from "react";
 import FormShell from "../ui/FormShell";
 import FieldLabel from "../ui/FieldLabel";
@@ -106,7 +107,7 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
         <FieldLabel required>團隊編號 / 名稱</FieldLabel>
         <div
           style={{
-            fontSize: 11,
+            fontSize: fs(11),
             color: muted,
             marginBottom: 10,
             marginTop: -4,
@@ -122,7 +123,7 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
               left: 14,
               top: "50%",
               transform: "translateY(-50%)",
-              fontSize: 14,
+              fontSize: fs(14),
               color: muted,
               pointerEvents: "none",
             }}
@@ -141,7 +142,7 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
               borderRadius: 12,
               border: "1px solid rgba(109,174,74,0.4)",
               background: "rgba(255,255,255,0.9)",
-              fontSize: 13,
+              fontSize: fs(13),
               color: fg,
               fontFamily: "inherit",
               outline: "none",
@@ -158,7 +159,7 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
                 padding: "24px 12px",
                 textAlign: "center",
                 color: muted,
-                fontSize: 12,
+                fontSize: fs(12),
                 border: "1px dashed rgba(109,174,74,0.35)",
                 borderRadius: 12,
                 lineHeight: 1.6,
@@ -166,7 +167,7 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
             >
               找不到符合的團隊
               <br />
-              <span style={{ fontSize: 11 }}>請確認團隊編號是否正確</span>
+              <span style={{ fontSize: fs(11) }}>請確認團隊編號是否正確</span>
             </div>
           ) : (
             filteredTeams.map((team) => {
@@ -197,7 +198,7 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
                       borderRadius: 12,
                       background: team.leaderAvatar,
                       color: "#fff",
-                      fontSize: 16,
+                      fontSize: fs(16),
                       fontWeight: 700,
                       flexShrink: 0,
                       display: "flex",
@@ -216,10 +217,10 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
                         flexWrap: "wrap",
                       }}
                     >
-                      <div style={{ fontSize: 14, fontWeight: 700, color: fg }}>{team.name}</div>
+                      <div style={{ fontSize: fs(14), fontWeight: 700, color: fg }}>{team.name}</div>
                       <div
                         style={{
-                          fontSize: 9,
+                          fontSize: fs(9),
                           fontWeight: 800,
                           letterSpacing: 0.4,
                           padding: "1px 6px",
@@ -232,7 +233,7 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
                         {team.id}
                       </div>
                     </div>
-                    <div style={{ fontSize: 11, color: muted, marginTop: 3 }}>
+                    <div style={{ fontSize: fs(11), color: muted, marginTop: 3 }}>
                       組長：{team.leader}
                     </div>
                   </div>
@@ -245,7 +246,7 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
                         : "linear-gradient(135deg, #8dc968, #6dae4a)",
                       border: isPending ? "1.5px solid #4e9a2e" : "none",
                       color: isPending ? "#3d7a2e" : "#fff",
-                      fontSize: 11,
+                      fontSize: fs(11),
                       fontWeight: 700,
                       whiteSpace: "nowrap",
                       flexShrink: 0,

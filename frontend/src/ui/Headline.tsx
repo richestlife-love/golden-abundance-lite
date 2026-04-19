@@ -1,3 +1,5 @@
+import { fs } from "../utils";
+
 type Props = {
   text: string;
   fontSize: number;
@@ -9,7 +11,7 @@ export default function Headline({ text, fontSize }: Props) {
       style={{
         textAlign: "center",
         lineHeight: 1,
-        fontSize,
+        fontSize: fs(fontSize),
         fontWeight: 900,
         letterSpacing: 2,
         fontFamily: "var(--font-sans)",

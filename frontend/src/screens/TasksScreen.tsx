@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import BottomNav from "../ui/BottomNav";
 import TaskCard from "./TaskCard";
-import { getEffectiveStatus } from "../utils";
+import { getEffectiveStatus, fs } from "../utils";
 import { TASKS } from "../data";
 import type { Task, ScreenId } from "../types";
 
@@ -90,7 +90,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
           <div>
             <div
               style={{
-                fontSize: 22,
+                fontSize: fs(22),
                 fontWeight: 800,
                 color: fg,
                 letterSpacing: -0.3,
@@ -98,7 +98,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
             >
               任務
             </div>
-            <div style={{ fontSize: 12, color: muted, marginTop: 2 }}>
+            <div style={{ fontSize: fs(12), color: muted, marginTop: 2 }}>
               {counts.active} 個進行中 · {counts.completed} 個已完成
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
                   border: active ? "none" : "1px solid rgba(254,210,52,0.35)",
                   background: active ? "linear-gradient(135deg, #fec701, #cb9f01)" : cardBg,
                   color: active ? "#fff" : fg,
-                  fontSize: 12.5,
+                  fontSize: fs(12.5),
                   fontWeight: 700,
                   cursor: "pointer",
                   whiteSpace: "nowrap",
@@ -145,7 +145,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
                 {tab.label}
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: fs(10),
                     fontWeight: 700,
                     padding: "1px 6px",
                     borderRadius: 999,
@@ -171,7 +171,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
                 border: cardBorder,
                 textAlign: "center",
                 color: muted,
-                fontSize: 13,
+                fontSize: fs(13),
               }}
             >
               此類別暫無任務
@@ -214,7 +214,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
                     >
                       <div
                         style={{
-                          fontSize: 14,
+                          fontSize: fs(14),
                           fontWeight: 700,
                           color: fg,
                           letterSpacing: 0.2,
@@ -230,7 +230,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
                           marginLeft: 4,
                         }}
                       />
-                      <div style={{ fontSize: 10, color: muted, fontWeight: 600 }}>
+                      <div style={{ fontSize: fs(10), color: muted, fontWeight: 600 }}>
                         {inSec.length}
                       </div>
                     </div>
