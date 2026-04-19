@@ -26,7 +26,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
   // Challenge tasks available for leaderboard
   const challenges = (tasks || []).filter((t) => t.isChallenge);
   const [selectedChallengeId, setSelectedChallengeId] = useState<number | null>(
-    challenges[0]?.id || null,
+    challenges[0]?.id ?? null,
   );
   const selectedChallenge =
     challenges.find((c) => c.id === selectedChallengeId) || challenges[0];
