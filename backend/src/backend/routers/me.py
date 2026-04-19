@@ -14,10 +14,12 @@ from backend.contract import (
     MeTeamsResponse,
     ProfileCreate,
     ProfileUpdate,
+    Task as ContractTask,
     User as ContractUser,
 )
 from backend.db.models import TeamMembershipRow, TeamRow, UserRow
 from backend.db.session import get_session
+from backend.services.task import list_caller_tasks
 from backend.services.team import create_led_team, row_to_contract_team
 from backend.services.user import row_to_contract_user
 
@@ -101,3 +103,11 @@ async def get_me_teams(
             else None
         ),
     )
+
+
+@router.get("/tasks", response_model=list[ContractTask])
+async def get_me_tasks(
+    me: UserRow = Depends(current_user),
+    session: AsyncSession = Depends(get_session),
+) -> list[ContractTask]:
+    return await list_caller_tasks(session, caller=me)
