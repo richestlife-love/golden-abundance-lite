@@ -8,9 +8,10 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.contract import SubmitBody
 from backend.contract import Task as ContractTask
 from backend.contract import TaskStep as ContractTaskStep
-from backend.contract import TeamChallengeProgress
+from backend.contract import TaskSubmissionResponse, TeamChallengeProgress
 from backend.db.models import (
     TaskDefRequiresRow,
     TaskDefRow,
@@ -21,6 +22,7 @@ from backend.db.models import (
     TeamRow,
     UserRow,
 )
+from backend.services.reward import create_reward_if_bonus, row_to_contract_reward
 
 
 async def _completed_task_def_ids(session: AsyncSession, user_id: UUID) -> set[UUID]:
@@ -203,3 +205,62 @@ async def list_caller_tasks(
         )
     ).scalars().all()
     return [await row_to_contract_task(session, d, caller=caller) for d in defs]
+
+
+class TaskSubmitError(Exception):
+    """Raised by submit_task on a business-rule violation; the router
+    maps status_code 1:1 to an HTTPException."""
+
+    def __init__(self, status_code: int, detail: str) -> None:
+        super().__init__(detail)
+        self.status_code = status_code
+        self.detail = detail
+
+
+async def submit_task(
+    session: AsyncSession,
+    *,
+    caller: UserRow,
+    task_def: TaskDefRow,
+    body: SubmitBody,
+) -> TaskSubmissionResponse:
+    if task_def.form_type is None:
+        raise TaskSubmitError(400, "This task does not accept submissions")
+    if body.form_type != task_def.form_type:
+        raise TaskSubmitError(400, "form_type does not match task's declared form_type")
+
+    completed = await _completed_task_def_ids(session, caller.id)
+    requires = await _required_ids(session, task_def.id)
+    if any(r not in completed for r in requires):
+        raise TaskSubmitError(412, "Task prerequisites are not yet completed")
+
+    existing = (
+        await session.execute(
+            select(TaskProgressRow)
+            .where(TaskProgressRow.user_id == caller.id)
+            .where(TaskProgressRow.task_def_id == task_def.id)
+        )
+    ).scalar_one_or_none()
+    if existing is not None and existing.status == "completed":
+        raise TaskSubmitError(409, "Task already completed")
+
+    if existing is None:
+        existing = TaskProgressRow(
+            user_id=caller.id,
+            task_def_id=task_def.id,
+        )
+        session.add(existing)
+    existing.status = "completed"
+    existing.progress = 1.0
+    existing.form_submission = body.model_dump()
+    existing.completed_at = datetime.now(timezone.utc)
+    await session.flush()
+
+    reward_row = await create_reward_if_bonus(session, user=caller, task_def=task_def)
+    await session.commit()
+
+    contract_task = await row_to_contract_task(session, task_def, caller=caller)
+    return TaskSubmissionResponse(
+        task=contract_task,
+        reward=row_to_contract_reward(reward_row) if reward_row else None,
+    )
