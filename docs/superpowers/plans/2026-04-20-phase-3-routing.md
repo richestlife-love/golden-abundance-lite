@@ -14,6 +14,8 @@
 
 **Parallelism hint:** Tasks 6, 7, and 8 are independent once Tasks 1–5 are in place (each migrates disjoint routes/screens). A dispatcher may run them concurrently if desired.
 
+**On "...rest unchanged" instructions:** Several screen-refactor steps (e.g. 6.3, 7.3, 7.4, 8.3, 8.4) describe a partial transformation ("drop this prop type, swap this import, rest unchanged"). When you see one, **read the full file first** so you understand what "rest" means for that specific file. The diff you apply should be surgical: remove the Props type + its destructuring, add the hook calls, rewrite the callbacks, leave everything else (styling, helpers, sub-components, JSX) untouched. If you find yourself rewriting large swaths of unchanged markup, stop — you're overstepping.
+
 ---
 
 ## File Structure
@@ -812,9 +814,9 @@ import { rootRoute } from "./__root";
 export const authedRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "_authed",
-  beforeLoad: ({ context, location }) => {
+  beforeLoad: ({ context }) => {
     if (!context.auth.user) {
-      throw redirect({ to: "/", search: { from: location.pathname } as never });
+      throw redirect({ to: "/" });
     }
     if (!context.auth.profileComplete) {
       throw redirect({ to: "/welcome" });
@@ -931,9 +933,11 @@ function SignInRoute() {
     <GoogleAuthScreen
       onCancel={() => navigate({ to: "/" })}
       onSuccess={(raw) => {
+        // After sign-in, the auth effect in main.tsx's AppShell (router.invalidate)
+        // re-runs the guard on /sign-in, which redirects to /welcome (incomplete
+        // profile) or /home (complete). No explicit navigate needed — and doing
+        // both would race.
         handleSignIn(raw);
-        // profileComplete is false immediately after sign-in; guard pushes to /welcome.
-        navigate({ to: "/welcome" });
       }}
     />
   );
@@ -1094,13 +1098,19 @@ Delete the `type Props` block, the destructuring (`{ user, tasks: tasksProp, ...
 
 Anywhere the current code calls `onNavigate("rewards")`, replace with `navigate({ to: "/rewards" })`; `onNavigate("tasks")` → `navigate({ to: "/tasks" })`; etc.
 
-- [ ] **Step 6.4: Refactor `RankScreen.tsx` and `RewardsScreen.tsx`**
+- [ ] **Step 6.4: Refactor `RankScreen.tsx`**
 
-For each screen:
 - Delete the `type Props` / `Props` interface and destructuring.
-- Import `useNavigate` from `@tanstack/react-router` and `useAppState` from `../state/AppStateContext`.
-- Replace any `onNavigate(x)` call with `navigate({ to: "/<target>" })`.
-- `RewardsScreen`: replace `onBack` with `() => window.history.back()` (or import and use `router.history.back()` via the router-provided hook — simpler: `const router = useRouter(); router.history.back();`).
+- Import `useNavigate` from `@tanstack/react-router` and `useAppState` from `../state/AppStateContext`. Inside the component: `const navigate = useNavigate(); const { user, tasks } = useAppState();`
+- Replace any `onNavigate("<target>")` call with `navigate({ to: "/<target>" })` (using the updated URL mapping — e.g. `onNavigate("rank")` is no longer possible; any self-nav to leaderboard is `"/leaderboard"`).
+- Remove the `tasksProp || TASKS` fallback; use `tasks` from context directly.
+- `RankScreen` does not have an `onBack` prop; skip any back-button refactor here.
+
+- [ ] **Step 6.4b: Refactor `RewardsScreen.tsx`**
+
+- Delete the `type Props` / `Props` interface and destructuring.
+- Import `useNavigate`, `useRouter` from `@tanstack/react-router` and `useAppState`.
+- Replace the `onBack` prop with a hook-driven back: `const router = useRouter(); const onBack = () => router.history.back();`.
 - Remove the `tasksProp || TASKS` fallback; use `tasks` from context.
 
 - [ ] **Step 6.5: Refactor `BottomNav.tsx`**
@@ -1319,9 +1329,9 @@ describe("task routes", () => {
     await waitFor(() => {
       expect(router.state.location.pathname).toBe("/tasks/3");
     });
-    // TaskDetailScreen renders at least a back affordance and the task title.
+    // TASKS[2].title is "組隊挑戰" (Traditional — present in data.ts).
     await waitFor(() => {
-      expect(screen.queryByText(/任務|回/)).not.toBeNull();
+      expect(screen.getByText("組隊挑戰")).toBeInTheDocument();
     });
   });
 
@@ -1419,50 +1429,66 @@ Note: the parent is `tasksRoute` here, making the full path `/tasks/$taskId`.
 
 `frontend/src/routes/_authed.tasks.$taskId.start.tsx`:
 ```tsx
-import { createRoute, redirect, useNavigate, useParams } from "@tanstack/react-router";
+import { createRoute, redirect, useNavigate } from "@tanstack/react-router";
 import InterestForm from "../screens/InterestForm";
 import TicketForm from "../screens/TicketForm";
 import TeamForm from "../screens/TeamForm";
 import { useAppState } from "../state/AppStateContext";
 import { taskDetailRoute } from "./_authed.tasks.$taskId";
 
+const SUPPORTED_TASK_IDS = new Set(["1", "2", "3"]);
+
 function StartRoute() {
   const navigate = useNavigate();
-  const { taskId } = useParams({ from: "/_authed/tasks/$taskId/start" });
+  const { taskId } = taskStartRoute.useParams();
   const id = Number(taskId);
   const { completeTask, joinTeam } = useAppState();
-  const cancel = () =>
-    navigate({ to: "/tasks/$taskId", params: { taskId: String(id) } });
-  if (id === 1)
-    return <InterestForm onCancel={cancel} onSubmit={() => {
-      completeTask(1);
-      navigate({ to: "/tasks/$taskId", params: { taskId: "1" } });
-    }} />;
-  if (id === 2)
-    return <TicketForm onCancel={cancel} onSubmit={() => {
-      completeTask(2);
-      navigate({ to: "/tasks/$taskId", params: { taskId: "2" } });
-    }} />;
-  if (id === 3)
-    return <TeamForm onCancel={() => navigate({ to: "/me" })} onSubmit={(team) => {
-      joinTeam(team);
-      navigate({ to: "/me" });
-    }} />;
-  // Unknown task id — bounce back to detail (detail handles "not found" itself).
-  navigate({ to: "/tasks/$taskId", params: { taskId: String(id) } });
-  return null;
+  const goDetail = (forId: number) =>
+    navigate({ to: "/tasks/$taskId", params: { taskId: String(forId) } });
+
+  if (id === 1) {
+    return (
+      <InterestForm
+        onCancel={() => goDetail(1)}
+        onSubmit={() => {
+          completeTask(1);
+          goDetail(1);
+        }}
+      />
+    );
+  }
+  if (id === 2) {
+    return (
+      <TicketForm
+        onCancel={() => goDetail(2)}
+        onSubmit={() => {
+          completeTask(2);
+          goDetail(2);
+        }}
+      />
+    );
+  }
+  // id === 3 — guaranteed by beforeLoad's SUPPORTED_TASK_IDS check.
+  return (
+    <TeamForm
+      onCancel={() => navigate({ to: "/me" })}
+      onSubmit={(team) => {
+        joinTeam(team);
+        navigate({ to: "/me" });
+      }}
+    />
+  );
 }
 
 export const taskStartRoute = createRoute({
   getParentRoute: () => taskDetailRoute,
   path: "/start",
   beforeLoad: ({ location, params }) => {
-    const state = (location.state as { fromDetail?: boolean } | undefined) ?? {};
-    if (!state.fromDetail) {
-      throw redirect({
-        to: "/tasks/$taskId",
-        params: { taskId: params.taskId },
-      });
+    if (!SUPPORTED_TASK_IDS.has(params.taskId)) {
+      throw redirect({ to: "/tasks/$taskId", params });
+    }
+    if (!location.state.fromDetail) {
+      throw redirect({ to: "/tasks/$taskId", params });
     }
   },
   component: StartRoute,
@@ -1488,15 +1514,15 @@ authedRoute.addChildren([
 
 - [ ] **Step 7.8: Also wire the "build team" entry from `MyScreen`**
 
-This is a cross-task reference used later. When `MyScreen` is migrated (Task 8), its "建立隊伍" button becomes:
+Cross-task reference used in Task 8. When `MyScreen` is migrated, its "建立隊伍" button becomes:
 ```tsx
 navigate({
   to: "/tasks/$taskId/start",
   params: { taskId: "3" },
-  state: { fromDetail: true } as never,
+  state: { fromDetail: true },
 });
 ```
-Note this here so Task 8 doesn't forget the sentinel.
+Noted here so Task 8 doesn't forget the sentinel.
 
 - [ ] **Step 7.9: Run tests + build**
 
@@ -1509,7 +1535,15 @@ Expected: PASS / succeeds.
 - [ ] **Step 7.10: Commit**
 
 ```bash
-git add frontend/src/routes/_authed.tasks*.tsx frontend/src/router.ts frontend/src/screens/TasksScreen.tsx frontend/src/screens/TaskDetailScreen.tsx frontend/src/screens/TaskCard.tsx frontend/src/routes/__tests__/routing.test.tsx
+git add \
+  frontend/src/routes/_authed.tasks.tsx \
+  frontend/src/routes/_authed.tasks.\$taskId.tsx \
+  frontend/src/routes/_authed.tasks.\$taskId.start.tsx \
+  frontend/src/router.ts \
+  frontend/src/screens/TasksScreen.tsx \
+  frontend/src/screens/TaskDetailScreen.tsx \
+  frontend/src/screens/TaskCard.tsx \
+  frontend/src/routes/__tests__/routing.test.tsx
 git commit -m "feat: migrate /tasks, /tasks/:id, /tasks/:id/start to router"
 ```
 
@@ -1571,7 +1605,7 @@ const onBuildTeam = () =>
   navigate({
     to: "/tasks/$taskId/start",
     params: { taskId: "3" },
-    state: { fromDetail: true } as never,
+    state: { fromDetail: true },
   });
 ```
 Replace `onNavigate("profile")` calls with `navigate({ to: "/me/profile" })`. Replace `onOpenTask(id)` with `navigate({ to: "/tasks/$taskId", params: { taskId: String(id) } })`. Replace `onSignOut` wrapper with `() => { handleSignOut(); navigate({ to: "/" }); }`.
@@ -1650,8 +1684,7 @@ export const profileEditRoute = createRoute({
   getParentRoute: () => profileRoute,
   path: "/edit",
   beforeLoad: ({ location }) => {
-    const state = (location.state as { fromProfile?: boolean } | undefined) ?? {};
-    if (!state.fromProfile) {
+    if (!location.state.fromProfile) {
       throw redirect({ to: "/me/profile" });
     }
   },
@@ -1659,10 +1692,10 @@ export const profileEditRoute = createRoute({
 });
 ```
 
-And update `ProfileScreen.tsx`'s `onEdit` to pass the sentinel:
+And update `ProfileScreen.tsx`'s `onEdit` to pass the sentinel (type-safe via the `HistoryState` augmentation in `router.ts`):
 ```tsx
 const onEdit = () =>
-  navigate({ to: "/me/profile/edit", state: { fromProfile: true } as never });
+  navigate({ to: "/me/profile/edit", state: { fromProfile: true } });
 ```
 
 - [ ] **Step 8.6: Wire into router tree**
@@ -1691,7 +1724,14 @@ pnpm build
 - [ ] **Step 8.8: Commit**
 
 ```bash
-git add frontend/src/routes/_authed.me*.tsx frontend/src/router.ts frontend/src/screens/MyScreen.tsx frontend/src/screens/ProfileScreen.tsx frontend/src/routes/__tests__/routing.test.tsx
+git add \
+  frontend/src/routes/_authed.me.tsx \
+  frontend/src/routes/_authed.me.profile.tsx \
+  frontend/src/routes/_authed.me.profile.edit.tsx \
+  frontend/src/router.ts \
+  frontend/src/screens/MyScreen.tsx \
+  frontend/src/screens/ProfileScreen.tsx \
+  frontend/src/routes/__tests__/routing.test.tsx
 git commit -m "feat: migrate /me, /me/profile, /me/profile/edit to router"
 ```
 
@@ -1728,13 +1768,17 @@ pnpm build
 ```
 Any unused-import errors surface here. Fix each (typically dropping `TASKS` from `../data` where the fallback was removed, and any unused callback type imports).
 
-- [ ] **Step 9.4: Verify demo-only prop tag**
+- [ ] **Step 9.4: Tag the demo-only call**
 
-`MyScreen` previously took `onSimulateJoinApproved` as a prop. In its migrated form it calls `simulateJoinApproved` from context. Confirm a single-line comment near the call:
+`MyScreen` previously took `onSimulateJoinApproved` as a prop. In its migrated form it calls `simulateJoinApproved` from context. Ensure a single-line comment flags it as demo-only. Run:
+```bash
+grep -n "simulateJoinApproved" frontend/src/screens/MyScreen.tsx
+```
+At each call site, the line immediately above should read:
 ```tsx
 // demo-only; remove when Phase 4 wires real team-membership events from the backend
-simulateJoinApproved();
 ```
+If missing, add it.
 
 - [ ] **Step 9.5: Run full verification**
 
@@ -1813,14 +1857,59 @@ describe("guard sweep", () => {
 });
 ```
 
-- [ ] **Step 10.3: Run full test suite**
+- [ ] **Step 10.3: Not-found, click-through, and history tests**
+
+Append:
+```tsx
+describe("not found", () => {
+  it("/tasks/999 renders the not-found component", async () => {
+    renderRoute("/tasks/999", { seed: "authed-complete" });
+    await waitFor(() => {
+      expect(screen.getByText("找不到页面")).toBeInTheDocument();
+    });
+  });
+});
+
+describe("click-through: start task", () => {
+  it("/tasks/3 → '开始任务' button → /tasks/3/start renders TeamForm", async () => {
+    const { router } = renderRoute("/tasks/3", { seed: "authed-complete" });
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/tasks/3");
+    });
+    // TaskDetailScreen's CTA label is "开始任务" (Simplified — verify in source
+    // before running and swap if different).
+    const startBtn = await screen.findByRole("button", { name: /开始任务/ });
+    await userEvent.click(startBtn);
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/tasks/3/start");
+    });
+  });
+});
+
+describe("history back", () => {
+  it("memory history supports back() across /home → /tasks → /tasks/1 → back → /tasks", async () => {
+    const { router } = renderRoute("/home", { seed: "authed-complete" });
+    await waitFor(() => expect(router.state.location.pathname).toBe("/home"));
+    await router.navigate({ to: "/tasks" });
+    await waitFor(() => expect(router.state.location.pathname).toBe("/tasks"));
+    await router.navigate({ to: "/tasks/$taskId", params: { taskId: "1" } });
+    await waitFor(() => expect(router.state.location.pathname).toBe("/tasks/1"));
+    router.history.back();
+    await waitFor(() => expect(router.state.location.pathname).toBe("/tasks"));
+  });
+});
+```
+
+Before running: `grep -n "开始任务\|開始任務" frontend/src/screens/TaskDetailScreen.tsx` to confirm the CTA label; adjust the regex if the source uses Traditional.
+
+- [ ] **Step 10.4: Run full test suite**
 
 ```bash
 pnpm test
 ```
 Expected: PASS.
 
-- [ ] **Step 10.4: Manual smoke (completion gate)**
+- [ ] **Step 10.5: Manual smoke (completion gate)**
 
 Run `pnpm dev` in one terminal. In a browser:
 1. Open `http://localhost:5173/` — landing renders. Click "開啟" → `/sign-in`.
@@ -1833,14 +1922,14 @@ Run `pnpm dev` in one terminal. In a browser:
 
 Document any failure in a follow-up commit.
 
-- [ ] **Step 10.5: Final commit**
+- [ ] **Step 10.6: Final commit**
 
 ```bash
 git add frontend/src/routes/__tests__/routing.test.tsx
 git commit -m "test: add landing CTA and guard sweep integration tests"
 ```
 
-- [ ] **Step 10.6: Update the production launch plan**
+- [ ] **Step 10.7: Update the production launch plan**
 
 Modify `docs/production-launch-plan.md` — mark Phase 3 items complete:
 ```diff

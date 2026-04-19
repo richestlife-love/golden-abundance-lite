@@ -82,7 +82,7 @@ Landing remains accessible to authed users (they can revisit it freely — e.g.,
 
 `/tasks/:taskId/start` is transition-only: reachable by navigating from `/tasks/:taskId` (task detail) or from `MyScreen`'s "建立隊伍" button. Cold loads redirect to `/tasks/:taskId`.
 
-Implementation: when navigating to the form, set a history-state sentinel (`{ fromDetail: true }`). The route's `beforeLoad` reads `location.state` — if the sentinel is missing, it redirects. Reloading the form page drops the sentinel and also redirects, which is the correct behavior since the form's input state is wiped on reload anyway.
+Implementation: when navigating to the form, set a history-state sentinel (`{ fromDetail: true }`). The route's `beforeLoad` reads `location.state` — if the sentinel is missing (direct URL typed, link shared, new tab), it redirects. A page reload does NOT drop history state per the HTML History spec, so a user who navigated to the form and then hit ⌘R stays on the form URL — but the form inputs are wiped because component state doesn't survive reload, so they see a blank form. Accepted behavior; spec'ing "reload = redirect" would require a sessionStorage-based sentinel, which is extra machinery for a scenario nobody hits in practice.
 
 Same rule for `/me/profile/edit`: cold load redirects to `/me/profile`.
 
