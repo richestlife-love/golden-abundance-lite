@@ -10,9 +10,11 @@
 
 **Reference spec:** `docs/superpowers/specs/2026-04-20-phase-3-routing-design.md`
 
-**Working directory:** A worktree at `.worktree/phase-3-routing/` (created by subagent-driven-development at session start). All paths below are relative to `frontend/` unless absolute.
+**Working directory:** A worktree at `.worktrees/phase-3-routing/` (created by subagent-driven-development at session start). All paths below are relative to `frontend/` unless absolute.
 
 **Parallelism hint:** Tasks 6, 7, and 8 are independent once Tasks 1–5 are in place (each migrates disjoint routes/screens). A dispatcher may run them concurrently if desired.
+
+**On "...rest unchanged" instructions:** Several screen-refactor steps (e.g. 6.3, 7.3, 7.4, 8.3, 8.4) describe a partial transformation ("drop this prop type, swap this import, rest unchanged"). When you see one, **read the full file first** so you understand what "rest" means for that specific file. The diff you apply should be surgical: remove the Props type + its destructuring, add the hook calls, rewrite the callbacks, leave everything else (styling, helpers, sub-components, JSX) untouched. If you find yourself rewriting large swaths of unchanged markup, stop — you're overstepping.
 
 ---
 
@@ -103,9 +105,14 @@ import "@testing-library/jest-dom/vitest";
 
 - [ ] **Step 1.5: Add Vitest globals to tsconfig**
 
-Modify `frontend/tsconfig.app.json` — add `"vitest/globals"` to `compilerOptions.types` (create the array if absent). Example `compilerOptions` fragment:
+The project has no `tsconfig.app.json`; types belong in `frontend/tsconfig.json`. Add `"types": ["vitest/globals"]` to `compilerOptions` (no such key exists yet, so create it):
 ```json
-"types": ["vitest/globals"]
+{
+  "compilerOptions": {
+    // ...existing options unchanged...
+    "types": ["vitest/globals"]
+  }
+}
 ```
 
 - [ ] **Step 1.6: Smoke-check the setup with a trivial test**
@@ -129,7 +136,7 @@ Expected: PASS, 1 test.
 Delete `frontend/src/test/smoke.test.ts`.
 
 ```bash
-git add frontend/package.json frontend/pnpm-lock.yaml frontend/vitest.config.ts frontend/src/test/setup.ts frontend/tsconfig.app.json
+git add frontend/package.json frontend/pnpm-lock.yaml frontend/vitest.config.ts frontend/src/test/setup.ts frontend/tsconfig.json
 git commit -m "build: add TanStack Router + Vitest + Testing Library"
 ```
 
@@ -244,8 +251,14 @@ function userIdFromEmail(email: string): string {
   );
 }
 
-export function AppStateProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+export function AppStateProvider({
+  children,
+  initialUser,
+}: {
+  children: ReactNode;
+  initialUser?: User | null;
+}) {
+  const [user, setUser] = useState<User | null>(() => initialUser ?? null);
   const [tasks, setTasks] = useState<Task[]>(TASKS);
   const [ledTeam, setLedTeam] = useState<Team | null>(null);
   const [joinedTeam, setJoinedTeam] = useState<Team | null>(null);
@@ -488,7 +501,7 @@ Stand up a minimal router with `__root` + `/` landing route only. The rest of th
 
 - [ ] **Step 3.1: Create the shared test helper**
 
-Create `frontend/src/test/renderRoute.tsx`. This helper owns the router-context plumbing so individual tests stay focused on assertions.
+Create `frontend/src/test/renderRoute.tsx`. This helper owns the router-context plumbing so individual tests stay focused on assertions. Crucially, it seeds auth state **synchronously** via `AppStateProvider`'s `initialUser` prop (added in Task 2). A `useEffect`-based seed races the router's initial guard evaluation and ends up on `/`.
 
 ```tsx
 import { useEffect } from "react";
@@ -496,19 +509,19 @@ import { render } from "@testing-library/react";
 import { createMemoryHistory, RouterProvider } from "@tanstack/react-router";
 import { AppStateProvider, useAppState } from "../state/AppStateContext";
 import { createAppRouter } from "../router";
+import type { User } from "../types";
 
 export type SeedAuth = "guest" | "authed-incomplete" | "authed-complete";
 
-function Seeder({ seed }: { seed: SeedAuth }) {
-  const { handleSignIn, handleProfileComplete } = useAppState();
-  useEffect(() => {
-    if (seed === "guest") return;
-    handleSignIn({ email: "a@b.com", name: "A", avatar: "" });
-    if (seed === "authed-complete") handleProfileComplete({ zhName: "甲" });
-    // handleSignIn / handleProfileComplete are stable across the one-shot seed.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  return null;
+function userForSeed(seed: SeedAuth): User | null {
+  if (seed === "guest") return null;
+  const base: User = {
+    id: "UTEST00",
+    email: "a@b.com",
+    name: "A",
+    avatar: "",
+  };
+  return seed === "authed-complete" ? { ...base, zhName: "甲" } : base;
 }
 
 function Shell({ router }: { router: ReturnType<typeof createAppRouter> }) {
@@ -535,18 +548,26 @@ export function renderRoute(
   path: string,
   opts: { seed?: SeedAuth } = {},
 ): RenderRouteResult {
+  const seed = opts.seed ?? "guest";
   const router = createAppRouter({
     history: createMemoryHistory({ initialEntries: [path] }),
+    initialContext: {
+      auth: {
+        user: seed === "guest" ? null : { id: "UTEST00" },
+        profileComplete: seed === "authed-complete",
+      },
+    },
   });
   const dom = render(
-    <AppStateProvider>
-      <Seeder seed={opts.seed ?? "guest"} />
+    <AppStateProvider initialUser={userForSeed(seed)}>
       <Shell router={router} />
     </AppStateProvider>,
   );
   return { router, dom };
 }
 ```
+
+The `createAppRouter` signature gets an optional `initialContext` override (for tests) in Step 3.6 — adjust accordingly.
 
 - [ ] **Step 3.2: Write the failing test**
 
@@ -589,6 +610,15 @@ export interface RouterContext {
   };
 }
 
+function NotFound() {
+  return (
+    <div style={{ padding: 24, textAlign: "center" }}>
+      <h1 style={{ fontSize: 20 }}>找不到页面</h1>
+      <p>该路径不存在。</p>
+    </div>
+  );
+}
+
 function RootLayout() {
   const { successData, setSuccessData } = useAppState();
   return (
@@ -614,6 +644,7 @@ function RootLayout() {
 
 export const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
+  notFoundComponent: NotFound,
 });
 ```
 
@@ -654,17 +685,20 @@ import {
   type AnyRouter,
   type RouterHistory,
 } from "@tanstack/react-router";
-import { rootRoute } from "./routes/__root";
+import { rootRoute, type RouterContext } from "./routes/__root";
 import { indexRoute } from "./routes/index";
 
 const routeTree = rootRoute.addChildren([indexRoute]);
 
-export function createAppRouter(opts?: { history?: RouterHistory }) {
+export function createAppRouter(opts?: {
+  history?: RouterHistory;
+  initialContext?: RouterContext;
+}) {
   return createRouter({
     routeTree,
     history: opts?.history ?? createBrowserHistory(),
     defaultPreload: "intent",
-    context: {
+    context: opts?.initialContext ?? {
       auth: { user: null, profileComplete: false },
     },
   });
@@ -672,9 +706,14 @@ export function createAppRouter(opts?: { history?: RouterHistory }) {
 
 export const router = createAppRouter();
 
+// Typed history state — lets us use `state: { fromDetail: true }` without `as never`.
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
+  }
+  interface HistoryState {
+    fromDetail?: boolean;
+    fromProfile?: boolean;
   }
 }
 
@@ -775,9 +814,9 @@ import { rootRoute } from "./__root";
 export const authedRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "_authed",
-  beforeLoad: ({ context, location }) => {
+  beforeLoad: ({ context }) => {
     if (!context.auth.user) {
-      throw redirect({ to: "/", search: { from: location.pathname } as never });
+      throw redirect({ to: "/" });
     }
     if (!context.auth.profileComplete) {
       throw redirect({ to: "/welcome" });
@@ -858,9 +897,9 @@ Append to `frontend/src/routes/__tests__/routing.test.tsx`:
 describe("public routes", () => {
   it("renders sign-in at /sign-in", async () => {
     renderRoute("/sign-in");
-    // GoogleAuthScreen shows this heading — verify in the source and adjust if different.
+    // GoogleAuthScreen.tsx:98 renders "選擇帳號" (Traditional — present in source).
     await waitFor(() => {
-      expect(screen.getByText(/Google/i)).toBeInTheDocument();
+      expect(screen.getByText("選擇帳號")).toBeInTheDocument();
     });
   });
 
@@ -894,9 +933,11 @@ function SignInRoute() {
     <GoogleAuthScreen
       onCancel={() => navigate({ to: "/" })}
       onSuccess={(raw) => {
+        // After sign-in, the auth effect in main.tsx's AppShell (router.invalidate)
+        // re-runs the guard on /sign-in, which redirects to /welcome (incomplete
+        // profile) or /home (complete). No explicit navigate needed — and doing
+        // both would race.
         handleSignIn(raw);
-        // profileComplete is false immediately after sign-in; guard pushes to /welcome.
-        navigate({ to: "/welcome" });
       }}
     />
   );
@@ -1003,9 +1044,9 @@ Append to `frontend/src/routes/__tests__/routing.test.tsx`:
 describe("authed simple routes", () => {
   it("renders home at /home when authed + complete", async () => {
     renderRoute("/home", { seed: "authed-complete" });
-    // Bottom nav has "首頁" text — verify it appears.
+    // BottomNav.tsx:55 renders "首页" (Simplified) — match exactly.
     await waitFor(() => {
-      expect(screen.getByText("首頁")).toBeInTheDocument();
+      expect(screen.getByText("首页")).toBeInTheDocument();
     });
   });
 
@@ -1057,36 +1098,137 @@ Delete the `type Props` block, the destructuring (`{ user, tasks: tasksProp, ...
 
 Anywhere the current code calls `onNavigate("rewards")`, replace with `navigate({ to: "/rewards" })`; `onNavigate("tasks")` → `navigate({ to: "/tasks" })`; etc.
 
-- [ ] **Step 6.4: Refactor `RankScreen.tsx` and `RewardsScreen.tsx`**
+- [ ] **Step 6.4: Refactor `RankScreen.tsx`**
 
-For each screen:
 - Delete the `type Props` / `Props` interface and destructuring.
-- Import `useNavigate` from `@tanstack/react-router` and `useAppState` from `../state/AppStateContext`.
-- Replace any `onNavigate(x)` call with `navigate({ to: "/<target>" })`.
-- `RewardsScreen`: replace `onBack` with `() => window.history.back()` (or import and use `router.history.back()` via the router-provided hook — simpler: `const router = useRouter(); router.history.back();`).
+- Import `useNavigate` from `@tanstack/react-router` and `useAppState` from `../state/AppStateContext`. Inside the component: `const navigate = useNavigate(); const { user, tasks } = useAppState();`
+- Replace any `onNavigate("<target>")` call with `navigate({ to: "/<target>" })` (using the updated URL mapping — e.g. `onNavigate("rank")` is no longer possible; any self-nav to leaderboard is `"/leaderboard"`).
+- Remove the `tasksProp || TASKS` fallback; use `tasks` from context directly.
+- `RankScreen` does not have an `onBack` prop; skip any back-button refactor here.
+
+- [ ] **Step 6.4b: Refactor `RewardsScreen.tsx`**
+
+- Delete the `type Props` / `Props` interface and destructuring.
+- Import `useNavigate`, `useRouter` from `@tanstack/react-router` and `useAppState`.
+- Replace the `onBack` prop with a hook-driven back: `const router = useRouter(); const onBack = () => router.history.back();`.
 - Remove the `tasksProp || TASKS` fallback; use `tasks` from context.
 
 - [ ] **Step 6.5: Refactor `BottomNav.tsx`**
 
-If `BottomNav` currently takes an `onNavigate` prop, replace its internals:
+Current signature: `{ current: ScreenId; muted: string; onNavigate: (screen: ScreenId) => void }` with ITEMS keyed by `"home" | "tasks" | "rank" | "me"`. Active state must stay driven by the current URL, and the `muted` color must stay threaded from callers (it controls inactive-tab color). Replace the file with:
+
 ```tsx
-import { useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { fs } from "../utils";
 import type { ReactNode } from "react";
 
-type Tab = "home" | "tasks" | "leaderboard" | "me";
-const TAB_TO_PATH: Record<Tab, string> = {
+type TabKey = "home" | "tasks" | "rank" | "me";
+
+const TAB_TO_PATH: Record<TabKey, string> = {
   home: "/home",
   tasks: "/tasks",
-  leaderboard: "/leaderboard",
+  rank: "/leaderboard",
   me: "/me",
 };
 
-export default function BottomNav({ active }: { active: Tab }) {
+const iconProps = {
+  width: 20,
+  height: 20,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+
+const HomeIcon = () => (
+  <svg {...iconProps}>
+    <path d="M3 10.5 12 3l9 7.5" />
+    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" />
+  </svg>
+);
+const TasksIcon = () => (
+  <svg {...iconProps}>
+    <rect x="6" y="4" width="12" height="17" rx="2" />
+    <path d="M9 4h6v3H9z" />
+    <path d="M9 12l2 2 4-4" />
+  </svg>
+);
+const RankIcon = () => (
+  <svg {...iconProps}>
+    <path d="M7 3h10v4a5 5 0 0 1-10 0V3z" />
+    <path d="M7 5H4v2a3 3 0 0 0 3 3" />
+    <path d="M17 5h3v2a3 3 0 0 1-3 3" />
+    <path d="M10 14h4v4h-4z" />
+    <path d="M8 21h8" />
+  </svg>
+);
+const MeIcon = () => (
+  <svg {...iconProps}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </svg>
+);
+
+const ITEMS: { key: TabKey; label: string; icon: ReactNode }[] = [
+  { key: "home", label: "首页", icon: <HomeIcon /> },
+  { key: "tasks", label: "任务", icon: <TasksIcon /> },
+  { key: "rank", label: "排行", icon: <RankIcon /> },
+  { key: "me", label: "我的", icon: <MeIcon /> },
+];
+
+export default function BottomNav({ muted }: { muted: string }) {
   const navigate = useNavigate();
-  // ... keep existing markup; each button becomes onClick={() => navigate({ to: TAB_TO_PATH[tab] })}
+  const { pathname } = useLocation();
+  return (
+    <div
+      style={{
+        flexShrink: 0,
+        display: "flex",
+        justifyContent: "space-around",
+        padding: "10px 16px 18px",
+        background: "var(--card)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderTop: "1px solid rgba(254,210,52,0.25)",
+      }}
+    >
+      {ITEMS.map((n) => {
+        const path = TAB_TO_PATH[n.key];
+        // Active when the current path is the tab's path or a descendant (e.g. /tasks/3 keeps "任务" active).
+        const active = pathname === path || pathname.startsWith(path + "/");
+        return (
+          <button
+            key={n.key}
+            type="button"
+            aria-label={n.label}
+            aria-current={active ? "page" : undefined}
+            onClick={() => navigate({ to: path })}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 3,
+              cursor: "pointer",
+              color: active ? "#fec701" : muted,
+              border: "none",
+              background: "transparent",
+              padding: 0,
+              font: "inherit",
+            }}
+          >
+            <div style={{ display: "inline-flex", lineHeight: 1 }}>{n.icon}</div>
+            <div style={{ fontSize: fs(10), fontWeight: active ? 700 : 500 }}>{n.label}</div>
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 ```
-Callers of `BottomNav` drop the `onNavigate` prop and keep only `active`.
+
+Callers of `BottomNav` drop `current` and `onNavigate`; keep the `muted` prop they already pass.
 
 - [ ] **Step 6.6: Create the three route files**
 
@@ -1187,9 +1329,9 @@ describe("task routes", () => {
     await waitFor(() => {
       expect(router.state.location.pathname).toBe("/tasks/3");
     });
-    // TaskDetailScreen renders at least a back affordance and the task title.
+    // TASKS[2].title is "組隊挑戰" (Traditional — present in data.ts).
     await waitFor(() => {
-      expect(screen.queryByText(/任務|回/)).not.toBeNull();
+      expect(screen.getByText("組隊挑戰")).toBeInTheDocument();
     });
   });
 
@@ -1225,15 +1367,17 @@ export default function TasksScreen() {
 
 - [ ] **Step 7.4: Refactor `TaskDetailScreen.tsx`**
 
-Read taskId from URL params, drop props:
+Read `taskId` from URL params via the route's own `useParams()` (avoids brittle route-ID strings). `HistoryState` augmentation is added to `router.ts` in Step 3.6, so the `state` object is type-safe without `as never`.
+
 ```tsx
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useAppState } from "../state/AppStateContext";
+import { taskDetailRoute } from "../routes/_authed.tasks.$taskId";
 
 export default function TaskDetailScreen() {
   const navigate = useNavigate();
   const { tasks } = useAppState();
-  const { taskId } = useParams({ from: "/_authed/tasks/$taskId" });
+  const { taskId } = taskDetailRoute.useParams();
   const id = Number(taskId);
   const onBack = () => navigate({ to: "/tasks" });
   const onOpenTask = (nextId: number) =>
@@ -1242,7 +1386,7 @@ export default function TaskDetailScreen() {
     navigate({
       to: "/tasks/$taskId/start",
       params: { taskId: String(forId) },
-      state: { fromDetail: true } as never,
+      state: { fromDetail: true },
     });
   const onGoMe = () => navigate({ to: "/me" });
   // rest unchanged — pass `id` where `taskId` prop was used
@@ -1285,50 +1429,66 @@ Note: the parent is `tasksRoute` here, making the full path `/tasks/$taskId`.
 
 `frontend/src/routes/_authed.tasks.$taskId.start.tsx`:
 ```tsx
-import { createRoute, redirect, useNavigate, useParams } from "@tanstack/react-router";
+import { createRoute, redirect, useNavigate } from "@tanstack/react-router";
 import InterestForm from "../screens/InterestForm";
 import TicketForm from "../screens/TicketForm";
 import TeamForm from "../screens/TeamForm";
 import { useAppState } from "../state/AppStateContext";
 import { taskDetailRoute } from "./_authed.tasks.$taskId";
 
+const SUPPORTED_TASK_IDS = new Set(["1", "2", "3"]);
+
 function StartRoute() {
   const navigate = useNavigate();
-  const { taskId } = useParams({ from: "/_authed/tasks/$taskId/start" });
+  const { taskId } = taskStartRoute.useParams();
   const id = Number(taskId);
   const { completeTask, joinTeam } = useAppState();
-  const cancel = () =>
-    navigate({ to: "/tasks/$taskId", params: { taskId: String(id) } });
-  if (id === 1)
-    return <InterestForm onCancel={cancel} onSubmit={() => {
-      completeTask(1);
-      navigate({ to: "/tasks/$taskId", params: { taskId: "1" } });
-    }} />;
-  if (id === 2)
-    return <TicketForm onCancel={cancel} onSubmit={() => {
-      completeTask(2);
-      navigate({ to: "/tasks/$taskId", params: { taskId: "2" } });
-    }} />;
-  if (id === 3)
-    return <TeamForm onCancel={() => navigate({ to: "/me" })} onSubmit={(team) => {
-      joinTeam(team);
-      navigate({ to: "/me" });
-    }} />;
-  // Unknown task id — bounce back to detail (detail handles "not found" itself).
-  navigate({ to: "/tasks/$taskId", params: { taskId: String(id) } });
-  return null;
+  const goDetail = (forId: number) =>
+    navigate({ to: "/tasks/$taskId", params: { taskId: String(forId) } });
+
+  if (id === 1) {
+    return (
+      <InterestForm
+        onCancel={() => goDetail(1)}
+        onSubmit={() => {
+          completeTask(1);
+          goDetail(1);
+        }}
+      />
+    );
+  }
+  if (id === 2) {
+    return (
+      <TicketForm
+        onCancel={() => goDetail(2)}
+        onSubmit={() => {
+          completeTask(2);
+          goDetail(2);
+        }}
+      />
+    );
+  }
+  // id === 3 — guaranteed by beforeLoad's SUPPORTED_TASK_IDS check.
+  return (
+    <TeamForm
+      onCancel={() => navigate({ to: "/me" })}
+      onSubmit={(team) => {
+        joinTeam(team);
+        navigate({ to: "/me" });
+      }}
+    />
+  );
 }
 
 export const taskStartRoute = createRoute({
   getParentRoute: () => taskDetailRoute,
   path: "/start",
   beforeLoad: ({ location, params }) => {
-    const state = (location.state as { fromDetail?: boolean } | undefined) ?? {};
-    if (!state.fromDetail) {
-      throw redirect({
-        to: "/tasks/$taskId",
-        params: { taskId: params.taskId },
-      });
+    if (!SUPPORTED_TASK_IDS.has(params.taskId)) {
+      throw redirect({ to: "/tasks/$taskId", params });
+    }
+    if (!location.state.fromDetail) {
+      throw redirect({ to: "/tasks/$taskId", params });
     }
   },
   component: StartRoute,
@@ -1354,15 +1514,15 @@ authedRoute.addChildren([
 
 - [ ] **Step 7.8: Also wire the "build team" entry from `MyScreen`**
 
-This is a cross-task reference used later. When `MyScreen` is migrated (Task 8), its "建立隊伍" button becomes:
+Cross-task reference used in Task 8. When `MyScreen` is migrated, its "建立隊伍" button becomes:
 ```tsx
 navigate({
   to: "/tasks/$taskId/start",
   params: { taskId: "3" },
-  state: { fromDetail: true } as never,
+  state: { fromDetail: true },
 });
 ```
-Note this here so Task 8 doesn't forget the sentinel.
+Noted here so Task 8 doesn't forget the sentinel.
 
 - [ ] **Step 7.9: Run tests + build**
 
@@ -1375,7 +1535,15 @@ Expected: PASS / succeeds.
 - [ ] **Step 7.10: Commit**
 
 ```bash
-git add frontend/src/routes/_authed.tasks*.tsx frontend/src/router.ts frontend/src/screens/TasksScreen.tsx frontend/src/screens/TaskDetailScreen.tsx frontend/src/screens/TaskCard.tsx frontend/src/routes/__tests__/routing.test.tsx
+git add \
+  frontend/src/routes/_authed.tasks.tsx \
+  frontend/src/routes/_authed.tasks.\$taskId.tsx \
+  frontend/src/routes/_authed.tasks.\$taskId.start.tsx \
+  frontend/src/router.ts \
+  frontend/src/screens/TasksScreen.tsx \
+  frontend/src/screens/TaskDetailScreen.tsx \
+  frontend/src/screens/TaskCard.tsx \
+  frontend/src/routes/__tests__/routing.test.tsx
 git commit -m "feat: migrate /tasks, /tasks/:id, /tasks/:id/start to router"
 ```
 
@@ -1400,15 +1568,18 @@ describe("me routes", () => {
   it("renders my screen at /me", async () => {
     renderRoute("/me", { seed: "authed-complete" });
     await waitFor(() => {
-      // Bottom nav "我" appears in any authed route; MyScreen has team-related copy.
-      expect(screen.getByText("我")).toBeInTheDocument();
+      // BottomNav.tsx:58 renders "我的" (Simplified).
+      expect(screen.getByText("我的")).toBeInTheDocument();
     });
   });
 
   it("renders profile view at /me/profile", async () => {
     renderRoute("/me/profile", { seed: "authed-complete" });
+    // ProfileScreen shows an edit affordance — verify the actual string in the
+    // source (ProfileScreen.tsx) and assert on it exactly. Grep for common
+    // variants: "编辑个人资料", "编辑", "编辑资料".
     await waitFor(() => {
-      expect(screen.queryByText(/編輯個人資料|編輯/)).not.toBeNull();
+      expect(screen.queryByText(/编辑/)).not.toBeNull();
     });
   });
 
@@ -1434,7 +1605,7 @@ const onBuildTeam = () =>
   navigate({
     to: "/tasks/$taskId/start",
     params: { taskId: "3" },
-    state: { fromDetail: true } as never,
+    state: { fromDetail: true },
   });
 ```
 Replace `onNavigate("profile")` calls with `navigate({ to: "/me/profile" })`. Replace `onOpenTask(id)` with `navigate({ to: "/tasks/$taskId", params: { taskId: String(id) } })`. Replace `onSignOut` wrapper with `() => { handleSignOut(); navigate({ to: "/" }); }`.
@@ -1513,8 +1684,7 @@ export const profileEditRoute = createRoute({
   getParentRoute: () => profileRoute,
   path: "/edit",
   beforeLoad: ({ location }) => {
-    const state = (location.state as { fromProfile?: boolean } | undefined) ?? {};
-    if (!state.fromProfile) {
+    if (!location.state.fromProfile) {
       throw redirect({ to: "/me/profile" });
     }
   },
@@ -1522,10 +1692,10 @@ export const profileEditRoute = createRoute({
 });
 ```
 
-And update `ProfileScreen.tsx`'s `onEdit` to pass the sentinel:
+And update `ProfileScreen.tsx`'s `onEdit` to pass the sentinel (type-safe via the `HistoryState` augmentation in `router.ts`):
 ```tsx
 const onEdit = () =>
-  navigate({ to: "/me/profile/edit", state: { fromProfile: true } as never });
+  navigate({ to: "/me/profile/edit", state: { fromProfile: true } });
 ```
 
 - [ ] **Step 8.6: Wire into router tree**
@@ -1554,7 +1724,14 @@ pnpm build
 - [ ] **Step 8.8: Commit**
 
 ```bash
-git add frontend/src/routes/_authed.me*.tsx frontend/src/router.ts frontend/src/screens/MyScreen.tsx frontend/src/screens/ProfileScreen.tsx frontend/src/routes/__tests__/routing.test.tsx
+git add \
+  frontend/src/routes/_authed.me.tsx \
+  frontend/src/routes/_authed.me.profile.tsx \
+  frontend/src/routes/_authed.me.profile.edit.tsx \
+  frontend/src/router.ts \
+  frontend/src/screens/MyScreen.tsx \
+  frontend/src/screens/ProfileScreen.tsx \
+  frontend/src/routes/__tests__/routing.test.tsx
 git commit -m "feat: migrate /me, /me/profile, /me/profile/edit to router"
 ```
 
@@ -1591,13 +1768,17 @@ pnpm build
 ```
 Any unused-import errors surface here. Fix each (typically dropping `TASKS` from `../data` where the fallback was removed, and any unused callback type imports).
 
-- [ ] **Step 9.4: Verify demo-only prop tag**
+- [ ] **Step 9.4: Tag the demo-only call**
 
-`MyScreen` previously took `onSimulateJoinApproved` as a prop. In its migrated form it calls `simulateJoinApproved` from context. Confirm a single-line comment near the call:
+`MyScreen` previously took `onSimulateJoinApproved` as a prop. In its migrated form it calls `simulateJoinApproved` from context. Ensure a single-line comment flags it as demo-only. Run:
+```bash
+grep -n "simulateJoinApproved" frontend/src/screens/MyScreen.tsx
+```
+At each call site, the line immediately above should read:
 ```tsx
 // demo-only; remove when Phase 4 wires real team-membership events from the backend
-simulateJoinApproved();
 ```
+If missing, add it.
 
 - [ ] **Step 9.5: Run full verification**
 
@@ -1634,21 +1815,21 @@ describe("landing CTA", () => {
   it("guest → /sign-in", async () => {
     const { router } = renderRoute("/");
     await waitFor(() => expect(screen.getByText("金富有志工")).toBeInTheDocument());
-    await userEvent.click(screen.getByRole("button", { name: /開啟/ }));
+    await userEvent.click(screen.getByRole("button", { name: /开启/ }));
     await waitFor(() => expect(router.state.location.pathname).toBe("/sign-in"));
   });
 
   it("authed + complete → /home", async () => {
     const { router } = renderRoute("/", { seed: "authed-complete" });
     await waitFor(() => expect(screen.getByText("金富有志工")).toBeInTheDocument());
-    await userEvent.click(screen.getByRole("button", { name: /開啟/ }));
+    await userEvent.click(screen.getByRole("button", { name: /开启/ }));
     await waitFor(() => expect(router.state.location.pathname).toBe("/home"));
   });
 
   it("authed + incomplete → /welcome", async () => {
     const { router } = renderRoute("/", { seed: "authed-incomplete" });
     await waitFor(() => expect(screen.getByText("金富有志工")).toBeInTheDocument());
-    await userEvent.click(screen.getByRole("button", { name: /開啟/ }));
+    await userEvent.click(screen.getByRole("button", { name: /开启/ }));
     await waitFor(() => expect(router.state.location.pathname).toBe("/welcome"));
   });
 });
@@ -1676,14 +1857,59 @@ describe("guard sweep", () => {
 });
 ```
 
-- [ ] **Step 10.3: Run full test suite**
+- [ ] **Step 10.3: Not-found, click-through, and history tests**
+
+Append:
+```tsx
+describe("not found", () => {
+  it("/tasks/999 renders the not-found component", async () => {
+    renderRoute("/tasks/999", { seed: "authed-complete" });
+    await waitFor(() => {
+      expect(screen.getByText("找不到页面")).toBeInTheDocument();
+    });
+  });
+});
+
+describe("click-through: start task", () => {
+  it("/tasks/3 → '开始任务' button → /tasks/3/start renders TeamForm", async () => {
+    const { router } = renderRoute("/tasks/3", { seed: "authed-complete" });
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/tasks/3");
+    });
+    // TaskDetailScreen's CTA label is "开始任务" (Simplified — verify in source
+    // before running and swap if different).
+    const startBtn = await screen.findByRole("button", { name: /开始任务/ });
+    await userEvent.click(startBtn);
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/tasks/3/start");
+    });
+  });
+});
+
+describe("history back", () => {
+  it("memory history supports back() across /home → /tasks → /tasks/1 → back → /tasks", async () => {
+    const { router } = renderRoute("/home", { seed: "authed-complete" });
+    await waitFor(() => expect(router.state.location.pathname).toBe("/home"));
+    await router.navigate({ to: "/tasks" });
+    await waitFor(() => expect(router.state.location.pathname).toBe("/tasks"));
+    await router.navigate({ to: "/tasks/$taskId", params: { taskId: "1" } });
+    await waitFor(() => expect(router.state.location.pathname).toBe("/tasks/1"));
+    router.history.back();
+    await waitFor(() => expect(router.state.location.pathname).toBe("/tasks"));
+  });
+});
+```
+
+Before running: `grep -n "开始任务\|開始任務" frontend/src/screens/TaskDetailScreen.tsx` to confirm the CTA label; adjust the regex if the source uses Traditional.
+
+- [ ] **Step 10.4: Run full test suite**
 
 ```bash
 pnpm test
 ```
 Expected: PASS.
 
-- [ ] **Step 10.4: Manual smoke (completion gate)**
+- [ ] **Step 10.5: Manual smoke (completion gate)**
 
 Run `pnpm dev` in one terminal. In a browser:
 1. Open `http://localhost:5173/` — landing renders. Click "開啟" → `/sign-in`.
@@ -1696,14 +1922,14 @@ Run `pnpm dev` in one terminal. In a browser:
 
 Document any failure in a follow-up commit.
 
-- [ ] **Step 10.5: Final commit**
+- [ ] **Step 10.6: Final commit**
 
 ```bash
 git add frontend/src/routes/__tests__/routing.test.tsx
 git commit -m "test: add landing CTA and guard sweep integration tests"
 ```
 
-- [ ] **Step 10.6: Update the production launch plan**
+- [ ] **Step 10.7: Update the production launch plan**
 
 Modify `docs/production-launch-plan.md` — mark Phase 3 items complete:
 ```diff
