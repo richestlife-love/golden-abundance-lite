@@ -43,7 +43,7 @@ export type User = {
   id: string;                       // "U" + derived suffix
   email: string;
   name: string;
-  picture?: string;
+  avatar?: string;                  // CSS gradient string from mock auth; Phase 4 maps to OAuth picture URL
   zhName?: string;
   enName?: string;
   nickname?: string;
@@ -81,6 +81,9 @@ export type Team = {
   members: TeamMemberRef[];
   requests?: JoinRequest[];
   cap?: number;
+  points?: number;                  // carried from MockTeam on the joined-team path; not set on ledTeam
+  weekPoints?: number;              // carried from MockTeam on the joined-team path; not set on ledTeam
+  rank?: number;                    // carried from MockTeam on the joined-team path; not set on ledTeam
   status?: "pending" | "approved";
   currentCount?: number;
 };
