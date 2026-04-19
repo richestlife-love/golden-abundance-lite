@@ -15,6 +15,9 @@ import { rewardsRoute } from "./routes/_authed.rewards";
 import { tasksRoute } from "./routes/_authed.tasks";
 import { taskDetailRoute } from "./routes/_authed.tasks.$taskId";
 import { taskStartRoute } from "./routes/_authed.tasks.$taskId.start";
+import { meRoute } from "./routes/_authed.me";
+import { profileRoute } from "./routes/_authed.me.profile";
+import { profileEditRoute } from "./routes/_authed.me.profile.edit";
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -24,6 +27,7 @@ const routeTree = rootRoute.addChildren([
     homeRoute,
     tasksRoute.addChildren([taskDetailRoute.addChildren([taskStartRoute])]),
     leaderboardRoute,
+    meRoute.addChildren([profileRoute.addChildren([profileEditRoute])]),
     rewardsRoute,
   ]),
 ]);

@@ -18,8 +18,7 @@ export default function TaskDetailScreen() {
       params: { taskId: String(forId) },
       state: { fromDetail: true },
     });
-  // /me route is added in Task 8; navigate to /home until then.
-  const onGoMe = () => navigate({ to: "/home" });
+  const onGoMe = () => navigate({ to: "/me" });
 
   const bg = "var(--bg)";
   const cardBg = "var(--card)";

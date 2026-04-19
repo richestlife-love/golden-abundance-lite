@@ -38,13 +38,12 @@ function StartRoute() {
     );
   }
   // id === 3 — guaranteed by beforeLoad's SUPPORTED_TASK_IDS check.
-  // /me route is added in Task 8; navigate to /home until then.
   return (
     <TeamForm
-      onCancel={() => navigate({ to: "/home" })}
+      onCancel={() => navigate({ to: "/me" })}
       onSubmit={(team) => {
         joinTeam(team);
-        navigate({ to: "/home" });
+        navigate({ to: "/me" });
       }}
     />
   );

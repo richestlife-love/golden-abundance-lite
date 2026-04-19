@@ -23,20 +23,12 @@ import TeamForm from "./screens/TeamForm";
 // ─── App ──────────────────────────────────────────────────────
 function App() {
   const [screen, setScreen] = useState<ScreenId>("landing");
-  const navigateTo = (next: ScreenId) => {
-    setScreen(next);
-  };
   const [user, setUser] = useState<User | null>(null);
-  const [currentTaskId, setCurrentTaskId] = useState<number | null>(null);
+  const [currentTaskId] = useState<number | null>(null);
   const [tasks, setTasks] = useState<Task[]>(TASKS);
   const [successData, setSuccessData] = useState<SuccessData | null>(null);
   const [ledTeam, setLedTeam] = useState<Team | null>(null);
-  const [joinedTeam, setJoinedTeam] = useState<Team | null>(null);
-
-  const openTask = (id: number) => {
-    setCurrentTaskId(id);
-    setScreen("taskDetail");
-  };
+  const [, setJoinedTeam] = useState<Team | null>(null);
 const userIdFromEmail = (email: string): string =>
     "U" +
     (email || "guest@x.com")
@@ -153,13 +145,6 @@ const userIdFromEmail = (email: string): string =>
     setScreen("profile");
   };
 
-  const handleSignOut = () => {
-    setUser(null);
-    setLedTeam(null);
-    setJoinedTeam(null);
-    setScreen("landing");
-  };
-
   // Joining a team only — every user already leads their own team
   const joinTeam = (teamData: Omit<Team, "role">) => {
     const newTeam: Team = { ...teamData, role: "member" };
@@ -172,64 +157,6 @@ const userIdFromEmail = (email: string): string =>
       title: "申請已送出！",
     });
     setScreen("me");
-  };
-
-  const leaveLedTeam = () => {
-    setLedTeam(null);
-    syncTeamTask(null, joinedTeam);
-  };
-  const leaveJoinedTeam = () => {
-    setJoinedTeam(null);
-    syncTeamTask(ledTeam, null);
-  };
-
-  const approveRequest = (reqId: string) => {
-    if (!ledTeam) return;
-    const req = (ledTeam.requests || []).find((r) => r.id === reqId);
-    if (!req) return;
-    const updated: Team = {
-      ...ledTeam,
-      members: [...ledTeam.members, { id: req.id, name: req.name, avatar: req.avatar }],
-      requests: (ledTeam.requests || []).filter((r) => r.id !== reqId),
-    };
-    setLedTeam(updated);
-    syncTeamTask(updated, joinedTeam);
-    if (updated.members.length + 1 >= 6) {
-      // Closure read of `tasks` is fine here: approveRequest is a user-gesture
-      // handler recreated on every render, so the closure binds to the latest
-      // tasks snapshot. No mutation — just looking up task 3's reward metadata.
-      const t3 = tasks.find((x) => x.id === 3);
-      if (t3) {
-        setSuccessData({
-          color: t3.color,
-          points: t3.points,
-          bonus: t3.bonus,
-          title: "組隊完成！",
-        });
-      }
-    }
-  };
-
-  const rejectRequest = (reqId: string) => {
-    if (!ledTeam) return;
-    setLedTeam({
-      ...ledTeam,
-      requests: (ledTeam.requests || []).filter((r) => r.id !== reqId),
-    });
-  };
-
-  const renameTeam = (alias: string) => {
-    if (!ledTeam) return;
-    setLedTeam({ ...ledTeam, alias });
-  };
-
-  // demo-only: simulates the remote side approving the caller's join request.
-  // Remove when Phase 4 wires real team-membership events from the backend.
-  const simulateJoinApproved = () => {
-    if (!joinedTeam || joinedTeam.status !== "pending") return;
-    const approved: Team = { ...joinedTeam, status: "approved" };
-    setJoinedTeam(approved);
-    syncTeamTask(ledTeam, approved);
   };
 
   const completeTask = (id: number) => {
@@ -276,13 +203,7 @@ const userIdFromEmail = (email: string): string =>
           onSubmit={handleProfileComplete}
         />
       )}
-      {screen === "profile" && (
-        <ProfileScreen
-          user={user}
-          onBack={() => setScreen("me")}
-          onEdit={() => setScreen("profileEdit")}
-        />
-      )}
+      {screen === "profile" && <ProfileScreen />}
       {screen === "profileEdit" && (
         <ProfileSetupForm
           user={user}
@@ -307,28 +228,7 @@ const userIdFromEmail = (email: string): string =>
       {screen === "form" && currentTaskId === 3 && (
         <TeamForm onCancel={() => setScreen("me")} onSubmit={joinTeam} />
       )}
-      {screen === "me" && (
-        <MyScreen
-          user={user}
-          ledTeam={ledTeam}
-          joinedTeam={joinedTeam}
-          tasks={tasks}
-          onSignOut={handleSignOut}
-          onNavigate={navigateTo}
-          onBuildTeam={() => {
-            setCurrentTaskId(3);
-            setScreen("form");
-          }}
-          onApproveRequest={approveRequest}
-          onRejectRequest={rejectRequest}
-          onRenameTeam={renameTeam}
-          onCancelJoinRequest={leaveJoinedTeam}
-          onLeaveLedTeam={leaveLedTeam}
-          onLeaveJoinedTeam={leaveJoinedTeam}
-          onSimulateJoinApproved={simulateJoinApproved} // demo-only
-          onOpenTask={openTask}
-        />
-      )}
+      {screen === "me" && <MyScreen />}
       {screen === "rewards" && <RewardsScreen />}
       {successData && <FormSuccessOverlay {...successData} onDone={() => setSuccessData(null)} />}
     </div>

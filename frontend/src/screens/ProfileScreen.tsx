@@ -1,14 +1,13 @@
 import { fs } from "../utils";
 import { useState } from "react";
-import type { User } from "../types";
+import { useNavigate, Outlet } from "@tanstack/react-router";
+import { useAppState } from "../state/AppStateContext";
 
-type Props = {
-  user: User | null;
-  onBack: () => void;
-  onEdit: () => void;
-};
-
-export default function ProfileScreen({ user, onBack, onEdit }: Props) {
+export default function ProfileScreen() {
+  const navigate = useNavigate();
+  const { user } = useAppState();
+  const onBack = () => navigate({ to: "/me" });
+  const onEdit = () => navigate({ to: "/me/profile/edit", state: { fromProfile: true } });
   const bg = "var(--bg)";
   const fg = "var(--fg)";
   const muted = "var(--muted)";
@@ -305,6 +304,8 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
           ))}
         </div>
       </div>
+      {/* Child routes (e.g. /me/profile/edit) render here, overlaying the screen */}
+      <Outlet />
     </div>
   );
 }

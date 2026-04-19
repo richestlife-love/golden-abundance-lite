@@ -59,6 +59,31 @@ describe("authed simple routes", () => {
   });
 });
 
+describe("me routes", () => {
+  it("renders my screen at /me", async () => {
+    renderRoute("/me", { seed: "authed-complete" });
+    await waitFor(() => {
+      // MyScreen title and BottomNav both render "我的" (Traditional).
+      expect(screen.getAllByText("我的").length).toBeGreaterThan(0);
+    });
+  });
+
+  it("renders profile view at /me/profile", async () => {
+    renderRoute("/me/profile", { seed: "authed-complete" });
+    // ProfileScreen.tsx renders "編輯" (Traditional) in the edit button.
+    await waitFor(() => {
+      expect(screen.queryByText(/編輯/)).not.toBeNull();
+    });
+  });
+
+  it("cold-load /me/profile/edit redirects to /me/profile", async () => {
+    const { router } = renderRoute("/me/profile/edit", { seed: "authed-complete" });
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/me/profile");
+    });
+  });
+});
+
 describe("task routes", () => {
   it("renders task detail at /tasks/3", async () => {
     const { router } = renderRoute("/tasks/3", { seed: "authed-complete" });
