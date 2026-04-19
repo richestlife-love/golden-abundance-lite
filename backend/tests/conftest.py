@@ -13,7 +13,7 @@ import asyncio
 import os
 import pathlib
 from collections.abc import AsyncIterator, Iterator
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import pytest
 import pytest_asyncio
@@ -175,7 +175,7 @@ async def seeded_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
         est_minutes=60,
         is_challenge=False,
         form_type=None,
-        due_at=datetime.now(timezone.utc) - timedelta(days=30),
+        due_at=datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     for t in (t1, t2, t3, t4):
         session.add(t)
