@@ -20,7 +20,7 @@ Replace the single `useState<ScreenId>` in `frontend/src/App.tsx` with a real ro
 
 ## Library
 
-**TanStack Router** (`@tanstack/react-router`), code-based route definitions.
+**TanStack Router** (`@tanstack/react-router`), code-based route definitions (not the Vite file-based plugin). Route files under `frontend/src/routes/` are an organizational convention — the file names can be anything; the route tree is assembled explicitly in `router.ts`.
 
 Picked over React Router for tight integration with TanStack Query (Phase 4): route `loaders` write into the same Query cache used by components, giving unified staleness rules and no double-fetch on navigation. Also provides type-safe search params (useful for filtered list screens coming in Phase 4) and a `beforeLoad` + typed `context` mechanism that lets auth guards be declared once on a parent layout route (useful for Phase 6).
 
@@ -101,7 +101,6 @@ Exposes via `useAppState()`:
   user, setUser,
   tasks,
   ledTeam, joinedTeam,
-  currentTaskId,                 // optional after Phase 3 (URL holds taskId), kept for now
   successData, setSuccessData,
   handleSignIn,
   handleProfileComplete,
@@ -114,6 +113,8 @@ Exposes via `useAppState()`:
 }
 ```
 
+`currentTaskId` is dropped entirely — the task ID now lives in the URL (`/tasks/:taskId` and `/tasks/:taskId/start`). Form components read it via `useParams()` and parse to number. `MyScreen`'s "建立隊伍" button uses `useNavigate()` to `/tasks/3/start` directly.
+
 **`main.tsx` wraps:**
 ```tsx
 <AppStateProvider>
@@ -125,7 +126,7 @@ Exposes via `useAppState()`:
 
 **Screens stop receiving domain props.** `<HomeScreen />` reads from `useAppState()` + `useNavigate()` internally. Their presentational innards (layout, styling, event wiring) are unchanged.
 
-**Task-detail routing:** `TaskDetailScreen` reads `taskId` from `useParams()` instead of the `currentTaskId` prop. `currentTaskId` stays in context as a transitional field for `ProfileSetupForm` flows that set it imperatively (e.g., `MyScreen`'s "建立隊伍" button). A later pass can remove it once all entry points navigate directly.
+**Task-detail routing:** `TaskDetailScreen` reads `taskId` from `useParams()`. No `currentTaskId` carried in context.
 
 ## Known tech debt carried forward (not addressed here)
 
