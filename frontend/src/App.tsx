@@ -263,8 +263,8 @@ function App() {
         width: "100vw",
         display: "flex",
         flexDirection: "column",
-        background: "#F2ECDC",
-        fontFamily: '"Noto Sans SC", "PingFang SC", -apple-system, sans-serif',
+        background: "var(--bg-shell)",
+        fontFamily: "var(--font-sans)",
         overflow: "hidden",
       }}
     >

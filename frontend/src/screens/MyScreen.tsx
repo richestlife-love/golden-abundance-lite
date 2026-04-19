@@ -39,11 +39,11 @@ export default function MyScreen({
   onSimulateJoinApproved,
   onOpenTask,
 }: Props) {
-  const bg = "#FFFDF5";
-  const fg = "#241c00";
-  const muted = "rgba(50,40,0,0.6)";
-  const cardBg = "rgba(255,255,255,0.7)";
-  const cardBorder = "1px solid rgba(255,255,255,0.9)";
+  const bg = "var(--bg)";
+  const fg = "var(--fg)";
+  const muted = "var(--muted)";
+  const cardBg = "var(--card)";
+  const cardBorder = "1px solid var(--card-strong)";
 
   const totalPoints = (tasks || [])
     .filter((t) => t.status === "completed")
@@ -78,7 +78,7 @@ export default function MyScreen({
         display: "flex",
         flexDirection: "column",
         background: bg,
-        color: "#241c00",
+        color: "var(--fg)",
         overflow: "hidden",
       }}
     >
@@ -126,7 +126,7 @@ export default function MyScreen({
                 border: "none",
                 cursor: "pointer",
                 padding: 0,
-                background: "rgba(255,255,255,0.7)",
+                background: "var(--card)",
                 color: "#a14646",
                 display: "inline-flex",
                 alignItems: "center",
@@ -160,7 +160,7 @@ export default function MyScreen({
                 border: "none",
                 cursor: "pointer",
                 padding: 0,
-                background: "rgba(255,255,255,0.7)",
+                background: "var(--card)",
                 color: "#7a5a00",
                 display: "inline-flex",
                 alignItems: "center",
@@ -287,7 +287,7 @@ export default function MyScreen({
                   width: 68,
                   height: 68,
                   borderRadius: 999,
-                  background: "linear-gradient(135deg, #fed234, #fec701)",
+                  background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -295,7 +295,7 @@ export default function MyScreen({
                   fontWeight: 800,
                   color: "#fff",
                   boxShadow: "0 8px 22px rgba(254,199,1,0.4), inset 0 2px 0 rgba(255,255,255,0.4)",
-                  fontFamily: '"Noto Serif SC", serif',
+                  fontFamily: "var(--font-serif)",
                   border: "2px solid rgba(255,255,255,0.9)",
                 }}
               >
@@ -478,10 +478,10 @@ export default function MyScreen({
                   fontSize: 18,
                   fontWeight: 900,
                   letterSpacing: -0.3,
-                  background: "linear-gradient(135deg, #fed234, #fec701)",
+                  background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  fontFamily: '"Noto Serif SC", serif',
+                  fontFamily: "var(--font-serif)",
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 3,

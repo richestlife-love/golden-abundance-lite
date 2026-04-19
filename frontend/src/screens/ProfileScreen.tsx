@@ -8,12 +8,12 @@ type Props = {
 };
 
 export default function ProfileScreen({ user, onBack, onEdit }: Props) {
-  const bg = "#FFFDF5";
-  const fg = "#241c00";
-  const muted = "rgba(50,40,0,0.6)";
+  const bg = "var(--bg)";
+  const fg = "var(--fg)";
+  const muted = "var(--muted)";
   const cardBg = "#FFFBE6";
   const cardBorder = "1px solid rgba(254,199,1,0.22)";
-  const accent = "#cb9f01";
+  const accent = "var(--gold-deep)";
 
   const [idCopied, setIdCopied] = useState(false);
   const copyUserId = async () => {
@@ -69,7 +69,7 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
         display: "flex",
         flexDirection: "column",
         background: bg,
-        color: "#241c00",
+        color: "var(--fg)",
         overflow: "hidden",
       }}
     >
@@ -155,7 +155,7 @@ export default function ProfileScreen({ user, onBack, onEdit }: Props) {
               width: 72,
               height: 72,
               borderRadius: 999,
-              background: "linear-gradient(135deg, #fed234, #fec701)",
+              background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

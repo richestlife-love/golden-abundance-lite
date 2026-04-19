@@ -12,7 +12,7 @@ export default function Headline({ text, fontSize }: Props) {
         fontSize,
         fontWeight: 900,
         letterSpacing: 2,
-        fontFamily: '"Noto Sans SC", "PingFang SC", sans-serif',
+        fontFamily: "var(--font-sans)",
         background: "linear-gradient(180deg, #cb9f01 0%, #987701 55%, #655001 100%)",
         WebkitBackgroundClip: "text",
         WebkitTextFillColor: "transparent",

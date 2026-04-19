@@ -37,7 +37,7 @@ export default function GoogleAuthScreen({ onCancel, onSuccess }: Props) {
         display: "flex",
         flexDirection: "column",
         background: "#FFFFFF",
-        color: "#241c00",
+        color: "var(--fg)",
         overflow: "hidden",
       }}
     >

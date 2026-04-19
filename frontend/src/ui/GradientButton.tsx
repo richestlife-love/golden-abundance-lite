@@ -27,7 +27,7 @@ export default function GradientButton({ label, onClick }: Props) {
         fontSize: 20,
         fontWeight: 700,
         letterSpacing: 4,
-        fontFamily: '"Noto Sans SC", "PingFang SC", sans-serif',
+        fontFamily: "var(--font-sans)",
         boxShadow: pressed
           ? "0 4px 12px rgba(254,199,1,0.4), inset 0 2px 6px rgba(0,0,0,0.1)"
           : "0 12px 30px rgba(254,199,1,0.5), 0 4px 10px rgba(254,210,52,0.35), inset 0 1px 0 rgba(255,255,255,0.5)",

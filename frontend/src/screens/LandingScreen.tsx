@@ -59,7 +59,7 @@ export default function LandingScreen({ onStart }: Props) {
         background: "#fff",
         display: "flex",
         flexDirection: "column",
-        color: "#241c00",
+        color: "var(--fg)",
       }}
     >
       <PaperBackground />
@@ -92,7 +92,7 @@ export default function LandingScreen({ onStart }: Props) {
               width: 26,
               height: 26,
               borderRadius: 7,
-              background: "linear-gradient(135deg, #fed234, #fec701)",
+              background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -104,7 +104,7 @@ export default function LandingScreen({ onStart }: Props) {
                 color: "#fff",
                 fontSize: 14,
                 fontWeight: 900,
-                fontFamily: '"Noto Serif SC", serif',
+                fontFamily: "var(--font-serif)",
               }}
             >
               金
@@ -116,7 +116,7 @@ export default function LandingScreen({ onStart }: Props) {
               fontWeight: 600,
               letterSpacing: 2,
               color: "#987701",
-              fontFamily: '"Noto Sans SC", "PingFang SC", sans-serif',
+              fontFamily: "var(--font-sans)",
             }}
           >
             金富有 · GOLDEN ABUNDANCE
@@ -157,7 +157,7 @@ export default function LandingScreen({ onStart }: Props) {
             fontWeight: 400,
             letterSpacing: 4,
             color: "#987701",
-            fontFamily: '"Noto Sans SC", "PingFang SC", sans-serif',
+            fontFamily: "var(--font-sans)",
             animation: "fadeInUp 0.9s 0.4s ease backwards",
             flexShrink: 0,
           }}

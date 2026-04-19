@@ -10,8 +10,8 @@ type Props = {
 };
 
 export default function FormShell({ bg, title, subtitle, onCancel, children, footer }: Props) {
-  const fg = "#241c00";
-  const muted = "rgba(50,40,0,0.6)";
+  const fg = "var(--fg)";
+  const muted = "var(--muted)";
   return (
     <div
       style={{
@@ -19,7 +19,7 @@ export default function FormShell({ bg, title, subtitle, onCancel, children, foo
         display: "flex",
         flexDirection: "column",
         background: bg,
-        color: "#241c00",
+        color: "var(--fg)",
         overflow: "hidden",
       }}
     >

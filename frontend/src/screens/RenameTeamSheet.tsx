@@ -135,7 +135,7 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
               borderRadius: 12,
               border: "none",
               background: value.trim()
-                ? "linear-gradient(135deg, #fed234, #fec701)"
+                ? "linear-gradient(135deg, var(--gold-light), var(--gold))"
                 : "rgba(254,210,52,0.25)",
               color: value.trim() ? "#fff" : muted,
               fontSize: 13,

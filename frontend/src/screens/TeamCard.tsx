@@ -368,7 +368,7 @@ export default function TeamCard({
                   fontWeight: 800,
                   color: fg,
                   lineHeight: 1.15,
-                  fontFamily: '"Noto Serif SC", serif',
+                  fontFamily: "var(--font-serif)",
                   letterSpacing: -0.3,
                   display: "flex",
                   alignItems: "center",
@@ -412,7 +412,7 @@ export default function TeamCard({
                       borderRadius: 999,
                       border: rc.borderStrong,
                       cursor: "pointer",
-                      background: "rgba(255,255,255,0.7)",
+                      background: "var(--card)",
                       color: muted,
                       fontSize: 12,
                       fontWeight: 700,
@@ -619,7 +619,7 @@ export default function TeamCard({
                   lineHeight: 1.15,
                   fontSize: 18,
                   color: "#5a4500",
-                  fontFamily: '"Noto Serif SC", serif',
+                  fontFamily: "var(--font-serif)",
                   letterSpacing: -0.3,
                 }}
               >
@@ -736,7 +736,7 @@ export default function TeamCard({
                   fontWeight: 900,
                   lineHeight: 1,
                   color: fg,
-                  fontFamily: '"Noto Serif SC", serif',
+                  fontFamily: "var(--font-serif)",
                   letterSpacing: -0.8,
                 }}
               >
@@ -804,7 +804,7 @@ export default function TeamCard({
                   fontWeight: 900,
                   lineHeight: 1,
                   color: rc.primary,
-                  fontFamily: '"Noto Serif SC", serif',
+                  fontFamily: "var(--font-serif)",
                   letterSpacing: -1.2,
                   background: `linear-gradient(135deg, ${rc.primary}, ${rc.primaryDeep})`,
                   WebkitBackgroundClip: "text",
@@ -882,7 +882,7 @@ export default function TeamCard({
                     gap: 10,
                     padding: "10px 14px 10px 10px",
                     borderRadius: 14,
-                    background: m.isLeader ? rc.leaderRowBg : "rgba(255,255,255,0.7)",
+                    background: m.isLeader ? rc.leaderRowBg : "var(--card)",
                     border: m.isLeader ? rc.leaderRowBorder : rc.borderSoft,
                     boxShadow: m.isLeader
                       ? `0 2px 6px ${isMemberCard ? "rgba(109,174,74,0.12)" : "rgba(200,160,0,0.1)"}`
@@ -903,7 +903,7 @@ export default function TeamCard({
                       fontWeight: 800,
                       background:
                         i === 0
-                          ? "linear-gradient(135deg, #fed234, #fec701)"
+                          ? "linear-gradient(135deg, var(--gold-light), var(--gold))"
                           : i === 1
                             ? "rgba(180,190,200,0.5)"
                             : i === 2
@@ -911,7 +911,7 @@ export default function TeamCard({
                               : "transparent",
                       color: i === 0 ? "#fff" : i <= 2 ? "#fff" : muted,
                       border: i > 2 ? "1px solid rgba(120,90,0,0.2)" : "none",
-                      fontFamily: '"Noto Serif SC", serif',
+                      fontFamily: "var(--font-serif)",
                     }}
                   >
                     {i + 1}
@@ -979,7 +979,7 @@ export default function TeamCard({
                       fontSize: 14,
                       fontWeight: 800,
                       color: rc.primary,
-                      fontFamily: '"Noto Serif SC", serif',
+                      fontFamily: "var(--font-serif)",
                       letterSpacing: -0.3,
                       flexShrink: 0,
                       display: "flex",
@@ -1026,7 +1026,7 @@ export default function TeamCard({
                     padding: "6px 8px 6px 6px",
                     borderRadius: 999,
                     background: "rgba(255,255,255,0.8)",
-                    border: "1px solid rgba(255,255,255,0.9)",
+                    border: "1px solid var(--card-strong)",
                     display: "flex",
                     alignItems: "center",
                     gap: 10,
@@ -1212,7 +1212,7 @@ export default function TeamCard({
                 color: fg,
                 textAlign: "center",
                 marginBottom: 6,
-                fontFamily: '"Noto Serif SC", serif',
+                fontFamily: "var(--font-serif)",
               }}
             >
               確定要退出團隊？

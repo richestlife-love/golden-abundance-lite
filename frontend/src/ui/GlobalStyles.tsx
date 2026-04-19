@@ -1,7 +1,40 @@
 export default function GlobalStyles() {
   return (
     <style>{`
-      html, body { margin: 0; padding: 0; background: #f2ecdc; }
+      :root {
+        /* Neutrals */
+        --bg: #FFFDF5;
+        --bg-shell: #F2ECDC;
+        --fg: #241c00;
+        --muted: rgba(50, 40, 0, 0.6);
+        --card: rgba(255, 255, 255, 0.7);
+        --card-strong: rgba(255, 255, 255, 0.9);
+
+        /* Gold scale — primary brand */
+        --gold-pale: #fee99a;
+        --gold-light: #fed234;
+        --gold: #fec701;
+        --gold-deep: #cb9f01;
+        --gold-dark: #987701;
+        --gold-darkest: #655001;
+
+        /* Accent — community */
+        --green: #8AD4B0;
+        --green-deep: #4EA886;
+
+        /* Accent — milestone */
+        --purple: #B8A4E3;
+        --purple-deep: #8D71C7;
+
+        /* Accent — pioneer */
+        --peach: #FFC170;
+        --peach-deep: #F39770;
+
+        /* Typography */
+        --font-sans: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif;
+        --font-serif: "Noto Serif SC", serif;
+      }
+      html, body { margin: 0; padding: 0; background: var(--bg-shell); }
       * { box-sizing: border-box; }
       .news-track::-webkit-scrollbar, .rw-hscroll::-webkit-scrollbar { display: none; }
       @keyframes spin { to { transform: rotate(360deg); } }

@@ -8,9 +8,9 @@ type Props = {
 };
 
 export default function RewardsScreen({ user, tasks, onBack }: Props) {
-  const bg = "#FFFDF5";
-  const fg = "#241c00";
-  const muted = "rgba(50,40,0,0.6)";
+  const bg = "var(--bg)";
+  const fg = "var(--fg)";
+  const muted = "var(--muted)";
   const cardBg = "#FFFBE6";
   const cardBorder = "1px solid rgba(254,199,1,0.22)";
 
@@ -27,7 +27,7 @@ export default function RewardsScreen({ user, tasks, onBack }: Props) {
         display: "flex",
         flexDirection: "column",
         background: bg,
-        color: "#241c00",
+        color: "var(--fg)",
         overflow: "hidden",
       }}
     >
@@ -122,7 +122,7 @@ export default function RewardsScreen({ user, tasks, onBack }: Props) {
                 width: 64,
                 height: 64,
                 borderRadius: 999,
-                background: "linear-gradient(135deg, #fed234, #fec701)",
+                background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -159,7 +159,7 @@ export default function RewardsScreen({ user, tasks, onBack }: Props) {
                     fontSize: 36,
                     fontWeight: 900,
                     letterSpacing: -1,
-                    fontFamily: '"Noto Serif SC", serif',
+                    fontFamily: "var(--font-serif)",
                     background: "linear-gradient(135deg, #987701, #cb9f01)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",

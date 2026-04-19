@@ -175,7 +175,7 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
               cursor: "pointer",
               background: copied
                 ? "linear-gradient(135deg, #7FCFA3, #5BAE85)"
-                : "linear-gradient(135deg, #fed234, #fec701)",
+                : "linear-gradient(135deg, var(--gold-light), var(--gold))",
               color: "#fff",
               fontSize: 13,
               fontWeight: 800,

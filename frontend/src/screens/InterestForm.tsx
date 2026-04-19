@@ -11,10 +11,10 @@ type Props = {
 };
 
 export default function InterestForm({ onCancel, onSubmit }: Props) {
-  const bg = "#FFFDF5";
-  const muted = "rgba(50,40,0,0.6)";
+  const bg = "var(--bg)";
+  const muted = "var(--muted)";
   const cardBg = "rgba(255,255,255,0.6)";
-  const cardBorder = "1px solid rgba(255,255,255,0.9)";
+  const cardBorder = "1px solid var(--card-strong)";
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");

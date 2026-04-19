@@ -11,10 +11,10 @@ type Props = {
 };
 
 export default function TicketForm({ onCancel, onSubmit }: Props) {
-  const bg = "#FFFDF5";
+  const bg = "var(--bg)";
   const cardBg = "rgba(255,255,255,0.6)";
-  const cardBorder = "1px solid rgba(255,255,255,0.9)";
-  const muted = "rgba(50,40,0,0.6)";
+  const cardBorder = "1px solid var(--card-strong)";
+  const muted = "var(--muted)";
 
   const [name, setName] = useState("");
   const [ticket725, setTicket725] = useState("");

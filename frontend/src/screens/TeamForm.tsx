@@ -11,11 +11,11 @@ type Props = {
 };
 
 export default function TeamForm({ onCancel, onSubmit }: Props) {
-  const bg = "#FFFDF5";
-  const fg = "#241c00";
-  const muted = "rgba(50,40,0,0.6)";
+  const bg = "var(--bg)";
+  const fg = "var(--fg)";
+  const muted = "var(--muted)";
   const cardBg = "rgba(255,255,255,0.6)";
-  const cardBorder = "1px solid rgba(255,255,255,0.9)";
+  const cardBorder = "1px solid var(--card-strong)";
 
   const [teamQuery, setTeamQuery] = useState("");
   const [pendingJoin, setPendingJoin] = useState<string | null>(null);
@@ -52,7 +52,7 @@ export default function TeamForm({ onCancel, onSubmit }: Props) {
       {
         id: "m-a",
         name: "林詠瑜",
-        avatar: "linear-gradient(135deg, #fed234, #fec701)",
+        avatar: "linear-gradient(135deg, var(--gold-light), var(--gold))",
       },
       {
         id: "m-b",

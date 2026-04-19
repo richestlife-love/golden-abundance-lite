@@ -25,11 +25,11 @@ export default function ProfileSetupForm({
   subtitle = "初次加入，請填寫基本資訊，稍後可於「我的」中修改",
   submitLabel = "完成註冊",
 }: Props) {
-  const bg = "#FFFDF5";
-  const muted = "rgba(50,40,0,0.6)";
+  const bg = "var(--bg)";
+  const muted = "var(--muted)";
   const cardBg = "rgba(255,255,255,0.6)";
-  const cardBorder = "1px solid rgba(255,255,255,0.9)";
-  const fg = "#241c00";
+  const cardBorder = "1px solid var(--card-strong)";
+  const fg = "var(--fg)";
 
   const initEn =
     initial?.enName || ((user?.name || "").match(/[A-Za-z\s]/) ? user?.name || "" : "");
@@ -218,7 +218,7 @@ export default function ProfileSetupForm({
             width: 44,
             height: 44,
             borderRadius: "50%",
-            background: "linear-gradient(135deg, #fed234, #fec701)",
+            background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -296,7 +296,7 @@ export default function ProfileSetupForm({
                 border: "1px solid rgba(254, 210, 52, 0.4)",
                 background: "rgba(255,255,255,0.85)",
                 fontSize: 14,
-                color: "#241c00",
+                color: "var(--fg)",
                 fontFamily: "inherit",
                 outline: "none",
                 cursor: "pointer",
@@ -318,7 +318,7 @@ export default function ProfileSetupForm({
                 transform: "translateY(-50%)",
                 pointerEvents: "none",
                 fontSize: 10,
-                color: "rgba(50,40,0,0.6)",
+                color: "var(--muted)",
               }}
             >
               ▾

@@ -46,7 +46,7 @@ export default function ChipGroup(props: Props) {
               background: isActive
                 ? "linear-gradient(135deg, rgba(254,210,52,0.25), rgba(254,233,154,0.28))"
                 : "rgba(255,255,255,0.6)",
-              color: isActive ? "#655001" : "#241c00",
+              color: isActive ? "var(--gold-darkest)" : "var(--fg)",
               transition: "all 0.15s",
             }}
           >

@@ -40,7 +40,7 @@ export default function LaunchOverlay({ onDone }: Props) {
           fontSize: 16,
           fontWeight: 600,
           letterSpacing: 6,
-          fontFamily: '"Noto Sans SC", "PingFang SC", sans-serif',
+          fontFamily: "var(--font-sans)",
           color: "#987701",
         }}
       >

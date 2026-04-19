@@ -131,7 +131,7 @@ export default function MyRewards({
               style={{
                 padding: "3px 9px",
                 borderRadius: 999,
-                background: "linear-gradient(135deg, #fed234, #fec701)",
+                background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                 fontWeight: 800,
                 letterSpacing: 0.3,
                 fontSize: 13,
@@ -670,7 +670,7 @@ export default function MyRewards({
                       fontWeight: 900,
                       lineHeight: 1,
                       color: "#987701",
-                      fontFamily: '"Noto Serif SC", serif',
+                      fontFamily: "var(--font-serif)",
                       whiteSpace: "nowrap",
                     }}
                   >

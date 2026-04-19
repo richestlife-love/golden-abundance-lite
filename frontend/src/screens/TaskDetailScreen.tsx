@@ -19,11 +19,11 @@ export default function TaskDetailScreen({
   onStartTask,
   onGoMe,
 }: Props) {
-  const bg = "#FFFDF5";
-  const cardBg = "rgba(255,255,255,0.7)";
-  const cardBorder = "1px solid rgba(255,255,255,0.9)";
-  const muted = "rgba(50,40,0,0.6)";
-  const fg = "#241c00";
+  const bg = "var(--bg)";
+  const cardBg = "var(--card)";
+  const cardBorder = "1px solid var(--card-strong)";
+  const muted = "var(--muted)";
+  const fg = "var(--fg)";
 
   const tasks = tasksProp || TASKS;
   const t = tasks.find((x) => x.id === taskId);
@@ -35,7 +35,7 @@ export default function TaskDetailScreen({
           display: "flex",
           flexDirection: "column",
           background: bg,
-          color: "#241c00",
+          color: "var(--fg)",
           overflow: "hidden",
         }}
       >
@@ -110,7 +110,7 @@ export default function TaskDetailScreen({
         display: "flex",
         flexDirection: "column",
         background: bg,
-        color: "#241c00",
+        color: "var(--fg)",
         overflow: "hidden",
       }}
     >
@@ -459,7 +459,7 @@ export default function TaskDetailScreen({
                     width: 18,
                     height: 18,
                     borderRadius: "50%",
-                    background: "linear-gradient(135deg, #fed234, #fec701)",
+                    background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -498,7 +498,7 @@ export default function TaskDetailScreen({
                     marginTop: 3,
                     color: fg,
                     letterSpacing: -0.2,
-                    fontFamily: '"Noto Serif SC", serif',
+                    fontFamily: "var(--font-serif)",
                   }}
                 >
                   {t.bonus}
@@ -632,7 +632,7 @@ export default function TaskDetailScreen({
                     width: 36,
                     height: 36,
                     borderRadius: 12,
-                    background: "linear-gradient(135deg, #fed234, #fec701)",
+                    background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                     color: "#fff",
                     fontSize: 18,
                     fontWeight: 700,
@@ -710,7 +710,7 @@ export default function TaskDetailScreen({
                         borderRadius: 999,
                         background: filled
                           ? isLeader
-                            ? "linear-gradient(135deg, #fed234, #fec701)"
+                            ? "linear-gradient(135deg, var(--gold-light), var(--gold))"
                             : "linear-gradient(135deg, #fec701, #fec701)"
                           : "transparent",
                         border: filled ? "none" : "1.5px dashed rgba(254,210,52,0.45)",
@@ -936,7 +936,7 @@ export default function TaskDetailScreen({
               background: cta.disabled
                 ? "rgba(100,80,1,0.15)"
                 : cta.tone === "secondary"
-                  ? "rgba(255,255,255,0.7)"
+                  ? "var(--card)"
                   : `linear-gradient(135deg, ${t.color}, ${t.color}D0)`,
               color: cta.disabled ? muted : cta.tone === "secondary" ? fg : "#fff",
               border: cta.tone === "secondary" ? `1.5px solid ${t.color}` : "none",

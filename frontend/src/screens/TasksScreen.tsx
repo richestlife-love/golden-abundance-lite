@@ -12,11 +12,11 @@ type Props = {
 };
 
 export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }: Props) {
-  const bg = "#FFFDF5";
-  const cardBg = "rgba(255,255,255,0.7)";
-  const cardBorder = "1px solid rgba(255,255,255,0.9)";
-  const muted = "rgba(50,40,0,0.6)";
-  const fg = "#241c00";
+  const bg = "var(--bg)";
+  const cardBg = "var(--card)";
+  const cardBorder = "1px solid var(--card-strong)";
+  const muted = "var(--muted)";
+  const fg = "var(--fg)";
 
   const [filter, setFilter] = useState("active");
   const tasks = tasksProp || TASKS;
@@ -62,7 +62,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
         display: "flex",
         flexDirection: "column",
         background: bg,
-        color: "#241c00",
+        color: "var(--fg)",
         overflow: "hidden",
       }}
     >

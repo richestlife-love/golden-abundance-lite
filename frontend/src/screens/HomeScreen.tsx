@@ -19,7 +19,7 @@ export default function HomeScreen({
   onNavigate,
   onOpenTask,
 }: Props) {
-  const bg = "#FFFDF5";
+  const bg = "var(--bg)";
 
   const tasks = tasksProp || TASKS;
   const activeTasks = tasks.filter((t) => {
@@ -27,10 +27,10 @@ export default function HomeScreen({
     return status === "todo" || status === "in_progress" || status === "locked";
   });
 
-  const cardBg = "rgba(255,255,255,0.7)";
-  const cardBorder = "1px solid rgba(255,255,255,0.9)";
-  const muted = "rgba(50,40,0,0.6)";
-  const fg = "#241c00";
+  const cardBg = "var(--card)";
+  const cardBorder = "1px solid var(--card-strong)";
+  const muted = "var(--muted)";
+  const fg = "var(--fg)";
 
   // Star points + tier progress (mirrors MyRewards tier thresholds)
   const totalPoints = (tasks || [])
@@ -68,7 +68,7 @@ export default function HomeScreen({
         display: "flex",
         flexDirection: "column",
         background: bg,
-        color: "#241c00",
+        color: "var(--fg)",
         overflow: "hidden",
       }}
     >
@@ -187,7 +187,7 @@ export default function HomeScreen({
                   fontSize: 28,
                   fontWeight: 800,
                   color: "#3a2800",
-                  fontFamily: '"Noto Serif SC", serif',
+                  fontFamily: "var(--font-serif)",
                   letterSpacing: 0.5,
                   lineHeight: 1,
                 }}
@@ -242,7 +242,7 @@ export default function HomeScreen({
                     width: 14,
                     height: 14,
                     borderRadius: 999,
-                    background: "linear-gradient(135deg, #fed234, #fec701)",
+                    background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -279,7 +279,7 @@ export default function HomeScreen({
                     background: "linear-gradient(135deg, #cb9f01 0%, #fec701 45%, #cb9f01 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
-                    fontFamily: '"Noto Serif SC", serif',
+                    fontFamily: "var(--font-serif)",
                     lineHeight: 1,
                     textShadow: "0 2px 4px rgba(200,160,0,0.15)",
                   }}

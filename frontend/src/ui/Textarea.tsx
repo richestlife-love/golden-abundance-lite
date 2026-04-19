@@ -6,7 +6,7 @@ type Props = {
 };
 
 export default function Textarea({ value, onChange, placeholder, rows = 3 }: Props) {
-  const fg = "#241c00";
+  const fg = "var(--fg)";
   return (
     <textarea
       value={value}

@@ -21,7 +21,7 @@ export default function BottomNav({ current, muted, onNavigate }: Props) {
         display: "flex",
         justifyContent: "space-around",
         padding: "10px 16px 18px",
-        background: "rgba(255,255,255,0.7)",
+        background: "var(--card)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         borderTop: "1px solid rgba(254,210,52,0.25)",

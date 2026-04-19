@@ -9,11 +9,11 @@ type Props = {
 };
 
 export default function RankScreen({ user, tasks, onNavigate }: Props) {
-  const bg = "#FFFDF5";
-  const fg = "#241c00";
-  const muted = "rgba(50,40,0,0.6)";
-  const cardBg = "rgba(255,255,255,0.7)";
-  const cardBorder = "1px solid rgba(255,255,255,0.9)";
+  const bg = "var(--bg)";
+  const fg = "var(--fg)";
+  const muted = "var(--muted)";
+  const cardBg = "var(--card)";
+  const cardBorder = "1px solid var(--card-strong)";
 
   const [tab, setTab] = useState("personal"); // personal | team | challenge
   const [period, setPeriod] = useState("month"); // week | month | all
@@ -166,7 +166,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
         nick: "Shiya",
         points: 260,
         team: "光明小隊",
-        grad: "linear-gradient(135deg, #fed234, #fec701)",
+        grad: "linear-gradient(135deg, var(--gold-light), var(--gold))",
       },
       {
         id: "u5",
@@ -182,7 +182,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
         nick: user?.enName || "",
         points: myPoints,
         team: "—",
-        grad: "linear-gradient(135deg, #fed234, #fec701)",
+        grad: "linear-gradient(135deg, var(--gold-light), var(--gold))",
         isMe: true,
       },
       {
@@ -234,7 +234,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
         nick: "Shiya",
         points: 1380,
         team: "光明小隊",
-        grad: "linear-gradient(135deg, #fed234, #fec701)",
+        grad: "linear-gradient(135deg, var(--gold-light), var(--gold))",
       },
       {
         id: "u4",
@@ -274,7 +274,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
         nick: user?.enName || "",
         points: myPoints,
         team: "—",
-        grad: "linear-gradient(135deg, #fed234, #fec701)",
+        grad: "linear-gradient(135deg, var(--gold-light), var(--gold))",
         isMe: true,
       },
       {
@@ -310,7 +310,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
         nick: "Shiya",
         points: 6510,
         team: "光明小隊",
-        grad: "linear-gradient(135deg, #fed234, #fec701)",
+        grad: "linear-gradient(135deg, var(--gold-light), var(--gold))",
       },
       {
         id: "u4",
@@ -358,7 +358,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
         nick: user?.enName || "",
         points: myPoints,
         team: "—",
-        grad: "linear-gradient(135deg, #fed234, #fec701)",
+        grad: "linear-gradient(135deg, var(--gold-light), var(--gold))",
         isMe: true,
       },
     ],
@@ -549,7 +549,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
         display: "flex",
         flexDirection: "column",
         background: bg,
-        color: "#241c00",
+        color: "var(--fg)",
         overflow: "hidden",
       }}
     >
@@ -654,9 +654,9 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                 border: "none",
                 background:
                   tab === t.k
-                    ? "linear-gradient(135deg, #fed234, #fec701)"
-                    : "rgba(255,255,255,0.7)",
-                color: tab === t.k ? "#241c00" : fg,
+                    ? "linear-gradient(135deg, var(--gold-light), var(--gold))"
+                    : "var(--card)",
+                color: tab === t.k ? "var(--fg)" : fg,
                 boxShadow: tab === t.k ? "0 4px 14px rgba(254,199,1,0.32)" : "none",
                 transition: "all 0.2s ease",
               }}
@@ -782,7 +782,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                   height: 44,
                   borderRadius: 14,
                   flexShrink: 0,
-                  background: "linear-gradient(135deg, #fed234, #fec701)",
+                  background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -799,7 +799,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                     fontSize: 14,
                     fontWeight: 800,
                     color: fg,
-                    fontFamily: '"Noto Serif SC", serif',
+                    fontFamily: "var(--font-serif)",
                     letterSpacing: 0.3,
                     marginBottom: 4,
                   }}
@@ -1001,7 +1001,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                             height: 22,
                             borderRadius: 999,
                             background: medal,
-                            color: "#241c00",
+                            color: "var(--fg)",
                             fontSize: 11,
                             fontWeight: 900,
                             display: "flex",
@@ -1080,10 +1080,10 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          color: isWinner ? "#241c00" : "#987701",
+                          color: isWinner ? "var(--fg)" : "var(--gold-dark)",
                           fontSize: 28,
                           fontWeight: 900,
-                          fontFamily: '"Noto Serif SC", serif',
+                          fontFamily: "var(--font-serif)",
                           boxShadow: isWinner
                             ? "inset 0 -10px 20px rgba(152,119,1,0.3), 0 6px 18px rgba(254,199,1,0.35)"
                             : "inset 0 -6px 14px rgba(0,0,0,0.04)",
@@ -1181,7 +1181,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                         fontSize: 14,
                         fontWeight: 800,
                         color: isMe ? "#987701" : muted,
-                        fontFamily: '"Noto Serif SC", serif',
+                        fontFamily: "var(--font-serif)",
                       }}
                     >
                       {actualRank}
@@ -1243,8 +1243,8 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                               borderRadius: 6,
                               fontSize: 9,
                               fontWeight: 800,
-                              background: "linear-gradient(135deg, #fed234, #fec701)",
-                              color: "#241c00",
+                              background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
+                              color: "var(--fg)",
                               verticalAlign: "middle",
                             }}
                           >
@@ -1275,7 +1275,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                         fontSize: 14,
                         fontWeight: 800,
                         color: isMe ? "#987701" : fg,
-                        fontFamily: '"Noto Serif SC", serif',
+                        fontFamily: "var(--font-serif)",
                         letterSpacing: -0.3,
                       }}
                     >
@@ -1326,7 +1326,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                   fontSize: 16,
                   fontWeight: 900,
                   color: "#987701",
-                  fontFamily: '"Noto Serif SC", serif',
+                  fontFamily: "var(--font-serif)",
                 }}
               >
                 #{myRank}
@@ -1337,7 +1337,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                 width: 34,
                 height: 34,
                 borderRadius: 999,
-                background: "linear-gradient(135deg, #fed234, #fec701)",
+                background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -1364,7 +1364,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                 fontSize: 14,
                 fontWeight: 800,
                 color: "#987701",
-                fontFamily: '"Noto Serif SC", serif',
+                fontFamily: "var(--font-serif)",
               }}
             >
               ★ {myPoints.toLocaleString()}
