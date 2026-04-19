@@ -893,6 +893,7 @@ export default function RankScreen({ user, tasks, onNavigate }: Props) {
                   const x = (i * 37) % 100,
                     y = (i * 19) % 50,
                     r = ((i % 3) + 1) * 0.8;
+                  // decorative starfield: order is stable, no semantic id
                   return <circle key={i} cx={`${x}%`} cy={`${y}%`} r={r} fill="#fec701" />;
                 })}
               </svg>
