@@ -353,11 +353,11 @@ export default function HomeScreen({
                         />
                       </div>
                       {/* Circular checkpoints */}
-                      {ticks.map((t, i) => {
+                      {ticks.map((t) => {
                         const reached = totalPoints >= t.value;
                         return (
                           <div
-                            key={i}
+                            key={t.pct}
                             style={{
                               position: "absolute",
                               top: "50%",
@@ -402,9 +402,9 @@ export default function HomeScreen({
                         marginTop: 4,
                       }}
                     >
-                      {ticks.map((t, i) => (
+                      {ticks.map((t) => (
                         <div
-                          key={i}
+                          key={t.pct}
                           style={{
                             position: "absolute",
                             left: `${t.pct * 100}%`,
