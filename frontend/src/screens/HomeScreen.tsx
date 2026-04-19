@@ -1,27 +1,20 @@
-import { TASKS } from "../data";
+import { useNavigate } from "@tanstack/react-router";
+import { useAppState } from "../state/AppStateContext";
 import { getEffectiveStatus, fs } from "../utils";
 import BottomNav from "../ui/BottomNav";
 import TaskCard from "./TaskCard";
-import type { User, Task, ScreenId } from "../types";
 
-type Props = {
-  user: User | null;
-  tasks: Task[];
-  onSignOut: () => void;
-  onNavigate: (screen: ScreenId) => void;
-  onOpenTask: (id: number) => void;
-};
+export default function HomeScreen() {
+  const navigate = useNavigate();
+  const { user, tasks, handleSignOut } = useAppState();
+  const onSignOut = () => {
+    handleSignOut();
+    navigate({ to: "/" });
+  };
+  const onOpenTask = (id: number) =>
+    navigate({ to: "/tasks/$taskId", params: { taskId: String(id) } });
 
-export default function HomeScreen({
-  user,
-  tasks: tasksProp,
-  onSignOut,
-  onNavigate,
-  onOpenTask,
-}: Props) {
   const bg = "var(--bg)";
-
-  const tasks = tasksProp || TASKS;
   const activeTasks = tasks.filter((t) => {
     const { status } = getEffectiveStatus(t, tasks);
     return status === "todo" || status === "in_progress" || status === "locked";
@@ -138,7 +131,7 @@ export default function HomeScreen({
         <button
           type="button"
           aria-label="查看獎勵"
-          onClick={() => onNavigate("rewards")}
+          onClick={() => navigate({ to: "/rewards" })}
           style={{
             display: "block",
             width: "100%",
@@ -458,7 +451,7 @@ export default function HomeScreen({
           <div style={{ fontSize: fs(16), fontWeight: 700, color: fg }}>探索任务</div>
           <button
             type="button"
-            onClick={() => onNavigate("tasks")}
+            onClick={() => navigate({ to: "/tasks" })}
             style={{
               fontSize: fs(12),
               color: muted,
@@ -518,7 +511,7 @@ export default function HomeScreen({
       </div>
 
       {/* Bottom nav */}
-      <BottomNav current="home" muted={muted} onNavigate={onNavigate} />
+      <BottomNav muted={muted} />
     </div>
   );
 }

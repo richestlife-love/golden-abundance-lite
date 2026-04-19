@@ -1,17 +1,17 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useAppState } from "../state/AppStateContext";
 import BottomNav from "../ui/BottomNav";
 import TaskCard from "./TaskCard";
 import { getEffectiveStatus, fs } from "../utils";
-import { TASKS } from "../data";
-import type { Task, ScreenId } from "../types";
+import type { Task } from "../types";
 
-type Props = {
-  tasks: Task[];
-  onNavigate: (screen: ScreenId) => void;
-  onOpenTask: (id: number) => void;
-};
+export default function TasksScreen() {
+  const navigate = useNavigate();
+  const { tasks } = useAppState();
+  const onOpenTask = (id: number) =>
+    navigate({ to: "/tasks/$taskId", params: { taskId: String(id) } });
 
-export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }: Props) {
   const bg = "var(--bg)";
   const cardBg = "var(--card)";
   const cardBorder = "1px solid var(--card-strong)";
@@ -19,7 +19,6 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
   const fg = "var(--fg)";
 
   const [filter, setFilter] = useState("active");
-  const tasks = tasksProp || TASKS;
 
   const counts = useMemo(() => {
     const c = {
@@ -272,7 +271,7 @@ export default function TasksScreen({ tasks: tasksProp, onNavigate, onOpenTask }
         </div>
       </div>
 
-      <BottomNav current="tasks" muted={muted} onNavigate={onNavigate} />
+      <BottomNav muted={muted} />
     </div>
   );
 }

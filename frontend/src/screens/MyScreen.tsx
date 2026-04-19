@@ -1,45 +1,27 @@
 import { fs } from "../utils";
 import { useState } from "react";
 import type { MouseEvent, KeyboardEvent } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useAppState } from "../state/AppStateContext";
 import BottomNav from "../ui/BottomNav";
 import TeamCard from "./TeamCard";
-import type { User, Team, Task, ScreenId } from "../types";
 
-type Props = {
-  user: User | null;
-  ledTeam: Team | null;
-  joinedTeam: Team | null;
-  tasks: Task[];
-  onSignOut: () => void;
-  onNavigate: (screen: ScreenId) => void;
-  onBuildTeam: () => void;
-  onApproveRequest: (requestId: string) => void;
-  onRejectRequest: (requestId: string) => void;
-  onRenameTeam: (alias: string) => void;
-  onCancelJoinRequest: () => void;
-  onLeaveLedTeam: () => void;
-  onLeaveJoinedTeam: () => void;
-  onSimulateJoinApproved: () => void;
-  onOpenTask: (id: number) => void;
-};
+export default function MyScreen() {
+  const navigate = useNavigate();
+  const {
+    user,
+    ledTeam,
+    joinedTeam,
+    tasks,
+    handleSignOut,
+    approveRequest,
+    rejectRequest,
+    renameTeam,
+    leaveJoinedTeam,
+    leaveLedTeam,
+    simulateJoinApproved,
+  } = useAppState();
 
-export default function MyScreen({
-  user,
-  ledTeam,
-  joinedTeam,
-  tasks,
-  onSignOut,
-  onNavigate,
-  onBuildTeam,
-  onApproveRequest,
-  onRejectRequest,
-  onRenameTeam,
-  onCancelJoinRequest,
-  onLeaveLedTeam,
-  onLeaveJoinedTeam,
-  onSimulateJoinApproved,
-  onOpenTask,
-}: Props) {
   const bg = "var(--bg)";
   const fg = "var(--fg)";
   const muted = "var(--muted)";
@@ -71,6 +53,13 @@ export default function MyScreen({
       // permission denied or another failure — skip confirmation
     }
   };
+
+  const onBuildTeam = () =>
+    navigate({
+      to: "/tasks/$taskId/start",
+      params: { taskId: "3" },
+      state: { fromDetail: true },
+    });
 
   return (
     <div
@@ -118,7 +107,10 @@ export default function MyScreen({
             <button
               type="button"
               aria-label="登出"
-              onClick={onSignOut}
+              onClick={() => {
+                handleSignOut();
+                navigate({ to: "/" });
+              }}
               title="登出"
               style={{
                 width: 36,
@@ -153,7 +145,7 @@ export default function MyScreen({
             <button
               type="button"
               aria-label="設定"
-              onClick={() => onNavigate("profile")}
+              onClick={() => navigate({ to: "/me/profile" })}
               style={{
                 width: 36,
                 height: 36,
@@ -251,7 +243,7 @@ export default function MyScreen({
           {/* Identity */}
           <button
             type="button"
-            onClick={() => onNavigate("profile")}
+            onClick={() => navigate({ to: "/me/profile" })}
             style={{
               padding: "24px 20px 20px",
               position: "relative",
@@ -425,7 +417,7 @@ export default function MyScreen({
           <div style={{ display: "grid", gridTemplateColumns: "1fr" }}>
             <button
               type="button"
-              onClick={() => onNavigate("rewards")}
+              onClick={() => navigate({ to: "/rewards" })}
               style={{
                 padding: "16px 18px",
                 background: "transparent",
@@ -681,7 +673,8 @@ export default function MyScreen({
                     >
                       <button
                         type="button"
-                        onClick={onSimulateJoinApproved}
+                        // demo-only; remove when Phase 4 wires real team-membership events from the backend
+                        onClick={simulateJoinApproved}
                         title="Demo：模擬隊長核准申請"
                         style={{
                           padding: "3px 9px",
@@ -706,8 +699,8 @@ export default function MyScreen({
                     variant="joined"
                     fg={fg}
                     muted={muted}
-                    onCancelRequest={onCancelJoinRequest}
-                    onLeaveTeam={onLeaveJoinedTeam}
+                    onCancelRequest={leaveJoinedTeam}
+                    onLeaveTeam={leaveJoinedTeam}
                   />
                 </>
               )}
@@ -758,7 +751,7 @@ export default function MyScreen({
                   </div>
                   <button
                     type="button"
-                    onClick={() => onOpenTask(3)}
+                    onClick={() => navigate({ to: "/tasks/$taskId", params: { taskId: "3" } })}
                     style={{
                       padding: "8px 14px",
                       borderRadius: 999,
@@ -785,10 +778,10 @@ export default function MyScreen({
                   variant="led"
                   fg={fg}
                   muted={muted}
-                  onApproveRequest={onApproveRequest}
-                  onRejectRequest={onRejectRequest}
-                  onRenameTeam={onRenameTeam}
-                  onLeaveTeam={onLeaveLedTeam}
+                  onApproveRequest={approveRequest}
+                  onRejectRequest={rejectRequest}
+                  onRenameTeam={renameTeam}
+                  onLeaveTeam={leaveLedTeam}
                 />
               )}
             </div>
@@ -798,7 +791,7 @@ export default function MyScreen({
         {/* Account menu list removed — logout moved to top bar */}
       </div>
 
-      <BottomNav current="me" muted={muted} onNavigate={onNavigate} />
+      <BottomNav muted={muted} />
     </div>
   );
 }
