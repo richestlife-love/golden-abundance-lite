@@ -1,17 +1,17 @@
-// Landing page — 欢迎加入金富有志工
+// React app page — 金富有志工
 // Full-viewport mobile-app landing. No device frame. Responsive, CTA always visible.
 
 const { useState, useEffect, useRef, useMemo } = React;
 
-// ─── Tweak defaults (persisted by host) ───────────────────────
-const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/ {
+// ─── App config ───────────────────────────────────────────────
+const CONFIG = {
   hero: "mascot",
   background: "paper",
   button: "gold",
-  title: "欢迎加入金富有志工",
+  title: "金富有志工",
   subtitle: "成就屬於自己的光明宇宙",
   cta: "开启",
-}; /*EDITMODE-END*/
+};
 
 // ─── Backgrounds ──────────────────────────────────────────────
 function GoldBackground() {
@@ -580,7 +580,7 @@ function LaunchOverlay({ onDone }) {
 }
 
 // ─── Landing screen ───────────────────────────────────────────
-function LandingScreen({ tweaks, onStart }) {
+function LandingScreen({ config, onStart }) {
   const getInitial = () => {
     const w = Math.min(
       typeof window !== "undefined" ? window.innerWidth : 390,
@@ -591,7 +591,7 @@ function LandingScreen({ tweaks, onStart }) {
   };
   const [dims, setDims] = useState(getInitial);
   const rootRef = useRef(null);
-  const dark = tweaks.background === "night";
+  const dark = config.background === "night";
 
   useEffect(() => {
     const update = () => {
@@ -621,29 +621,29 @@ function LandingScreen({ tweaks, onStart }) {
   }, []);
 
   const Bg =
-    tweaks.background === "night"
+    config.background === "night"
       ? NightBackground
-      : tweaks.background === "paper"
+      : config.background === "paper"
         ? PaperBackground
-        : tweaks.background === "gold"
+        : config.background === "gold"
           ? GoldBackground
           : AuroraBackground;
   const Hero =
-    tweaks.hero === "starfield"
+    config.hero === "starfield"
       ? PlanetHero
-      : tweaks.hero === "glyph"
+      : config.hero === "glyph"
         ? GlyphHero
         : MascotHero;
   const Button =
-    tweaks.button === "glass"
+    config.button === "glass"
       ? GlassButton
-      : tweaks.button === "outline"
+      : config.button === "outline"
         ? OutlineButton
         : GradientButton;
 
   const subtitleColor = dark
     ? "rgba(255,255,255,0.7)"
-    : tweaks.background === "paper"
+    : config.background === "paper"
       ? "#987701"
       : "#987701";
 
@@ -749,7 +749,7 @@ function LandingScreen({ tweaks, onStart }) {
             flexShrink: 0,
           }}
         >
-          <Headline text={tweaks.title} dark={dark} fontSize={titleSize} />
+          <Headline text={config.title} dark={dark} fontSize={titleSize} />
         </div>
 
         {/* Subtitle */}
@@ -767,7 +767,7 @@ function LandingScreen({ tweaks, onStart }) {
             flexShrink: 0,
           }}
         >
-          {tweaks.subtitle}
+          {config.subtitle}
         </div>
 
         {/* CTA */}
@@ -777,7 +777,7 @@ function LandingScreen({ tweaks, onStart }) {
             flexShrink: 0,
           }}
         >
-          <Button label={tweaks.cta} onClick={onStart} dark={dark} />
+          <Button label={config.cta} onClick={onStart} dark={dark} />
         </div>
       </div>
 
@@ -785,103 +785,8 @@ function LandingScreen({ tweaks, onStart }) {
   );
 }
 
-// ─── Tweaks panel ─────────────────────────────────────────────
-function TweaksPanel({ visible, tweaks, setTweaks }) {
-  if (!visible) return null;
-  const section = (label, children) => (
-    <div style={{ marginBottom: 14 }}>
-      <div
-        style={{
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: 2,
-          textTransform: "uppercase",
-          color: "#999",
-          marginBottom: 6,
-        }}
-      >
-        {label}
-      </div>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {children}
-      </div>
-    </div>
-  );
-
-  const chip = (key, val, label) => {
-    const active = tweaks[key] === val;
-    return (
-      <button
-        key={val}
-        onClick={() => setTweaks({ ...tweaks, [key]: val })}
-        style={{
-          padding: "7px 12px",
-          borderRadius: 999,
-          border: active ? "1.5px solid #cb9f01" : "1px solid #fff4cc",
-          background: active ? "#fff9e6" : "#fff",
-          color: active ? "#655001" : "#555",
-          fontSize: 12,
-          fontWeight: active ? 700 : 500,
-          cursor: "pointer",
-          fontFamily: "-apple-system, system-ui",
-          transition: "all 0.15s",
-        }}
-      >
-        {label}
-      </button>
-    );
-  };
-  return (
-    <div
-      style={{
-        position: "fixed",
-        right: 20,
-        bottom: 20,
-        zIndex: 1000,
-        width: 280,
-        padding: 18,
-        borderRadius: 18,
-        background: "rgba(255,255,255,0.95)",
-        backdropFilter: "blur(20px)",
-        border: "1px solid rgba(0,0,0,0.06)",
-        boxShadow: "0 20px 50px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.05)",
-        fontFamily: "-apple-system, system-ui",
-      }}
-    >
-      <div
-        style={{
-          fontSize: 14,
-          fontWeight: 700,
-          marginBottom: 14,
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          color: "#333",
-        }}
-      >
-        <span>✦</span> Tweaks
-      </div>
-      {section("Hero", [
-        chip("hero", "mascot", "Mascot"),
-        chip("hero", "starfield", "Planet"),
-        chip("hero", "glyph", "志 Glyph"),
-      ])}
-      {section("Background", [
-        chip("background", "aurora", "Aurora"),
-        chip("background", "night", "Night Sky"),
-        chip("background", "paper", "Warm Paper"),
-      ])}
-      {section("Button", [
-        chip("button", "gradient", "Gradient"),
-        chip("button", "glass", "Glass"),
-        chip("button", "outline", "Outline"),
-      ])}
-    </div>
-  );
-}
-
 // ─── Google Auth Screen ───────────────────────────────────────
-function GoogleAuthScreen({ tweaks, onCancel, onSuccess }) {
+function GoogleAuthScreen({ config, onCancel, onSuccess }) {
   // Stages: 'chooser' -> 'loading' -> success
   const [stage, setStage] = useState("chooser");
   const [selected, setSelected] = useState(null);
@@ -1330,28 +1235,28 @@ function TaskCard({
   const statusChip =
     status === "completed"
       ? {
-          label: "已完成",
-          color: dark ? "#A8E6C9" : "#2E9B65",
-          bg: dark ? "rgba(80,200,140,0.15)" : "rgba(60,180,120,0.12)",
-        }
+        label: "已完成",
+        color: dark ? "#A8E6C9" : "#2E9B65",
+        bg: dark ? "rgba(80,200,140,0.15)" : "rgba(60,180,120,0.12)",
+      }
       : status === "in_progress"
         ? {
-            label: "進行中",
-            color: dark ? "#FFD88A" : "#C17F1E",
-            bg: dark ? "rgba(255,200,100,0.15)" : "rgba(220,150,40,0.14)",
-          }
+          label: "進行中",
+          color: dark ? "#FFD88A" : "#C17F1E",
+          bg: dark ? "rgba(255,200,100,0.15)" : "rgba(220,150,40,0.14)",
+        }
         : status === "expired"
           ? {
-              label: "已過期",
-              color: dark ? "#FFB8B8" : "#C0564E",
-              bg: dark ? "rgba(255,100,100,0.15)" : "rgba(200,80,70,0.12)",
-            }
+            label: "已過期",
+            color: dark ? "#FFB8B8" : "#C0564E",
+            bg: dark ? "rgba(255,100,100,0.15)" : "rgba(200,80,70,0.12)",
+          }
           : status === "locked"
             ? {
-                label: "未解鎖",
-                color: muted,
-                bg: dark ? "rgba(255,255,255,0.08)" : "rgba(120,110,150,0.1)",
-              }
+              label: "未解鎖",
+              color: muted,
+              bg: dark ? "rgba(255,255,255,0.08)" : "rgba(120,110,150,0.1)",
+            }
             : null;
 
   const logoBg =
@@ -1889,14 +1794,14 @@ function NewsBoard({ dark, fg, muted, cardBg, cardBorder }) {
 
 // ─── Home Screen ──────────────────────────────────────────────
 function HomeScreen({
-  tweaks,
+  config,
   user,
   tasks: tasksProp,
   onSignOut,
   onNavigate,
   onOpenTask,
 }) {
-  const dark = tweaks.background === "night";
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
 
   const tasks = tasksProp || TASKS;
@@ -1939,12 +1844,12 @@ function HomeScreen({
   const homeNextReq = homeNextTier ? homeNextTier.required : totalPoints;
   const homeProgressPct = homeNextTier
     ? Math.min(
-        1,
-        Math.max(
-          0,
-          (totalPoints - homePrevReq) / Math.max(1, homeNextReq - homePrevReq),
-        ),
-      )
+      1,
+      Math.max(
+        0,
+        (totalPoints - homePrevReq) / Math.max(1, homeNextReq - homePrevReq),
+      ),
+    )
     : 1;
   const homeWeekDelta = 76;
 
@@ -2492,12 +2397,12 @@ function BottomNav({ current, dark, muted, onNavigate }) {
 
 // ─── Tasks Screen ─────────────────────────────────────────────
 function TasksScreen({
-  tweaks,
+  config,
   tasks: tasksProp,
   onNavigate,
   onOpenTask,
 }) {
-  const dark = tweaks.background === "night";
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const cardBg = dark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.7)";
   const cardBorder = dark
@@ -2792,7 +2697,7 @@ function TasksScreen({
 
 // ─── Task Detail Screen ──────────────────────────────────────
 function TaskDetailScreen({
-  tweaks,
+  config,
   tasks: tasksProp,
   taskId,
   onBack,
@@ -2800,7 +2705,7 @@ function TaskDetailScreen({
   onStartTask,
   onGoMe,
 }) {
-  const dark = tweaks.background === "night";
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const cardBg = dark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.7)";
   const cardBorder = dark
@@ -2814,15 +2719,15 @@ function TaskDetailScreen({
   if (!t) {
     return (
       <div
-      style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        background: bg,
-        color: dark ? "#fff" : "#241c00",
-        overflow: "hidden",
-      }}
-    >
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          background: bg,
+          color: dark ? "#fff" : "#241c00",
+          overflow: "hidden",
+        }}
+      >
         <div style={{ padding: 20, color: fg }}>找不到任務</div>
       </div>
     );
@@ -3799,8 +3704,8 @@ function TaskDetailScreen({
 }
 
 // ─── 排行 (Rank) Screen ────────────────────────────────────────
-function RankScreen({ tweaks, user, tasks, onNavigate }) {
-  const dark = tweaks.background === "night";
+function RankScreen({ config, user, tasks, onNavigate }) {
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const fg = dark ? "#fff" : "#241c00";
   const muted = dark ? "rgba(255,255,255,0.6)" : "rgba(50,40,0,0.6)";
@@ -5282,7 +5187,7 @@ function MyRewards({
     Math.max(
       0,
       (totalPoints - prevRequired) /
-        Math.max(1, nextTier.required - prevRequired),
+      Math.max(1, nextTier.required - prevRequired),
     ),
   );
   const reachedMax = totalPoints >= tiers[tiers.length - 1].required;
@@ -5947,8 +5852,8 @@ function MyRewards({
 }
 
 // ─── Rewards Screen (full page) ───────────────────────────────
-function RewardsScreen({ tweaks, user, tasks, onBack }) {
-  const dark = tweaks.background === "night";
+function RewardsScreen({ config, user, tasks, onBack }) {
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const fg = dark ? "#fff" : "#241c00";
   const muted = dark ? "rgba(255,255,255,0.6)" : "rgba(50,40,0,0.6)";
@@ -6146,7 +6051,7 @@ function RewardsScreen({ tweaks, user, tasks, onBack }) {
 
 // ─── My (我的) Screen ─────────────────────────────────────────
 function MyScreen({
-  tweaks,
+  config,
   user,
   ledTeam,
   joinedTeam,
@@ -6163,7 +6068,7 @@ function MyScreen({
   onSimulateJoinApproved,
   onOpenTask,
 }) {
-  const dark = tweaks.background === "night";
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const fg = dark ? "#fff" : "#241c00";
   const muted = dark ? "rgba(255,255,255,0.6)" : "rgba(50,40,0,0.6)";
@@ -6181,7 +6086,7 @@ function MyScreen({
   const ledTotal = ledTeam ? ledTeam.members.length + 1 : 0;
   const joinedTotal = joinedTeam
     ? (joinedTeam.currentCount || 0) +
-      (joinedTeam.status === "approved" ? 1 : 0)
+    (joinedTeam.status === "approved" ? 1 : 0)
     : 0;
   const hasAnyTeam = ledTeam || joinedTeam;
   const [teamTab, setTeamTab] = useState(
@@ -6194,7 +6099,7 @@ function MyScreen({
     if (!user?.id) return;
     try {
       navigator.clipboard && navigator.clipboard.writeText(user.id);
-    } catch (err) {}
+    } catch (err) { }
     setUserIdCopied(true);
     setTimeout(() => setUserIdCopied(false), 1800);
   };
@@ -6430,9 +6335,9 @@ function MyScreen({
               transition: "background 0.15s",
             }}
             onMouseOver={(e) =>
-              (e.currentTarget.style.background = dark
-                ? "rgba(255,255,255,0.03)"
-                : "rgba(255,255,255,0.25)")
+            (e.currentTarget.style.background = dark
+              ? "rgba(255,255,255,0.03)"
+              : "rgba(255,255,255,0.25)")
             }
             onMouseOut={(e) =>
               (e.currentTarget.style.background = "transparent")
@@ -6633,9 +6538,9 @@ function MyScreen({
                 textAlign: "left",
               }}
               onMouseOver={(e) =>
-                (e.currentTarget.style.background = dark
-                  ? "rgba(255,255,255,0.04)"
-                  : "rgba(255,255,255,0.35)")
+              (e.currentTarget.style.background = dark
+                ? "rgba(255,255,255,0.04)"
+                : "rgba(255,255,255,0.35)")
               }
               onMouseOut={(e) =>
                 (e.currentTarget.style.background = "transparent")
@@ -7081,9 +6986,9 @@ function MenuRow({
         transition: "background 0.15s",
       }}
       onMouseOver={(e) =>
-        (e.currentTarget.style.background = dark
-          ? "rgba(255,255,255,0.04)"
-          : "rgba(255,255,255,0.45)")
+      (e.currentTarget.style.background = dark
+        ? "rgba(255,255,255,0.04)"
+        : "rgba(255,255,255,0.45)")
       }
       onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
     >
@@ -7146,75 +7051,75 @@ function TeamCard({
   // Role-specific color palette threaded through the card
   const rc = isMemberCard
     ? {
-        primary: dark ? "#b8e8a8" : "#4d8a37",
-        primaryDeep: dark ? "#b8e8a8" : "#3d6b2e",
-        bg: dark ? "rgba(130,200,120,0.08)" : "#F3FBEA",
-        bannerGrad: dark
-          ? "linear-gradient(135deg, rgba(130,200,120,0.28), rgba(110,180,100,0.18) 60%, rgba(180,220,160,0.12))"
-          : "linear-gradient(135deg, #CDEAB0, #A8D680 60%, #CDEAB0)",
-        border: dark
-          ? "1px solid rgba(130,200,120,0.2)"
-          : "1px solid rgba(110,170,80,0.3)",
-        borderSoft: dark
-          ? "1px solid rgba(130,200,120,0.14)"
-          : "1px solid rgba(110,170,80,0.2)",
-        borderStrong: dark
-          ? "1px solid rgba(130,200,120,0.32)"
-          : "1px solid rgba(80,140,60,0.4)",
-        divider: dark
-          ? "1px solid rgba(130,200,120,0.1)"
-          : "1px solid rgba(80,140,60,0.12)",
-        shadow: dark ? "none" : "0 4px 16px rgba(80,140,60,0.1)",
-        starIcon: dark ? "#b8e8a8" : "#6aa840",
-        chipBg: dark ? "rgba(130,200,120,0.14)" : "rgba(168,214,128,0.35)",
-        chipBgSoft: dark ? "rgba(130,200,120,0.08)" : "rgba(180,220,160,0.4)",
-        leaderRowBg: dark
-          ? "linear-gradient(135deg, rgba(130,200,120,0.22), rgba(110,180,100,0.12))"
-          : "linear-gradient(135deg, rgba(168,214,128,0.4), rgba(200,232,168,0.25))",
-        leaderRowBorder: dark
-          ? "1px solid rgba(130,200,120,0.3)"
-          : "1px solid rgba(110,170,80,0.35)",
-        shareGrad:
-          "linear-gradient(135deg, #6dae4a 0%, #538a37 50%, #6dae4a 100%)",
-        shareFallback: dark
-          ? "rgba(130,200,120,0.1)"
-          : "rgba(168,214,128,0.22)",
-      }
+      primary: dark ? "#b8e8a8" : "#4d8a37",
+      primaryDeep: dark ? "#b8e8a8" : "#3d6b2e",
+      bg: dark ? "rgba(130,200,120,0.08)" : "#F3FBEA",
+      bannerGrad: dark
+        ? "linear-gradient(135deg, rgba(130,200,120,0.28), rgba(110,180,100,0.18) 60%, rgba(180,220,160,0.12))"
+        : "linear-gradient(135deg, #CDEAB0, #A8D680 60%, #CDEAB0)",
+      border: dark
+        ? "1px solid rgba(130,200,120,0.2)"
+        : "1px solid rgba(110,170,80,0.3)",
+      borderSoft: dark
+        ? "1px solid rgba(130,200,120,0.14)"
+        : "1px solid rgba(110,170,80,0.2)",
+      borderStrong: dark
+        ? "1px solid rgba(130,200,120,0.32)"
+        : "1px solid rgba(80,140,60,0.4)",
+      divider: dark
+        ? "1px solid rgba(130,200,120,0.1)"
+        : "1px solid rgba(80,140,60,0.12)",
+      shadow: dark ? "none" : "0 4px 16px rgba(80,140,60,0.1)",
+      starIcon: dark ? "#b8e8a8" : "#6aa840",
+      chipBg: dark ? "rgba(130,200,120,0.14)" : "rgba(168,214,128,0.35)",
+      chipBgSoft: dark ? "rgba(130,200,120,0.08)" : "rgba(180,220,160,0.4)",
+      leaderRowBg: dark
+        ? "linear-gradient(135deg, rgba(130,200,120,0.22), rgba(110,180,100,0.12))"
+        : "linear-gradient(135deg, rgba(168,214,128,0.4), rgba(200,232,168,0.25))",
+      leaderRowBorder: dark
+        ? "1px solid rgba(130,200,120,0.3)"
+        : "1px solid rgba(110,170,80,0.35)",
+      shareGrad:
+        "linear-gradient(135deg, #6dae4a 0%, #538a37 50%, #6dae4a 100%)",
+      shareFallback: dark
+        ? "rgba(130,200,120,0.1)"
+        : "rgba(168,214,128,0.22)",
+    }
     : {
-        primary: dark ? "#fedd67" : "#987701",
-        primaryDeep: dark ? "#fedd67" : "#655001",
-        bg: dark ? "rgba(254,210,52,0.08)" : "#FFF4C4",
-        bannerGrad: dark
-          ? "linear-gradient(135deg, rgba(254,221,103,0.28), rgba(254,210,52,0.18) 60%, rgba(254,233,154,0.1))"
-          : "linear-gradient(135deg, #FFE892, #FFDB5E 60%, #FFE892)",
-        border: dark
-          ? "1px solid rgba(254,210,52,0.18)"
-          : "1px solid rgba(254,199,1,0.28)",
-        borderSoft: dark
-          ? "1px solid rgba(254,210,52,0.14)"
-          : "1px solid rgba(254,210,52,0.18)",
-        borderStrong: dark
-          ? "1px solid rgba(254,210,52,0.32)"
-          : "1px solid rgba(254,199,1,0.4)",
-        divider: dark
-          ? "1px solid rgba(255,255,255,0.06)"
-          : "1px solid rgba(120,90,0,0.08)",
-        shadow: dark ? "none" : "0 4px 16px rgba(200,160,0,0.08)",
-        starIcon: "#fec701",
-        chipBg: dark ? "rgba(254,210,52,0.14)" : "rgba(254,210,52,0.25)",
-        chipBgSoft: dark ? "rgba(254,210,52,0.08)" : "rgba(254,210,52,0.12)",
-        leaderRowBg: dark
-          ? "linear-gradient(135deg, rgba(254,221,103,0.22), rgba(254,210,52,0.12))"
-          : "linear-gradient(135deg, rgba(254,221,103,0.28), rgba(254,210,52,0.16))",
-        leaderRowBorder: dark
-          ? "1px solid rgba(254,210,52,0.3)"
-          : "1px solid rgba(254,199,1,0.4)",
-        shareGrad:
-          "linear-gradient(135deg, #e8a900 0%, #c48c00 50%, #e8a900 100%)",
-        shareFallback: dark
-          ? "rgba(255,255,255,0.04)"
-          : "rgba(254,210,52,0.12)",
-      };
+      primary: dark ? "#fedd67" : "#987701",
+      primaryDeep: dark ? "#fedd67" : "#655001",
+      bg: dark ? "rgba(254,210,52,0.08)" : "#FFF4C4",
+      bannerGrad: dark
+        ? "linear-gradient(135deg, rgba(254,221,103,0.28), rgba(254,210,52,0.18) 60%, rgba(254,233,154,0.1))"
+        : "linear-gradient(135deg, #FFE892, #FFDB5E 60%, #FFE892)",
+      border: dark
+        ? "1px solid rgba(254,210,52,0.18)"
+        : "1px solid rgba(254,199,1,0.28)",
+      borderSoft: dark
+        ? "1px solid rgba(254,210,52,0.14)"
+        : "1px solid rgba(254,210,52,0.18)",
+      borderStrong: dark
+        ? "1px solid rgba(254,210,52,0.32)"
+        : "1px solid rgba(254,199,1,0.4)",
+      divider: dark
+        ? "1px solid rgba(255,255,255,0.06)"
+        : "1px solid rgba(120,90,0,0.08)",
+      shadow: dark ? "none" : "0 4px 16px rgba(200,160,0,0.08)",
+      starIcon: "#fec701",
+      chipBg: dark ? "rgba(254,210,52,0.14)" : "rgba(254,210,52,0.25)",
+      chipBgSoft: dark ? "rgba(254,210,52,0.08)" : "rgba(254,210,52,0.12)",
+      leaderRowBg: dark
+        ? "linear-gradient(135deg, rgba(254,221,103,0.22), rgba(254,210,52,0.12))"
+        : "linear-gradient(135deg, rgba(254,221,103,0.28), rgba(254,210,52,0.16))",
+      leaderRowBorder: dark
+        ? "1px solid rgba(254,210,52,0.3)"
+        : "1px solid rgba(254,199,1,0.4)",
+      shareGrad:
+        "linear-gradient(135deg, #e8a900 0%, #c48c00 50%, #e8a900 100%)",
+      shareFallback: dark
+        ? "rgba(255,255,255,0.04)"
+        : "rgba(254,210,52,0.12)",
+    };
   const [shareOpen, setShareOpen] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
@@ -7223,7 +7128,7 @@ function TeamCard({
   const copyId = () => {
     try {
       navigator.clipboard && navigator.clipboard.writeText(team.id);
-    } catch (e) {}
+    } catch (e) { }
     setIdCopied(true);
     setTimeout(() => setIdCopied(false), 1800);
   };
@@ -7232,7 +7137,7 @@ function TeamCard({
   const copyShare = () => {
     try {
       navigator.clipboard && navigator.clipboard.writeText(shareMessage);
-    } catch (e) {}
+    } catch (e) { }
     setShareCopied(true);
     setTimeout(() => setShareCopied(false), 1800);
   };
@@ -9177,8 +9082,8 @@ function SubmitButton({ label, onClick, disabled, color = "#cb9f01", dark }) {
 }
 
 // Onboarding — profile setup for new users (after Google sign-in)
-function ProfileScreen({ tweaks, user, onBack, onEdit }) {
-  const dark = tweaks.background === "night";
+function ProfileScreen({ config, user, onBack, onEdit }) {
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const fg = dark ? "#fff" : "#241c00";
   const muted = dark ? "rgba(255,255,255,0.6)" : "rgba(50,40,0,0.6)";
@@ -9193,7 +9098,7 @@ function ProfileScreen({ tweaks, user, onBack, onEdit }) {
     if (!user?.id) return;
     try {
       navigator.clipboard && navigator.clipboard.writeText(user.id);
-    } catch (err) {}
+    } catch (err) { }
     setIdCopied(true);
     setTimeout(() => setIdCopied(false), 1800);
   };
@@ -9511,7 +9416,7 @@ function ProfileScreen({ tweaks, user, onBack, onEdit }) {
 
 // Onboarding — profile setup for new users (after Google sign-in)
 function ProfileSetupForm({
-  tweaks,
+  config,
   user,
   initial,
   onCancel,
@@ -9520,7 +9425,7 @@ function ProfileSetupForm({
   subtitle = "初次加入，請填寫基本資訊，稍後可於「我的」中修改",
   submitLabel = "完成註冊",
 }) {
-  const dark = tweaks.background === "night";
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const muted = dark ? "rgba(255,255,255,0.6)" : "rgba(50,40,0,0.6)";
   const cardBg = dark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.6)";
@@ -9953,8 +9858,8 @@ function ProfileSetupForm({
 }
 
 // Task 1 — Interest & skills form
-function InterestForm({ tweaks, onCancel, onSubmit }) {
-  const dark = tweaks.background === "night";
+function InterestForm({ config, onCancel, onSubmit }) {
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const muted = dark ? "rgba(255,255,255,0.6)" : "rgba(50,40,0,0.6)";
   const cardBg = dark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.6)";
@@ -10101,8 +10006,8 @@ function InterestForm({ tweaks, onCancel, onSubmit }) {
 }
 
 // Task 2 — Ticket form
-function TicketForm({ tweaks, onCancel, onSubmit }) {
-  const dark = tweaks.background === "night";
+function TicketForm({ config, onCancel, onSubmit }) {
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const cardBg = dark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.6)";
   const cardBorder = dark
@@ -10318,8 +10223,8 @@ const MOCK_TEAMS = [
 ];
 
 // Task 3 — Join a team (search by team ID, name, or leader)
-function TeamForm({ tweaks, onCancel, onSubmit }) {
-  const dark = tweaks.background === "night";
+function TeamForm({ config, onCancel, onSubmit }) {
+  const dark = config.background === "night";
   const bg = dark ? "#1a1400" : "#FFFDF5";
   const fg = dark ? "#fff" : "#241c00";
   const muted = dark ? "rgba(255,255,255,0.6)" : "rgba(50,40,0,0.6)";
@@ -10707,8 +10612,7 @@ function FormSuccessOverlay({
 
 // ─── App ──────────────────────────────────────────────────────
 function App() {
-  const [tweaks, setTweaks] = useState(TWEAK_DEFAULTS);
-  const [tweaksOn, setTweaksOn] = useState(false);
+  const config = CONFIG;
   const [screen, setScreen] = useState("landing"); // 'landing' | 'auth' | 'home' | 'tasks' | 'taskDetail' | 'form' | 'rewards'
   const [rewardsFrom, setRewardsFrom] = useState("home");
   const navigateTo = (next) => {
@@ -10940,24 +10844,6 @@ function App() {
     setSuccessData({ color: t.color, points: t.points, bonus: t.bonus });
   };
 
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.data?.type === "__activate_edit_mode") setTweaksOn(true);
-      if (e.data?.type === "__deactivate_edit_mode") setTweaksOn(false);
-    };
-    window.addEventListener("message", handler);
-    window.parent.postMessage({ type: "__edit_mode_available" }, "*");
-    return () => window.removeEventListener("message", handler);
-  }, []);
-
-  const updateTweaks = (newTweaks) => {
-    setTweaks(newTweaks);
-    window.parent.postMessage(
-      { type: "__edit_mode_set_keys", edits: newTweaks },
-      "*",
-    );
-  };
-
   return (
     <div
       style={{
@@ -10965,27 +10851,27 @@ function App() {
         width: "100vw",
         display: "flex",
         flexDirection: "column",
-        background: tweaks.background === "night" ? "#1a1400" : "#F2ECDC",
+        background: config.background === "night" ? "#1a1400" : "#F2ECDC",
         fontFamily: '"Noto Sans SC", "PingFang SC", -apple-system, sans-serif',
         overflow: "hidden",
       }}
     >
       {screen === "landing" && (
         <LandingScreen
-          tweaks={tweaks}
+          config={config}
           onStart={() => setScreen("auth")}
         />
       )}
       {screen === "auth" && (
         <GoogleAuthScreen
-          tweaks={tweaks}
+          config={config}
           onCancel={() => setScreen("landing")}
           onSuccess={handleSignIn}
         />
       )}
       {screen === "profileSetup" && (
         <ProfileSetupForm
-          tweaks={tweaks}
+          config={config}
           user={user}
           onCancel={() => {
             setUser(null);
@@ -10996,7 +10882,7 @@ function App() {
       )}
       {screen === "profile" && (
         <ProfileScreen
-          tweaks={tweaks}
+          config={config}
           user={user}
           onBack={() => setScreen("me")}
           onEdit={() => setScreen("profileEdit")}
@@ -11004,7 +10890,7 @@ function App() {
       )}
       {screen === "profileEdit" && (
         <ProfileSetupForm
-          tweaks={tweaks}
+          config={config}
           user={user}
           initial={user}
           title="編輯個人資料"
@@ -11016,7 +10902,7 @@ function App() {
       )}
       {screen === "home" && (
         <HomeScreen
-          tweaks={tweaks}
+          config={config}
           user={user}
           tasks={tasks}
           onSignOut={handleSignOut}
@@ -11026,7 +10912,7 @@ function App() {
       )}
       {screen === "tasks" && (
         <TasksScreen
-          tweaks={tweaks}
+          config={config}
           tasks={tasks}
           onNavigate={setScreen}
           onOpenTask={openTask}
@@ -11034,7 +10920,7 @@ function App() {
       )}
       {screen === "rank" && (
         <RankScreen
-          tweaks={tweaks}
+          config={config}
           user={user}
           tasks={tasks}
           onNavigate={setScreen}
@@ -11042,7 +10928,7 @@ function App() {
       )}
       {screen === "taskDetail" && (
         <TaskDetailScreen
-          tweaks={tweaks}
+          config={config}
           tasks={tasks}
           taskId={currentTaskId}
           onBack={() => setScreen("tasks")}
@@ -11053,28 +10939,28 @@ function App() {
       )}
       {screen === "form" && currentTaskId === 1 && (
         <InterestForm
-          tweaks={tweaks}
+          config={config}
           onCancel={() => setScreen("taskDetail")}
           onSubmit={() => completeTask(1)}
         />
       )}
       {screen === "form" && currentTaskId === 2 && (
         <TicketForm
-          tweaks={tweaks}
+          config={config}
           onCancel={() => setScreen("taskDetail")}
           onSubmit={() => completeTask(2)}
         />
       )}
       {screen === "form" && currentTaskId === 3 && (
         <TeamForm
-          tweaks={tweaks}
+          config={config}
           onCancel={() => setScreen("me")}
           onSubmit={joinTeam}
         />
       )}
       {screen === "me" && (
         <MyScreen
-          tweaks={tweaks}
+          config={config}
           user={user}
           ledTeam={ledTeam}
           joinedTeam={joinedTeam}
@@ -11097,7 +10983,7 @@ function App() {
       )}
       {screen === "rewards" && (
         <RewardsScreen
-          tweaks={tweaks}
+          config={config}
           user={user}
           tasks={tasks}
           onBack={() => setScreen(rewardsFrom)}
@@ -11109,11 +10995,6 @@ function App() {
           onDone={() => setSuccessData(null)}
         />
       )}
-      <TweaksPanel
-        visible={tweaksOn}
-        tweaks={tweaks}
-        setTweaks={updateTweaks}
-      />
     </div>
   );
 }
