@@ -24,9 +24,9 @@ Files created or modified by this plan:
 | `backend/src/backend/contract/user.py` | create | `User`, `ProfileCreate`, `ProfileUpdate` |
 | `backend/src/backend/contract/rewards.py` | create | `Reward` |
 | `backend/src/backend/contract/news.py` | create | `NewsItem` |
-| `backend/src/backend/contract/team.py` | create | `Team`, `JoinRequest`, `TeamUpdate` |
+| `backend/src/backend/contract/team.py` | create | `Team`, `JoinRequest`, `TeamUpdate`, `MeTeamsResponse`, `MeProfileCreateResponse` |
 | `backend/src/backend/contract/rank.py` | create | `UserRankEntry`, `TeamRankEntry`, `RankPeriod` |
-| `backend/src/backend/contract/task.py` | create | `Task`, `TaskStep`, `TeamChallengeProgress`, `InterestFormBody`, `TicketFormBody`, `SubmitBody`, `TaskSubmissionResponse` |
+| `backend/src/backend/contract/task.py` | create | `Task`, `TaskStep`, `TeamChallengeProgress`, `InterestFormBody`, `TicketFormBody`, `SubmitBody`, `TaskSubmissionResponse` (union uses `\|` not `Union[...]`) |
 | `backend/src/backend/contract/auth.py` | create | `GoogleAuthRequest`, `AuthResponse`, `TokenClaims` |
 | `backend/src/backend/contract/validate_examples.py` | create | smoke test that validates every fixture |
 | `backend/src/backend/contract/examples/*.json` | create | 14 fixture files |
@@ -441,7 +441,7 @@ class User(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: UUID
-    display_id: str = Field(pattern=r"^U[A-Z0-9]{4,7}$")
+    display_id: str = Field(pattern=r"^U[A-Z0-9]{3,7}$")
     email: EmailStr
     zh_name: str | None = None
     en_name: str | None = None
@@ -898,7 +898,8 @@ Expected: `ModuleNotFoundError: No module named 'backend.contract.team'`.
 Write `backend/src/backend/contract/team.py`:
 ```python
 """Team shapes — the led/joined team views, the join-request workflow,
-and the partial-update body."""
+the partial-update body, and named response envelopes for the two /me
+endpoints whose shape involves a Team."""
 from datetime import datetime
 from typing import Literal
 from uuid import UUID
@@ -906,6 +907,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from backend.contract.common import UserRef
+from backend.contract.user import User
 
 
 class JoinRequest(BaseModel):
@@ -953,6 +955,25 @@ class TeamUpdate(BaseModel):
     name: str | None = None
     alias: str | None = None
     topic: str | None = None
+
+
+class MeTeamsResponse(BaseModel):
+    """Response body for GET /me/teams. Named envelope over an inline
+    dict so Phase 4 TS codegen and Phase 5 FastAPI share one OpenAPI
+    schema."""
+    model_config = ConfigDict(extra="forbid")
+
+    led: Team | None = None
+    joined: Team | None = None
+
+
+class MeProfileCreateResponse(BaseModel):
+    """Response body for POST /me/profile. Returned atomically with the
+    profile completion and led-team creation."""
+    model_config = ConfigDict(extra="forbid")
+
+    user: User
+    led_team: Team
 ```
 
 - [ ] **Step 6: Run validator; expect PASS**
@@ -982,10 +1003,13 @@ git add backend/src/backend/contract/team.py \
         backend/src/backend/contract/examples/team_as_member.json \
         backend/src/backend/contract/validate_examples.py
 git commit -m "$(cat <<'EOF'
-contract: add Team, JoinRequest, TeamUpdate
+contract: add Team, JoinRequest, TeamUpdate, me response envelopes
 
 Full team response (caller-scoped `role` and `requests`), the
-join-request lifecycle entity, and the partial-update body for PATCH.
+join-request lifecycle entity, the partial-update body for PATCH, and
+two named response envelopes — MeTeamsResponse (GET /me/teams) and
+MeProfileCreateResponse (POST /me/profile) — so Phase 4/5 consumers
+share one OpenAPI schema instead of each inventing inline dicts.
 
 Two fixtures exercise both caller perspectives (leader sees requests,
 member sees null).
@@ -1354,7 +1378,7 @@ Derivation rules (server-authoritative; frontend must match):
     checklist UX but never compute `progress` from it.
 """
 from datetime import datetime
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -1439,7 +1463,7 @@ class TicketFormBody(BaseModel):
 
 
 SubmitBody = Annotated[
-    Union[InterestFormBody, TicketFormBody],
+    InterestFormBody | TicketFormBody,
     Field(discriminator="form_type"),
 ]
 """Discriminated union on `form_type` for the submit endpoint.
@@ -1728,7 +1752,13 @@ from backend.contract.task import (
     TeamChallengeProgress,
     TicketFormBody,
 )
-from backend.contract.team import JoinRequest, Team, TeamUpdate
+from backend.contract.team import (
+    JoinRequest,
+    MeProfileCreateResponse,
+    MeTeamsResponse,
+    Team,
+    TeamUpdate,
+)
 from backend.contract.user import ProfileCreate, ProfileUpdate, User
 
 __all__ = [
@@ -1757,6 +1787,8 @@ __all__ = [
     "TicketFormBody",
     # team
     "JoinRequest",
+    "MeProfileCreateResponse",
+    "MeTeamsResponse",
     "Team",
     "TeamUpdate",
     # user
@@ -1779,7 +1811,7 @@ from backend.contract import (
     Reward,
     InterestFormBody, SubmitBody, Task, TaskStep,
     TaskSubmissionResponse, TeamChallengeProgress, TicketFormBody,
-    JoinRequest, Team, TeamUpdate,
+    JoinRequest, MeProfileCreateResponse, MeTeamsResponse, Team, TeamUpdate,
     ProfileCreate, ProfileUpdate, User,
 )
 print('all re-exports importable')
@@ -1860,7 +1892,7 @@ from backend.contract import (
     InterestFormBody, TicketFormBody, SubmitBody,
     TaskSubmissionResponse,
     # Team
-    Team, JoinRequest, TeamUpdate,
+    Team, JoinRequest, TeamUpdate, MeTeamsResponse, MeProfileCreateResponse,
     # Rank
     UserRankEntry, TeamRankEntry, RankPeriod,
     # Rewards & News
@@ -1883,7 +1915,7 @@ you need the schema.
 | `rank.py`        | `UserRankEntry`, `TeamRankEntry`, `RankPeriod`                                   |
 | `rewards.py`     | `Reward`                                                                         |
 | `task.py`        | `Task`, `TaskStep`, `TeamChallengeProgress`, `InterestFormBody`, `TicketFormBody`, `SubmitBody`, `TaskSubmissionResponse` |
-| `team.py`        | `Team`, `JoinRequest`, `TeamUpdate`                                              |
+| `team.py`        | `Team`, `JoinRequest`, `TeamUpdate`, `MeTeamsResponse`, `MeProfileCreateResponse` |
 | `user.py`        | `User`, `ProfileCreate`, `ProfileUpdate`                                         |
 | `endpoints.md`   | Human-readable endpoint catalog                                                  |
 | `examples/`      | One JSON fixture per endpoint, grouped by domain                                 |
@@ -1980,7 +2012,7 @@ model names re-exported from `backend.contract`.
 ### `POST /me/profile`
 - Auth: B (first-time profile completion)
 - Body: `ProfileCreate`
-- 200: `{user: User, led_team: Team}`  — atomically creates profile + led team
+- 200: `MeProfileCreateResponse`  — atomically creates profile + led team
 - 409: profile already complete
 
 ### `PATCH /me`
@@ -1994,7 +2026,7 @@ model names re-exported from `backend.contract`.
 
 ### `GET /me/teams`
 - Auth: B
-- 200: `{led: Team | null, joined: Team | null}`  (see spec §2.7: `led` is effectively non-null for profile-complete callers)
+- 200: `MeTeamsResponse`  (`{led: Team | null, joined: Team | null}`; see spec §2.7: `led` is effectively non-null for profile-complete callers)
 
 ### `GET /me/rewards`
 - Auth: B

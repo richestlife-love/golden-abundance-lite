@@ -55,7 +55,7 @@ No custom `ProblemDetail` — FastAPI's default `{detail}` is used.
 | Field | Type | Notes |
 |---|---|---|
 | `id` | `UUID` | Canonical. |
-| `display_id` | `str` | `^U[A-Z0-9]{4,7}$`, e.g. `UJETKAN`. |
+| `display_id` | `str` | `^U[A-Z0-9]{3,7}$`, e.g. `UJETKAN`, `UCHU`. Allows 3-7 chars after `U` to accommodate short names already in the mock data (`UWEI`, `UCHU` at `frontend/app.jsx:9421, 9447`). |
 | `email` | `EmailStr` | From Google. |
 | `zh_name` | `str \| None` | |
 | `en_name` | `str \| None` | |
@@ -169,6 +169,10 @@ Clients pick the body by reading `Task.form_type` from the task response: `"inte
 
 **`TeamUpdate`** (`PATCH /teams/{team_id}`): `{name: str | None, alias: str | None, topic: str | None}` — all optional.
 
+**`MeTeamsResponse`** (response for `GET /me/teams`): `{led: Team | None, joined: Team | None}`. Named model exists so Phase 4 TS codegen and Phase 5 FastAPI handlers share a single OpenAPI schema rather than each hand-rolling the envelope.
+
+**`MeProfileCreateResponse`** (response for `POST /me/profile`): `{user: User, led_team: Team}`. Same motivation as `MeTeamsResponse` — named envelope over inline dict. Lives in `team.py` because it combines both domains; `team.py` imports `User` from `user.py` (no cycle — `user.py` has no domain deps).
+
 ### 1.5 `Rank` — `rank.py`
 
 - **`RankPeriod`** = `Literal["week","month","all_time"]`.
@@ -192,7 +196,7 @@ A task with `bonus == None` does **not** create a `Reward` row on completion. `R
 
 ### 1.7 `News` — `news.py`
 
-**`NewsItem`**: `{id: UUID, title: str, body: str, category: Literal["公告","活動","通知"], image_url: str \| None, published_at: datetime, pinned: bool}`.
+**`NewsItem`**: `{id: UUID, title: str, body: str, category: Literal["公告","活動","通知"], image_url: str \| None, published_at: datetime, pinned: bool = False}`. `pinned` defaults to `false` so producers can omit it (matches `frontend/app.jsx` where only pinned items set the flag).
 
 `category` drives the badge colour on the home-screen news carousel (the mapping from category → colour lives on the client; see `frontend/app.jsx` NewsBoard).
 
@@ -218,10 +222,10 @@ All paths under `/api/v1/`. `Auth` column: `—` = public, `B` = `Authorization:
 | Method | Path | Auth | Request | Response | Errors |
 |---|---|---|---|---|---|
 | GET | `/me` | B | — | 200 `User` | 401 |
-| POST | `/me/profile` | B | `ProfileCreate` | 200 `{user: User, led_team: Team}` | 401, 409 already complete, 422 validation |
+| POST | `/me/profile` | B | `ProfileCreate` | 200 `MeProfileCreateResponse` | 401, 409 already complete, 422 validation |
 | PATCH | `/me` | B | `ProfileUpdate` | 200 `User` | 401, 422 |
 | GET | `/me/tasks` | B | — | 200 `list[Task]` | 401 |
-| GET | `/me/teams` | B | — | 200 `{led: Team \| None, joined: Team \| None}` | 401 |
+| GET | `/me/teams` | B | — | 200 `MeTeamsResponse` | 401 |
 | GET | `/me/rewards` | B | — | 200 `list[Reward]` | 401 |
 
 ### 2.3 Tasks
@@ -406,9 +410,10 @@ backend/
             ├── auth.py          GoogleAuthRequest, AuthResponse, TokenClaims
             ├── user.py          User, ProfileCreate, ProfileUpdate
             ├── task.py          Task, TaskStep, TeamChallengeProgress,
-            │                    InterestFormBody, TicketFormBody,
+            │                    InterestFormBody, TicketFormBody, SubmitBody,
             │                    TaskSubmissionResponse
-            ├── team.py          Team, JoinRequest, TeamUpdate
+            ├── team.py          Team, JoinRequest, TeamUpdate,
+            │                    MeTeamsResponse, MeProfileCreateResponse
             ├── rank.py          UserRankEntry, TeamRankEntry, RankPeriod
             ├── rewards.py       Reward
             ├── news.py          NewsItem
