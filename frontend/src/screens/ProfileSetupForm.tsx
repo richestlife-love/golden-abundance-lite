@@ -362,12 +362,7 @@ export default function ProfileSetupForm({
 
       <div style={card}>
         <FieldLabel required>所在國家/地區</FieldLabel>
-        <ChipGroup
-          options={COUNTRIES}
-          value={country as unknown as string[]}
-          onChange={handleCountry as unknown as (next: string[]) => void}
-          multi={false}
-        />
+        <ChipGroup options={COUNTRIES} value={country} onChange={handleCountry} multi={false} />
       </div>
 
       {country && (
@@ -390,12 +385,7 @@ export default function ProfileSetupForm({
               placeholder="e.g. Canada, Vancouver"
             />
           ) : (
-            <ChipGroup
-              options={regions}
-              value={location as unknown as string[]}
-              onChange={setLocation as unknown as (next: string[]) => void}
-              multi={false}
-            />
+            <ChipGroup options={regions} value={location} onChange={setLocation} multi={false} />
           )}
         </div>
       )}
