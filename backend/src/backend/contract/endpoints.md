@@ -28,7 +28,7 @@ model names re-exported from `backend.contract`.
 ### `POST /me/profile`
 - Auth: B (first-time profile completion)
 - Body: `ProfileCreate`
-- 200: `{user: User, led_team: Team}`  — atomically creates profile + led team
+- 200: `MeProfileCreateResponse`  — atomically creates profile + led team
 - 409: profile already complete
 
 ### `PATCH /me`
@@ -42,7 +42,7 @@ model names re-exported from `backend.contract`.
 
 ### `GET /me/teams`
 - Auth: B
-- 200: `{led: Team | null, joined: Team | null}`  (see spec §2.7: `led` is effectively non-null for profile-complete callers)
+- 200: `MeTeamsResponse`  (`{led: Team | null, joined: Team | null}`; see spec §2.7: `led` is effectively non-null for profile-complete callers)
 
 ### `GET /me/rewards`
 - Auth: B
