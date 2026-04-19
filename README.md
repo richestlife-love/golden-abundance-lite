@@ -2,8 +2,8 @@
 
 Monorepo-style layout:
 
-- `frontend/` — React 18 + TypeScript + Vite (Phase 1 split is complete)
-- `backend/` — Python FastAPI service (Phase 2 contract module; runtime lands in Phase 5)
+- `frontend/` — React 18 + TypeScript + Vite
+- `backend/` — Python FastAPI service
 - `docs/` — production launch plan and design specs
 
 ## Run
@@ -14,12 +14,12 @@ Recipes live per subtree. `cd` into the subtree first, then run:
 cd frontend
 just ci             # install + lint + format + typecheck + bundle
 just dev            # Vite dev server on http://localhost:5173
-just tunnel         # https://subvitalized-occupative-katelyn.ngrok-free.dev
+just tunnel         # ngrok tunnel on the host from .env.local
 ```
 
 ```sh
 cd backend
-just ci                # install + lint + format + typecheck (+test after Phase 5)
+just ci                # install + lint + format + typecheck + test
 just contract-validate # validate JSON fixtures against the Pydantic contract
 ```
 
