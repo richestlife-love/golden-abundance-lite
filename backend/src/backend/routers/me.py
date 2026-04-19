@@ -14,11 +14,13 @@ from backend.contract import (
     MeTeamsResponse,
     ProfileCreate,
     ProfileUpdate,
+    Reward as ContractReward,
     Task as ContractTask,
     User as ContractUser,
 )
 from backend.db.models import TeamMembershipRow, TeamRow, UserRow
 from backend.db.session import get_session
+from backend.services.reward import list_rewards_for
 from backend.services.task import list_caller_tasks
 from backend.services.team import create_led_team, row_to_contract_team
 from backend.services.user import row_to_contract_user
@@ -111,3 +113,11 @@ async def get_me_tasks(
     session: AsyncSession = Depends(get_session),
 ) -> list[ContractTask]:
     return await list_caller_tasks(session, caller=me)
+
+
+@router.get("/rewards", response_model=list[ContractReward])
+async def get_me_rewards(
+    me: UserRow = Depends(current_user),
+    session: AsyncSession = Depends(get_session),
+) -> list[ContractReward]:
+    return await list_rewards_for(session, me)
