@@ -38,7 +38,7 @@ async def test_literal_columns_persist_as_varchar_16(engine: AsyncEngine) -> Non
             )
         ).all()
     assert rows, "Expected at least one Literal-backed column"
-    for tbl, col, dtype, maxlen in rows:  # ty: ignore
+    for tbl, col, dtype, maxlen in rows:
         assert dtype == "character varying", f"{tbl}.{col} is {dtype}, want varchar"
         assert maxlen == 16, f"{tbl}.{col} maxlen={maxlen}, want 16"
 
