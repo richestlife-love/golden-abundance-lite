@@ -18,8 +18,13 @@ def test_encode_then_decode_round_trip() -> None:
 
 def test_decode_rejects_tampered_token() -> None:
     token = encode_token(user_id=uuid4(), email="x@example.com")
-    # Flip the last character of the signature segment.
-    tampered = token[:-1] + ("A" if token[-1] != "A" else "B")
+    # Flip the FIRST char of the signature segment, not the last: an HS256
+    # signature is 32 bytes encoded in 43 base64url chars (258 slot-bits),
+    # so the final char only carries 4 significant bits — chars aliasing
+    # in the bottom 2 bits (e.g. A/B/C/D) decode to the same signature
+    # bytes and the "tamper" is a no-op ~6% of the time.
+    header_payload, sig = token.rsplit(".", 1)
+    tampered = f"{header_payload}.{'A' if sig[0] != 'A' else 'B'}{sig[1:]}"
     with pytest.raises(ValueError):
         decode_token(tampered)
 
