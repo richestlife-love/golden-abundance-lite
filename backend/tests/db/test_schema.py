@@ -10,6 +10,8 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlmodel import SQLModel
 
+from tests.conftest import POSTGRES_IMAGE
+
 
 async def test_migration_produces_every_model_table(
     engine: AsyncEngine,
@@ -38,7 +40,7 @@ def test_migration_is_downgrade_safe(monkeypatch: pytest.MonkeyPatch) -> None:
     from alembic import command
 
     alembic_ini = str(Path(__file__).parent.parent.parent / "alembic.ini")
-    with PostgresContainer("postgres:17-alpine", driver="psycopg") as pg:
+    with PostgresContainer(POSTGRES_IMAGE, driver="psycopg") as pg:
         url = pg.get_connection_url()
         monkeypatch.setenv("DATABASE_URL", url)
         cfg = Config(alembic_ini)

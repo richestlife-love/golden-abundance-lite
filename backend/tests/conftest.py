@@ -33,6 +33,9 @@ from backend.server import create_app
 
 _BACKEND_DIR = pathlib.Path(__file__).parent.parent
 
+POSTGRES_IMAGE = "postgres:17-alpine"
+TEST_JWT_SECRET = "test-only-secret-32-chars-minimum"
+
 
 @pytest.fixture(autouse=True)
 def _reset_settings_cache() -> Iterator[None]:
@@ -50,7 +53,7 @@ def _reset_settings_cache() -> Iterator[None]:
 
 @pytest.fixture(scope="session")
 def postgres_container() -> Iterator[PostgresContainer]:
-    with PostgresContainer("postgres:17-alpine", driver="psycopg") as pg:
+    with PostgresContainer(POSTGRES_IMAGE, driver="psycopg") as pg:
         yield pg
 
 
@@ -64,7 +67,7 @@ async def engine(
         mp.setenv("DATABASE_URL", url)
         mp.setenv("APP_ENV", "test")
         if "JWT_SECRET" not in os.environ:
-            mp.setenv("JWT_SECRET", "test-only-secret-32-chars-minimum")
+            mp.setenv("JWT_SECRET", TEST_JWT_SECRET)
         get_settings.cache_clear()
         get_engine.cache_clear()
         get_session_maker.cache_clear()

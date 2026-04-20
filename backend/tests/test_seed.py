@@ -12,6 +12,7 @@ from backend.db.models import (
     TaskStepDefRow,
 )
 from backend.seed import run as seed_run
+from tests.conftest import TEST_JWT_SECRET
 
 
 async def _counts(session: AsyncSession) -> tuple[int, int, int, int]:
@@ -95,7 +96,7 @@ async def test_seed_runs_via_python_module_entrypoint(session: AsyncSession, pos
         **os.environ,
         "DATABASE_URL": postgres_container.get_connection_url(),
         "APP_ENV": "test",
-        "JWT_SECRET": "test-only-secret-32-chars-minimum-ok",
+        "JWT_SECRET": TEST_JWT_SECRET,
     }
     # Use sys.executable directly — avoids relying on `uv` being on PATH
     # inside the subprocess (tests already run inside the uv-managed venv,
