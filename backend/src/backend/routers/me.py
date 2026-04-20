@@ -92,14 +92,10 @@ async def get_me_teams(
     me: UserRow = Depends(current_user),
     session: AsyncSession = Depends(get_session),
 ) -> MeTeamsResponse:
-    led_row = (
-        await session.execute(select(TeamRow).where(TeamRow.leader_id == me.id))  # ty: ignore[invalid-argument-type]
-    ).scalar_one_or_none()
+    led_row = (await session.execute(select(TeamRow).where(TeamRow.leader_id == me.id))).scalar_one_or_none()
     joined_row = None
     joined_link = (
-        await session.execute(
-            select(TeamMembershipRow).where(TeamMembershipRow.user_id == me.id)  # ty: ignore[invalid-argument-type]
-        )
+        await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.user_id == me.id))
     ).scalar_one_or_none()
     if joined_link is not None:
         joined_row = await session.get(TeamRow, joined_link.team_id)

@@ -26,13 +26,13 @@ from backend.db.models import (
 
 
 async def _seed_two_teams_and_user(session: AsyncSession) -> tuple[TeamRow, TeamRow, UserRow]:
-    leader_a = UserRow(display_id="ULDA", email="lda@example.com", profile_complete=True)  # ty: ignore[missing-argument]
-    leader_b = UserRow(display_id="ULDB", email="ldb@example.com", profile_complete=True)  # ty: ignore[missing-argument]
-    requester = UserRow(display_id="UREQ", email="req@example.com", profile_complete=True)  # ty: ignore[missing-argument]
+    leader_a = UserRow(display_id="ULDA", email="lda@example.com", profile_complete=True)
+    leader_b = UserRow(display_id="ULDB", email="ldb@example.com", profile_complete=True)
+    requester = UserRow(display_id="UREQ", email="req@example.com", profile_complete=True)
     session.add_all([leader_a, leader_b, requester])
     await session.flush()
-    team_a = TeamRow(display_id="T-TA", name="A", leader_id=leader_a.id)  # ty: ignore[missing-argument]
-    team_b = TeamRow(display_id="T-TB", name="B", leader_id=leader_b.id)  # ty: ignore[missing-argument]
+    team_a = TeamRow(display_id="T-TA", name="A", leader_id=leader_a.id)
+    team_b = TeamRow(display_id="T-TB", name="B", leader_id=leader_b.id)
     session.add_all([team_a, team_b])
     await session.flush()
     return team_a, team_b, requester
@@ -42,10 +42,10 @@ async def test_pending_join_request_unique_per_user(session: AsyncSession) -> No
     """Two concurrent pending requests from the same user must fail at the DB."""
     team_a, team_b, requester = await _seed_two_teams_and_user(session)
 
-    session.add(JoinRequestRow(team_id=team_a.id, user_id=requester.id, status="pending"))  # ty: ignore[missing-argument]
+    session.add(JoinRequestRow(team_id=team_a.id, user_id=requester.id, status="pending"))
     await session.flush()
 
-    session.add(JoinRequestRow(team_id=team_b.id, user_id=requester.id, status="pending"))  # ty: ignore[missing-argument]
+    session.add(JoinRequestRow(team_id=team_b.id, user_id=requester.id, status="pending"))
     with pytest.raises(IntegrityError):
         await session.flush()
     await session.rollback()
@@ -64,7 +64,7 @@ async def test_pending_index_allows_mixed_statuses(session: AsyncSession) -> Non
         )
     )
     session.add(
-        JoinRequestRow(  # ty: ignore[missing-argument]
+        JoinRequestRow(
             id=uuid4(),
             team_id=team_b.id,
             user_id=requester.id,
@@ -104,7 +104,7 @@ async def test_pending_index_allows_mixed_statuses(session: AsyncSession) -> Non
     ids=["cap-zero", "points-negative", "week-points-negative"],
 )
 async def test_teams_check_constraints(session: AsyncSession, stmt: str, params: dict) -> None:
-    leader = UserRow(display_id="ULCK", email="lck@example.com", profile_complete=True)  # ty: ignore[missing-argument]
+    leader = UserRow(display_id="ULCK", email="lck@example.com", profile_complete=True)
     session.add(leader)
     await session.flush()
     with pytest.raises(IntegrityError):
@@ -147,7 +147,7 @@ async def test_timestamp_server_defaults_populate_on_raw_insert(session: AsyncSe
 
 async def test_task_progress_progress_unit_interval(session: AsyncSession) -> None:
     """``progress`` must be within [0, 1] when set."""
-    user = UserRow(display_id="UPRG", email="prg@example.com", profile_complete=True)  # ty: ignore[missing-argument]
+    user = UserRow(display_id="UPRG", email="prg@example.com", profile_complete=True)
     session.add(user)
     await session.flush()
     td_insert = text(
@@ -171,9 +171,9 @@ async def test_delete_user_cascades_to_dependent_rows(session: AsyncSession) -> 
     """Deleting a user row must cascade through every child table — the FKs
     were rewritten with ``ON DELETE CASCADE`` in migration 0007."""
     team_a, _, requester = await _seed_two_teams_and_user(session)
-    session.add(TeamMembershipRow(team_id=team_a.id, user_id=requester.id))  # ty: ignore[missing-argument]
-    session.add(JoinRequestRow(team_id=team_a.id, user_id=requester.id, status="rejected"))  # ty: ignore[missing-argument]
-    td = TaskDefRow(  # ty: ignore[missing-argument]
+    session.add(TeamMembershipRow(team_id=team_a.id, user_id=requester.id))
+    session.add(JoinRequestRow(team_id=team_a.id, user_id=requester.id, status="rejected"))
+    td = TaskDefRow(
         display_id="TCAS",
         title="x",
         summary="x",
@@ -186,12 +186,8 @@ async def test_delete_user_cascades_to_dependent_rows(session: AsyncSession) -> 
     )
     session.add(td)
     await session.flush()
-    session.add(
-        TaskProgressRow(user_id=requester.id, task_def_id=td.id, status="completed", progress=1.0)  # ty: ignore[missing-argument]
-    )
-    session.add(
-        RewardRow(user_id=requester.id, task_def_id=td.id, task_title="x", bonus="b", status="earned")  # ty: ignore[missing-argument]
-    )
+    session.add(TaskProgressRow(user_id=requester.id, task_def_id=td.id, status="completed", progress=1.0))
+    session.add(RewardRow(user_id=requester.id, task_def_id=td.id, task_title="x", bonus="b", status="earned"))
     await session.commit()
 
     await session.execute(text("DELETE FROM users WHERE id = :uid"), {"uid": requester.id})

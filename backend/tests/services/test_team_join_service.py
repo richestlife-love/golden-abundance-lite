@@ -57,7 +57,7 @@ async def test_create_join_request_rejects_if_already_joined_elsewhere(
     other_leader = await upsert_user_by_email(session, email="other@example.com")
     await session.flush()
     other_team = await create_led_team(session, other_leader)
-    session.add(TeamMembershipRow(team_id=other_team.id, user_id=outsider.id))  # ty: ignore[missing-argument]
+    session.add(TeamMembershipRow(team_id=other_team.id, user_id=outsider.id))
     await session.commit()
     with pytest.raises(JoinConflictError):
         await create_join_request(session, team=team, requester=outsider)
@@ -73,13 +73,7 @@ async def test_approve_moves_requester_to_members(
     await session.commit()
     assert req.status == "approved"
     links = (
-        (
-            await session.execute(
-                select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
-            )
-        )
-        .scalars()
-        .all()
+        (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id))).scalars().all()
     )
     assert any(link.user_id == outsider.id for link in links)
 
@@ -94,29 +88,19 @@ async def test_reject_marks_status_but_not_member(
     await session.commit()
     assert req.status == "rejected"
     links = (
-        (
-            await session.execute(
-                select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
-            )
-        )
-        .scalars()
-        .all()
+        (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id))).scalars().all()
     )
     assert links == []
 
 
 async def test_leave_removes_membership(session: AsyncSession) -> None:
     _, outsider, team = await _make_leader_and_outsider(session)
-    session.add(TeamMembershipRow(team_id=team.id, user_id=outsider.id))  # ty: ignore[missing-argument]
+    session.add(TeamMembershipRow(team_id=team.id, user_id=outsider.id))
     await session.commit()
     await leave_team(session, team=team, user=outsider)
     await session.commit()
     links = (
-        (
-            await session.execute(
-                select(TeamMembershipRow).where(TeamMembershipRow.user_id == outsider.id)  # ty: ignore[invalid-argument-type]
-            )
-        )
+        (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.user_id == outsider.id)))
         .scalars()
         .all()
     )

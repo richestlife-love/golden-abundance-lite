@@ -12,7 +12,7 @@ from backend.services.team import caller_team_totals
 async def create_reward_if_bonus(session: AsyncSession, *, user: UserRow, task_def: TaskDefRow) -> RewardRow | None:
     if task_def.bonus is None:
         return None
-    row = RewardRow(  # ty: ignore[missing-argument]
+    row = RewardRow(
         user_id=user.id,
         task_def_id=task_def.id,
         task_title=task_def.title,
@@ -50,9 +50,7 @@ async def maybe_grant_challenge_rewards(session: AsyncSession, *, user: UserRow)
     challenge_defs = (
         (
             await session.execute(
-                select(TaskDefRow)
-                .where(TaskDefRow.is_challenge.is_(True))  # ty: ignore[unresolved-attribute]
-                .where(TaskDefRow.bonus.is_not(None))  # ty: ignore[unresolved-attribute]
+                select(TaskDefRow).where(TaskDefRow.is_challenge.is_(True)).where(TaskDefRow.bonus.is_not(None))
             )
         )
         .scalars()
@@ -91,9 +89,7 @@ async def list_rewards_for(session: AsyncSession, user: UserRow) -> list[Contrac
     rows = (
         (
             await session.execute(
-                select(RewardRow)
-                .where(RewardRow.user_id == user.id)  # ty: ignore[invalid-argument-type]
-                .order_by(RewardRow.earned_at.desc())  # ty: ignore[unresolved-attribute]
+                select(RewardRow).where(RewardRow.user_id == user.id).order_by(RewardRow.earned_at.desc())
             )
         )
         .scalars()

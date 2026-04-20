@@ -119,7 +119,7 @@ async def test_approve_grants_challenge_reward_at_cap(client: AsyncClient, sessi
     None in the default seed).
     """
     session.add(
-        TaskDefRow(  # ty: ignore[missing-argument]
+        TaskDefRow(
             display_id="TX",
             title="小隊挑戰",
             summary="trivial challenge",
@@ -151,20 +151,8 @@ async def test_approve_grants_challenge_reward_at_cap(client: AsyncClient, sessi
     assert approve.status_code == 200
 
     # Query rewards directly via the DB — GET /me/rewards lands in Phase 5d.
-    jet_rewards = (
-        (
-            await session.execute(select(RewardRow).where(RewardRow.user_id == jet.user_id))  # ty: ignore[invalid-argument-type]
-        )
-        .scalars()
-        .all()
-    )
-    out_rewards = (
-        (
-            await session.execute(select(RewardRow).where(RewardRow.user_id == out.user_id))  # ty: ignore[invalid-argument-type]
-        )
-        .scalars()
-        .all()
-    )
+    jet_rewards = (await session.execute(select(RewardRow).where(RewardRow.user_id == jet.user_id))).scalars().all()
+    out_rewards = (await session.execute(select(RewardRow).where(RewardRow.user_id == out.user_id))).scalars().all()
     assert any(r.bonus == "挑戰紀念章" for r in jet_rewards), jet_rewards
     assert any(r.bonus == "挑戰紀念章" for r in out_rewards), out_rewards
 

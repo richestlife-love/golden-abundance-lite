@@ -58,7 +58,7 @@ async def test_row_to_contract_team_as_member(session: AsyncSession) -> None:
     member = await upsert_user_by_email(session, email="mem@example.com")
     await session.flush()
     team = await create_led_team(session, leader)
-    session.add(TeamMembershipRow(team_id=team.id, user_id=member.id))  # ty: ignore[missing-argument]
+    session.add(TeamMembershipRow(team_id=team.id, user_id=member.id))
     await session.commit()
 
     contract = await row_to_contract_team(session, team, caller_id=member.id)

@@ -25,7 +25,7 @@ async def test_task_status_unlocks_when_prereq_completed(session: AsyncSession, 
     user = await upsert_user_by_email(session, email="jet@example.com")
     await session.flush()
     session.add(
-        TaskProgressRow(  # ty: ignore[missing-argument]
+        TaskProgressRow(
             user_id=user.id,
             task_def_id=seeded_task_defs["T1"].id,
             status="completed",
@@ -54,7 +54,7 @@ async def test_challenge_task_computes_team_progress(session: AsyncSession, seed
     for email in ("a@example.com", "b@example.com"):
         m = await upsert_user_by_email(session, email=email)
         await session.flush()
-        session.add(TeamMembershipRow(team_id=team.id, user_id=m.id))  # ty: ignore[missing-argument]
+        session.add(TeamMembershipRow(team_id=team.id, user_id=m.id))
     await session.commit()
 
     task = await row_to_contract_task(session, seeded_task_defs["T3"], caller=user)
@@ -76,7 +76,7 @@ async def test_challenge_at_cap_is_completed(session: AsyncSession, seeded_task_
     for i in range(5):
         m = await upsert_user_by_email(session, email=f"m{i}@example.com")
         await session.flush()
-        session.add(TeamMembershipRow(team_id=team.id, user_id=m.id))  # ty: ignore[missing-argument]
+        session.add(TeamMembershipRow(team_id=team.id, user_id=m.id))
     await session.commit()
 
     task = await row_to_contract_task(session, seeded_task_defs["T3"], caller=user)
@@ -104,13 +104,13 @@ async def test_challenge_joined_total_wins_when_higher(session: AsyncSession, se
 
     extra = await upsert_user_by_email(session, email="own@example.com")
     await session.flush()
-    session.add(TeamMembershipRow(team_id=own_team.id, user_id=extra.id))  # ty: ignore[missing-argument]
+    session.add(TeamMembershipRow(team_id=own_team.id, user_id=extra.id))
 
-    session.add(TeamMembershipRow(team_id=other_team.id, user_id=caller.id))  # ty: ignore[missing-argument]
+    session.add(TeamMembershipRow(team_id=other_team.id, user_id=caller.id))
     for i in range(3):
         m = await upsert_user_by_email(session, email=f"other{i}@example.com")
         await session.flush()
-        session.add(TeamMembershipRow(team_id=other_team.id, user_id=m.id))  # ty: ignore[missing-argument]
+        session.add(TeamMembershipRow(team_id=other_team.id, user_id=m.id))
     await session.commit()
 
     task = await row_to_contract_task(session, seeded_task_defs["T3"], caller=caller)

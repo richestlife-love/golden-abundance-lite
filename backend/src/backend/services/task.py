@@ -29,7 +29,7 @@ from backend.services.team import caller_team_totals
 async def _completed_task_def_ids(session: AsyncSession, user_id: UUID) -> set[UUID]:
     rows = (
         await session.execute(
-            select(TaskProgressRow.task_def_id)  # ty: ignore[no-matching-overload]
+            select(TaskProgressRow.task_def_id)
             .where(TaskProgressRow.user_id == user_id)
             .where(TaskProgressRow.status == "completed")
         )
@@ -40,9 +40,7 @@ async def _completed_task_def_ids(session: AsyncSession, user_id: UUID) -> set[U
 async def _required_ids(session: AsyncSession, task_def_id: UUID) -> list[UUID]:
     rows = (
         await session.execute(
-            select(TaskDefRequiresRow.requires_id).where(  # ty: ignore[no-matching-overload]
-                TaskDefRequiresRow.task_def_id == task_def_id
-            )
+            select(TaskDefRequiresRow.requires_id).where(TaskDefRequiresRow.task_def_id == task_def_id)
         )
     ).all()
     return [row[0] for row in rows]
@@ -63,8 +61,8 @@ async def _steps_for(session: AsyncSession, task_def_id: UUID, user_id: UUID) ->
         (
             await session.execute(
                 select(TaskStepDefRow)
-                .where(TaskStepDefRow.task_def_id == task_def_id)  # ty: ignore[invalid-argument-type]
-                .order_by(TaskStepDefRow.order.asc())  # ty: ignore[unresolved-attribute]
+                .where(TaskStepDefRow.task_def_id == task_def_id)
+                .order_by(TaskStepDefRow.order.asc())
             )
         )
         .scalars()
@@ -77,8 +75,8 @@ async def _steps_for(session: AsyncSession, task_def_id: UUID, user_id: UUID) ->
         (
             await session.execute(
                 select(TaskStepProgressRow)
-                .where(TaskStepProgressRow.user_id == user_id)  # ty: ignore[invalid-argument-type]
-                .where(TaskStepProgressRow.step_id.in_(step_ids))  # ty: ignore[unresolved-attribute]
+                .where(TaskStepProgressRow.user_id == user_id)
+                .where(TaskStepProgressRow.step_id.in_(step_ids))
             )
         )
         .scalars()
@@ -110,8 +108,8 @@ async def row_to_contract_task(
     progress_row = (
         await session.execute(
             select(TaskProgressRow)
-            .where(TaskProgressRow.user_id == caller.id)  # ty: ignore[invalid-argument-type]
-            .where(TaskProgressRow.task_def_id == task_def.id)  # ty: ignore[invalid-argument-type]
+            .where(TaskProgressRow.user_id == caller.id)
+            .where(TaskProgressRow.task_def_id == task_def.id)
         )
     ).scalar_one_or_none()
 
@@ -181,15 +179,7 @@ async def row_to_contract_task(
 
 
 async def list_caller_tasks(session: AsyncSession, *, caller: UserRow) -> list[ContractTask]:
-    defs = (
-        (
-            await session.execute(
-                select(TaskDefRow).order_by(TaskDefRow.display_id.asc())  # ty: ignore[unresolved-attribute]
-            )
-        )
-        .scalars()
-        .all()
-    )
+    defs = (await session.execute(select(TaskDefRow).order_by(TaskDefRow.display_id.asc()))).scalars().all()
     completed_ids = await _completed_task_def_ids(session, caller.id)
     return [await row_to_contract_task(session, d, caller=caller, completed_ids=completed_ids) for d in defs]
 
@@ -224,15 +214,15 @@ async def submit_task(
     existing = (
         await session.execute(
             select(TaskProgressRow)
-            .where(TaskProgressRow.user_id == caller.id)  # ty: ignore[invalid-argument-type]
-            .where(TaskProgressRow.task_def_id == task_def.id)  # ty: ignore[invalid-argument-type]
+            .where(TaskProgressRow.user_id == caller.id)
+            .where(TaskProgressRow.task_def_id == task_def.id)
         )
     ).scalar_one_or_none()
     if existing is not None and existing.status == "completed":
         raise TaskSubmitError(409, "Task already completed")
 
     if existing is None:
-        existing = TaskProgressRow(  # ty: ignore[missing-argument]
+        existing = TaskProgressRow(
             user_id=caller.id,
             task_def_id=task_def.id,
         )

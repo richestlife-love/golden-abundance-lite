@@ -15,7 +15,7 @@ async def test_google_sign_in_creates_user(client: AsyncClient, session: AsyncSe
     assert data["profile_complete"] is False
     assert data["access_token"]
     # DB side-effect:
-    stmt = select(UserRow).where(UserRow.email == "jet@example.com")  # ty: ignore[invalid-argument-type]
+    stmt = select(UserRow).where(UserRow.email == "jet@example.com")
     result = await session.execute(stmt)
     assert result.scalar_one() is not None
 

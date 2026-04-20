@@ -47,37 +47,23 @@ async def caller_team_totals(session: AsyncSession, user: UserRow) -> tuple[int,
     decides what to do with the pair — spec §1.3 challenge progress uses
     ``max(led_total, joined_total)``.
     """
-    led = (
-        await session.execute(select(TeamRow).where(TeamRow.leader_id == user.id))  # ty: ignore[invalid-argument-type]
-    ).scalar_one_or_none()
+    led = (await session.execute(select(TeamRow).where(TeamRow.leader_id == user.id))).scalar_one_or_none()
     led_total = 0
     if led is not None:
         led_mems = (
-            (
-                await session.execute(
-                    select(TeamMembershipRow).where(TeamMembershipRow.team_id == led.id)  # ty: ignore[invalid-argument-type]
-                )
-            )
+            (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == led.id)))
             .scalars()
             .all()
         )
         led_total = 1 + len(led_mems)
 
     joined_link = (
-        await session.execute(
-            select(TeamMembershipRow).where(TeamMembershipRow.user_id == user.id)  # ty: ignore[invalid-argument-type]
-        )
+        await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.user_id == user.id))
     ).scalar_one_or_none()
     joined_total = 0
     if joined_link is not None:
         joined_mems = (
-            (
-                await session.execute(
-                    select(TeamMembershipRow).where(
-                        TeamMembershipRow.team_id == joined_link.team_id  # ty: ignore[invalid-argument-type]
-                    )
-                )
-            )
+            (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == joined_link.team_id)))
             .scalars()
             .all()
         )
@@ -87,14 +73,14 @@ async def caller_team_totals(session: AsyncSession, user: UserRow) -> tuple[int,
 
 
 async def create_led_team(session: AsyncSession, user: UserRow) -> TeamRow:
-    result = await session.execute(select(TeamRow.display_id))  # ty: ignore[no-matching-overload]
+    result = await session.execute(select(TeamRow.display_id))
     taken = {row[0] for row in result.all()}
     display_id = generate_team_display_id(user_display_id=user.display_id, used=taken)
     team = TeamRow(
         display_id=display_id,
         name=f"{derive_user_name(user)}的團隊",
         leader_id=user.id,
-    )  # ty: ignore[missing-argument]
+    )
     session.add(team)
     await session.flush()
     return team
@@ -106,26 +92,12 @@ async def row_to_contract_team(session: AsyncSession, team: TeamRow, *, caller_i
         raise RuntimeError(f"FK violation: TeamRow(id={team.id}).leader_id={team.leader_id} has no matching UserRow")
 
     memberships = (
-        (
-            await session.execute(
-                select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
-            )
-        )
-        .scalars()
-        .all()
+        (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id))).scalars().all()
     )
     member_user_ids = [m.user_id for m in memberships]
     members: list[ContractUserRef] = []
     if member_user_ids:
-        member_rows = (
-            (
-                await session.execute(
-                    select(UserRow).where(UserRow.id.in_(member_user_ids))  # ty: ignore[unresolved-attribute]
-                )
-            )
-            .scalars()
-            .all()
-        )
+        member_rows = (await session.execute(select(UserRow).where(UserRow.id.in_(member_user_ids)))).scalars().all()
         members = [user_to_ref(u) for u in member_rows]
 
     if caller_id == team.leader_id:
@@ -141,9 +113,9 @@ async def row_to_contract_team(session: AsyncSession, team: TeamRow, *, caller_i
             (
                 await session.execute(
                     select(JoinRequestRow)
-                    .where(JoinRequestRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
-                    .where(JoinRequestRow.status == "pending")  # ty: ignore[invalid-argument-type]
-                    .order_by(JoinRequestRow.requested_at.asc())  # ty: ignore[unresolved-attribute]
+                    .where(JoinRequestRow.team_id == team.id)
+                    .where(JoinRequestRow.status == "pending")
+                    .order_by(JoinRequestRow.requested_at.asc())
                 )
             )
             .scalars()
@@ -195,25 +167,25 @@ async def search_team_refs(
     cursor: str | None,
     limit: int,
 ) -> Paginated[ContractTeamRef]:
-    stmt = select(TeamRow, UserRow).join(UserRow, TeamRow.leader_id == UserRow.id)  # ty: ignore[invalid-argument-type]
+    stmt = select(TeamRow, UserRow).join(UserRow, TeamRow.leader_id == UserRow.id)
     if q:
         like = f"%{q}%"
-        stmt = stmt.where(TeamRow.name.ilike(like) | TeamRow.alias.ilike(like))  # ty: ignore[unresolved-attribute]
+        stmt = stmt.where(TeamRow.name.ilike(like) | TeamRow.alias.ilike(like))
     if topic:
-        stmt = stmt.where(TeamRow.topic == topic)  # ty: ignore[invalid-argument-type]
+        stmt = stmt.where(TeamRow.topic == topic)
     if leader_display_id:
-        stmt = stmt.where(UserRow.display_id == leader_display_id)  # ty: ignore[invalid-argument-type]
+        stmt = stmt.where(UserRow.display_id == leader_display_id)
 
     page, next_cursor = await paginate_keyset(
         session,
         stmt,
         sort=[
             SortCol(
-                TeamRow.created_at,  # ty: ignore[invalid-argument-type]
+                TeamRow.created_at,
                 to_json=lambda d: d.isoformat(),
                 from_json=datetime.fromisoformat,
             ),
-            SortCol(TeamRow.id, to_json=str, from_json=UUID),  # ty: ignore[invalid-argument-type]
+            SortCol(TeamRow.id, to_json=str, from_json=UUID),
         ],
         cursor=cursor,
         limit=limit,

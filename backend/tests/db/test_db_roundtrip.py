@@ -5,7 +5,7 @@ from backend.db.models import UserRow
 
 
 async def test_insert_and_read_user(session: AsyncSession) -> None:
-    user = UserRow(  # ty: ignore[missing-argument]
+    user = UserRow(
         display_id="UTEST1",
         email="roundtrip@example.com",
         profile_complete=False,
@@ -13,7 +13,7 @@ async def test_insert_and_read_user(session: AsyncSession) -> None:
     session.add(user)
     await session.commit()
 
-    result = await session.execute(select(UserRow).where(UserRow.email == "roundtrip@example.com"))  # ty: ignore[invalid-argument-type]
+    result = await session.execute(select(UserRow).where(UserRow.email == "roundtrip@example.com"))
     fetched = result.scalar_one()
     assert fetched.display_id == "UTEST1"
     assert fetched.profile_complete is False

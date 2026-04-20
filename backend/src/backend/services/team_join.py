@@ -31,8 +31,8 @@ async def create_join_request(session: AsyncSession, *, team: TeamRow, requester
     existing_membership = (
         await session.execute(
             select(TeamMembershipRow).where(
-                TeamMembershipRow.team_id == team.id,  # ty: ignore[invalid-argument-type]
-                TeamMembershipRow.user_id == requester.id,  # ty: ignore[invalid-argument-type]
+                TeamMembershipRow.team_id == team.id,
+                TeamMembershipRow.user_id == requester.id,
             )
         )
     ).scalar_one_or_none()
@@ -41,9 +41,7 @@ async def create_join_request(session: AsyncSession, *, team: TeamRow, requester
 
     # Any existing team membership at all?
     any_membership = (
-        await session.execute(
-            select(TeamMembershipRow).where(TeamMembershipRow.user_id == requester.id)  # ty: ignore[invalid-argument-type]
-        )
+        await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.user_id == requester.id))
     ).scalar_one_or_none()
     if any_membership is not None:
         raise JoinConflictError("Already a member of a different team")
@@ -52,14 +50,14 @@ async def create_join_request(session: AsyncSession, *, team: TeamRow, requester
     any_pending = (
         await session.execute(
             select(JoinRequestRow)
-            .where(JoinRequestRow.user_id == requester.id)  # ty: ignore[invalid-argument-type]
-            .where(JoinRequestRow.status == "pending")  # ty: ignore[invalid-argument-type]
+            .where(JoinRequestRow.user_id == requester.id)
+            .where(JoinRequestRow.status == "pending")
         )
     ).scalar_one_or_none()
     if any_pending is not None:
         raise JoinConflictError("Already has a pending join request")
 
-    req = JoinRequestRow(team_id=team.id, user_id=requester.id, status="pending")  # ty: ignore[missing-argument]
+    req = JoinRequestRow(team_id=team.id, user_id=requester.id, status="pending")
     session.add(req)
     await session.flush()
     return req
@@ -68,7 +66,7 @@ async def create_join_request(session: AsyncSession, *, team: TeamRow, requester
 async def approve_join_request(session: AsyncSession, *, team: TeamRow, req: JoinRequestRow) -> None:
     req.status = "approved"
     session.add(req)
-    session.add(TeamMembershipRow(team_id=team.id, user_id=req.user_id))  # ty: ignore[missing-argument]
+    session.add(TeamMembershipRow(team_id=team.id, user_id=req.user_id))
     await session.flush()
 
     # Skip the reward cascade when no bonused challenges exist —
@@ -76,9 +74,7 @@ async def approve_join_request(session: AsyncSession, *, team: TeamRow, req: Joi
     challenge_defs = (
         (
             await session.execute(
-                select(TaskDefRow)
-                .where(TaskDefRow.is_challenge.is_(True))  # ty: ignore[unresolved-attribute]
-                .where(TaskDefRow.bonus.is_not(None))  # ty: ignore[unresolved-attribute]
+                select(TaskDefRow).where(TaskDefRow.is_challenge.is_(True)).where(TaskDefRow.bonus.is_not(None))
             )
         )
         .scalars()
@@ -89,13 +85,7 @@ async def approve_join_request(session: AsyncSession, *, team: TeamRow, req: Joi
 
     # Post-flush: query includes the just-added membership.
     memberships = (
-        (
-            await session.execute(
-                select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id)  # ty: ignore[invalid-argument-type]
-            )
-        )
-        .scalars()
-        .all()
+        (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id))).scalars().all()
     )
     member_ids = [team.leader_id] + [row.user_id for row in memberships]
     for uid in member_ids:
@@ -114,8 +104,8 @@ async def leave_team(session: AsyncSession, *, team: TeamRow, user: UserRow) -> 
     link = (
         await session.execute(
             select(TeamMembershipRow).where(
-                TeamMembershipRow.team_id == team.id,  # ty: ignore[invalid-argument-type]
-                TeamMembershipRow.user_id == user.id,  # ty: ignore[invalid-argument-type]
+                TeamMembershipRow.team_id == team.id,
+                TeamMembershipRow.user_id == user.id,
             )
         )
     ).scalar_one_or_none()

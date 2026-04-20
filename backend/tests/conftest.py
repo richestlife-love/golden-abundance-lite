@@ -128,7 +128,7 @@ async def seeded_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
     T3 team challenge, T4 expired training). Returns a dict keyed by
     display_id."""
 
-    t1 = TaskDefRow(  # ty: ignore[missing-argument]
+    t1 = TaskDefRow(
         display_id="T1",
         title="填寫金富有志工表單",
         summary="完成你的志工個人資料,開啟金富有志工旅程。",
@@ -141,7 +141,7 @@ async def seeded_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
         is_challenge=False,
         form_type="interest",
     )
-    t2 = TaskDefRow(  # ty: ignore[missing-argument]
+    t2 = TaskDefRow(
         display_id="T2",
         title="夏季盛會報名",
         summary="報名 5/10 夏季盛會。",
@@ -154,7 +154,7 @@ async def seeded_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
         is_challenge=False,
         form_type="ticket",
     )
-    t3 = TaskDefRow(  # ty: ignore[missing-argument]
+    t3 = TaskDefRow(
         display_id="T3",
         title="組成 6 人團隊",
         summary="揪齊 6 位夥伴組團衝榜。",
@@ -168,7 +168,7 @@ async def seeded_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
         cap=6,
         form_type=None,
     )
-    t4 = TaskDefRow(  # ty: ignore[missing-argument]
+    t4 = TaskDefRow(
         display_id="T4",
         title="志工培訓 (已結束)",
         summary="2026 春季培訓。",

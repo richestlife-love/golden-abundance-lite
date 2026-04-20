@@ -107,7 +107,7 @@ async def _upsert_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
     existing = {t.display_id: t for t in (await session.execute(select(TaskDefRow))).scalars().all()}
 
     if "T1" not in existing:
-        t1 = TaskDefRow(  # ty: ignore[missing-argument]
+        t1 = TaskDefRow(
             display_id="T1",
             title="填寫金富有志工表單",
             summary="完成你的志工個人資料，開啟金富有志工旅程。",
@@ -130,7 +130,7 @@ async def _upsert_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
         existing["T1"] = t1
 
     if "T2" not in existing:
-        t2 = TaskDefRow(  # ty: ignore[missing-argument]
+        t2 = TaskDefRow(
             display_id="T2",
             title="夏季盛會報名",
             summary="報名 5/10 夏季盛會。",
@@ -150,7 +150,7 @@ async def _upsert_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
         session.add(TaskDefRequiresRow(task_def_id=t2.id, requires_id=existing["T1"].id))
 
     if "T3" not in existing:
-        t3 = TaskDefRow(  # ty: ignore[missing-argument]
+        t3 = TaskDefRow(
             display_id="T3",
             title="組成 6 人團隊",
             summary="揪齊 6 位夥伴組團衝榜。",
@@ -168,7 +168,7 @@ async def _upsert_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
         existing["T3"] = t3
 
     if "T4" not in existing:
-        t4 = TaskDefRow(  # ty: ignore[missing-argument]
+        t4 = TaskDefRow(
             display_id="T4",
             title="志工培訓 (已結束)",
             summary="2026 春季培訓。",
@@ -205,7 +205,7 @@ async def _upsert_news(session: AsyncSession) -> None:
             NewsItemRow(
                 title=title,
                 body=body,
-                category=category,  # ty: ignore[invalid-argument-type]
+                category=category,
                 pinned=pinned,
                 published_at=_now - timedelta(days=offset_days),
             )
@@ -263,13 +263,7 @@ async def _upsert_demo_join_requests(session: AsyncSession, users: dict[str, Use
     }
     existing_pending_by_user: dict[UUID, list[JoinRequestRow]] = {}
     for req in (
-        (
-            await session.execute(
-                select(JoinRequestRow).where(JoinRequestRow.status == "pending")  # ty: ignore[invalid-argument-type]
-            )
-        )
-        .scalars()
-        .all()
+        (await session.execute(select(JoinRequestRow).where(JoinRequestRow.status == "pending"))).scalars().all()
     ):
         existing_pending_by_user.setdefault(req.user_id, []).append(req)
 

@@ -77,23 +77,19 @@ async def _user_points_window_and_week(session: AsyncSession, period: RankPeriod
     window_start = _since(period)
 
     week_sum = func.coalesce(
-        func.sum(TaskDefRow.points).filter(
-            TaskProgressRow.completed_at >= week_start  # ty: ignore[unsupported-operator]
-        ),
+        func.sum(TaskDefRow.points).filter(TaskProgressRow.completed_at >= week_start),
         0,
     ).label("week_pts")
     if window_start is None:
         window_sum = func.coalesce(func.sum(TaskDefRow.points), 0).label("window_pts")
     else:
         window_sum = func.coalesce(
-            func.sum(TaskDefRow.points).filter(
-                TaskProgressRow.completed_at >= window_start  # ty: ignore[unsupported-operator]
-            ),
+            func.sum(TaskDefRow.points).filter(TaskProgressRow.completed_at >= window_start),
             0,
         ).label("window_pts")
 
     stmt = (
-        select(  # ty: ignore[no-matching-overload]
+        select(
             TaskProgressRow.user_id,
             window_sum,
             week_sum,
@@ -187,9 +183,7 @@ async def leaderboard_teams(
     team_ids = [t.id for t in teams]
     membership_rows = (
         await session.execute(
-            select(TeamMembershipRow.team_id, TeamMembershipRow.user_id).where(  # ty: ignore[no-matching-overload]
-                TeamMembershipRow.team_id.in_(team_ids)  # ty: ignore[unresolved-attribute]
-            )
+            select(TeamMembershipRow.team_id, TeamMembershipRow.user_id).where(TeamMembershipRow.team_id.in_(team_ids))
         )
     ).all()
     team_member_ids: dict[UUID, list[UUID]] = {t.id: [t.leader_id] for t in teams}
@@ -212,13 +206,7 @@ async def leaderboard_teams(
     team_by_id = {t.id: t for t in teams}
     leaders = {
         u.id: u
-        for u in (
-            await session.execute(
-                select(UserRow).where(
-                    UserRow.id.in_([t.leader_id for t in teams])  # ty: ignore[unresolved-attribute]
-                )
-            )
-        )
+        for u in (await session.execute(select(UserRow).where(UserRow.id.in_([t.leader_id for t in teams]))))
         .scalars()
         .all()
     }

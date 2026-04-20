@@ -55,15 +55,7 @@ DEMO_FANOUT_EXPECTED = {
 
 
 async def _pending_requests(s) -> list[JoinRequestRow]:
-    return (
-        (
-            await s.execute(
-                select(JoinRequestRow).where(JoinRequestRow.status == "pending")  # ty: ignore[invalid-argument-type]
-            )
-        )
-        .scalars()
-        .all()
-    )
+    return (await s.execute(select(JoinRequestRow).where(JoinRequestRow.status == "pending"))).scalars().all()
 
 
 async def test_demo_join_requests_fanout(engine: AsyncEngine) -> None:

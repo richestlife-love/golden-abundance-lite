@@ -29,7 +29,7 @@ async def test_401_when_user_was_deleted(client: AsyncClient, session: AsyncSess
     r = await client.post("/api/v1/auth/google", json={"id_token": "jet@example.com"})
     token = r.json()["access_token"]
 
-    stmt = delete(UserRow).where(UserRow.email == "jet@example.com")  # ty: ignore[invalid-argument-type]
+    stmt = delete(UserRow).where(UserRow.email == "jet@example.com")
     await session.execute(stmt)
     await session.commit()
 
