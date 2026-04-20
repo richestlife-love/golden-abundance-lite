@@ -2,8 +2,6 @@
 by the seed must round-trip through the contract's regex. If the
 validator tightens, this catches it before the next seed run."""
 
-from __future__ import annotations
-
 import re
 
 import pytest

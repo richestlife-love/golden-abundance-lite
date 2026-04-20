@@ -7,8 +7,6 @@ Frontend reads this JSON from frontend/src/dev/demo-accounts.json
 truth lives in seed.py.
 """
 
-from __future__ import annotations
-
 import json
 import sys
 

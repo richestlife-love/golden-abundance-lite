@@ -6,8 +6,6 @@ constraint at the DB level fails here instead of only showing up as a
 race condition.
 """
 
-from __future__ import annotations
-
 from datetime import UTC, datetime
 from uuid import uuid4
 

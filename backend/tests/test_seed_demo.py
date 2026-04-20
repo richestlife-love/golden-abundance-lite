@@ -1,7 +1,5 @@
 """Phase 4a demo seed — exercises DEMO_USERS upsert."""
 
-from __future__ import annotations
-
 import pytest
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncEngine

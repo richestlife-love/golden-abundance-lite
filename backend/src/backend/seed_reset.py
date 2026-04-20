@@ -12,8 +12,6 @@ would leave dangling teams from prior runs and isn't worth the complexity
 for a dev-only recipe.
 """
 
-from __future__ import annotations
-
 import asyncio
 
 from sqlalchemy import text
