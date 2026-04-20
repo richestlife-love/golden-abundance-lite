@@ -1,11 +1,11 @@
 import { fs } from "../utils";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useAppState } from "../state/AppStateContext";
+import { useMe } from "../hooks/useMe";
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
-  const { user } = useAppState();
+  const { data: user } = useMe();
   const onBack = () => navigate({ to: "/me" });
   const onEdit = () => navigate({ to: "/me/profile/edit", state: { fromProfile: true } });
   const bg = "var(--bg)";
@@ -17,10 +17,9 @@ export default function ProfileScreen() {
 
   const [idCopied, setIdCopied] = useState(false);
   const copyUserId = async () => {
-    if (!user?.id) return;
     if (!navigator.clipboard) return;
     try {
-      await navigator.clipboard.writeText(user.id);
+      await navigator.clipboard.writeText(user.display_id);
       setIdCopied(true);
       setTimeout(() => setIdCopied(false), 1800);
     } catch {
@@ -40,27 +39,27 @@ export default function ProfileScreen() {
   };
 
   const rows = [
-    { label: "中文姓名", value: user?.zhName, icon: "文" },
-    { label: "英文姓名 English", value: user?.enName, icon: "A" },
-    { label: "暱稱 Nickname", value: user?.nickname, icon: "✦" },
-    { label: "Email", value: user?.email, icon: "@" },
+    { label: "中文姓名", value: user.zh_name, icon: "文" },
+    { label: "英文姓名 English", value: user.en_name, icon: "A" },
+    { label: "暱稱 Nickname", value: user.nickname, icon: "✦" },
+    { label: "Email", value: user.email, icon: "@" },
     {
       label: "聯絡電話",
-      value: user?.phone ? `${user.phoneCode || ""} ${user.phone}`.trim() : null,
+      value: user.phone ? `${user.phone_code || ""} ${user.phone}`.trim() : null,
       icon: "☎",
     },
-    { label: "LINE ID", value: user?.lineId, icon: "L" },
-    { label: "Telegram ID", value: user?.telegramId, icon: "T" },
+    { label: "LINE ID", value: user.line_id, icon: "L" },
+    { label: "Telegram ID", value: user.telegram_id, icon: "T" },
     {
       label: "所在國家/地區",
-      value: user?.country ? `${COUNTRY_FLAG[user.country] || ""} ${user.country}`.trim() : null,
+      value: user.country ? `${COUNTRY_FLAG[user.country] || ""} ${user.country}`.trim() : null,
       icon: "◎",
     },
-    { label: "所在城市/地區", value: user?.location, icon: "◉" },
+    { label: "所在城市/地區", value: user.location, icon: "◉" },
   ];
 
-  const displayName = user?.nickname || user?.zhName || user?.name || "志工";
-  const initial = (user?.zhName || user?.name || "U").slice(0, 1).toUpperCase();
+  const displayName = user.nickname || user.zh_name || user.name || "志工";
+  const initial = (user.zh_name || user.name || "U").slice(0, 1).toUpperCase();
 
   return (
     <div
@@ -187,7 +186,7 @@ export default function ProfileScreen() {
               >
                 {displayName}
               </div>
-              {user?.id && (
+              {user.display_id && (
                 <button
                   type="button"
                   onClick={copyUserId}
@@ -209,7 +208,7 @@ export default function ProfileScreen() {
                     transition: "all 0.18s ease",
                   }}
                 >
-                  {user.id}
+                  {user.display_id}
                   {idCopied ? (
                     <svg
                       width="11"
@@ -241,8 +240,8 @@ export default function ProfileScreen() {
                 </button>
               )}
             </div>
-            {user?.enName && (
-              <div style={{ fontSize: fs(12), color: muted, marginTop: 3 }}>{user.enName}</div>
+            {user.en_name && (
+              <div style={{ fontSize: fs(12), color: muted, marginTop: 3 }}>{user.en_name}</div>
             )}
           </div>
         </div>
