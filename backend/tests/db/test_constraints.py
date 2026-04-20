@@ -125,6 +125,22 @@ async def test_task_defs_check_constraints(session: AsyncSession, col: str, valu
     await session.rollback()
 
 
+async def test_timestamp_server_defaults_populate_on_raw_insert(session: AsyncSession) -> None:
+    """Raw SQL inserts that omit the timestamp column must still succeed —
+    ``server_default=now()`` fills it in so seed-reset / ad-hoc psql work."""
+    await session.execute(
+        text(
+            "INSERT INTO users (id, display_id, email, profile_complete)"
+            " VALUES (gen_random_uuid(), 'URAW', 'raw@example.com', false)"
+        )
+    )
+    created = (
+        await session.execute(text("SELECT created_at FROM users WHERE email = 'raw@example.com'"))
+    ).scalar_one()
+    assert created is not None
+    await session.rollback()
+
+
 async def test_task_progress_progress_unit_interval(session: AsyncSession) -> None:
     """``progress`` must be within [0, 1] when set."""
     user = UserRow(display_id="UPRG", email="prg@example.com", profile_complete=True)  # ty: ignore[missing-argument]

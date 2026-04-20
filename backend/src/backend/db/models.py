@@ -41,7 +41,14 @@ class UserRow(SQLModel, table=True):
     location: str | None = Field(default=None, max_length=128)
     avatar_url: str | None = Field(default=None, max_length=2048)
     profile_complete: bool = Field(default=False)
-    created_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False, default=_utcnow))
+    created_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            default=_utcnow,
+            server_default=text("now()"),
+        )
+    )
 
 
 class TeamRow(SQLModel, table=True):
@@ -63,7 +70,14 @@ class TeamRow(SQLModel, table=True):
     cap: int = Field(default=6, ge=1)
     points: int = Field(default=0, ge=0)
     week_points: int = Field(default=0, ge=0)
-    created_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False, default=_utcnow))
+    created_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            default=_utcnow,
+            server_default=text("now()"),
+        )
+    )
 
 
 class TeamMembershipRow(SQLModel, table=True):
@@ -72,7 +86,14 @@ class TeamMembershipRow(SQLModel, table=True):
 
     team_id: UUID = Field(foreign_key="teams.id", primary_key=True)
     user_id: UUID = Field(foreign_key="users.id", primary_key=True)
-    joined_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False, default=_utcnow))
+    joined_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            default=_utcnow,
+            server_default=text("now()"),
+        )
+    )
 
 
 class JoinRequestRow(SQLModel, table=True):
@@ -97,7 +118,14 @@ class JoinRequestRow(SQLModel, table=True):
         default="pending",
         sa_column=Column(String(16), nullable=False, default="pending"),
     )
-    requested_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False, default=_utcnow))
+    requested_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            default=_utcnow,
+            server_default=text("now()"),
+        )
+    )
 
 
 class TaskDefRow(SQLModel, table=True):
@@ -124,7 +152,14 @@ class TaskDefRow(SQLModel, table=True):
         default=None,
         sa_column=Column(String(16), nullable=True),
     )
-    created_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False, default=_utcnow))
+    created_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            default=_utcnow,
+            server_default=text("now()"),
+        )
+    )
 
 
 class TaskDefRequiresRow(SQLModel, table=True):
@@ -166,7 +201,14 @@ class TaskProgressRow(SQLModel, table=True):
     progress: float | None = Field(default=None, ge=0.0, le=1.0)
     form_submission: dict | None = Field(default=None, sa_column=Column(JSON, nullable=True))
     completed_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True), nullable=True))
-    updated_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False, default=_utcnow))
+    updated_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            default=_utcnow,
+            server_default=text("now()"),
+        )
+    )
 
 
 class TaskStepProgressRow(SQLModel, table=True):
@@ -192,7 +234,14 @@ class RewardRow(SQLModel, table=True):
         default="earned",
         sa_column=Column(String(16), nullable=False, default="earned"),
     )
-    earned_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False, default=_utcnow))
+    earned_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            default=_utcnow,
+            server_default=text("now()"),
+        )
+    )
     claimed_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True), nullable=True))
 
 
@@ -205,6 +254,12 @@ class NewsItemRow(SQLModel, table=True):
     category: Literal["公告", "活動", "通知"] = Field(sa_column=Column(String(16), nullable=False))
     image_url: str | None = None
     published_at: datetime = Field(
-        sa_column=Column(DateTime(timezone=True), nullable=False, default=_utcnow, index=True)
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            default=_utcnow,
+            server_default=text("now()"),
+            index=True,
+        )
     )
     pinned: bool = Field(default=False, index=True)
