@@ -2,6 +2,7 @@ import { fs } from "../utils";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useMe } from "../hooks/useMe";
+import { ChevronLeftIcon } from "../ui/Icon";
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
@@ -27,17 +28,6 @@ export default function ProfileScreen() {
     }
   };
 
-  const COUNTRY_FLAG: Record<string, string> = {
-    台灣: "🇹🇼",
-    馬來西亞: "🇲🇾",
-    新加坡: "🇸🇬",
-    中國: "🇨🇳",
-    香港: "🇭🇰",
-    澳門: "🇲🇴",
-    美國: "🇺🇸",
-    其他: "🌏",
-  };
-
   const rows = [
     { label: "中文姓名", value: user.zh_name, icon: "文" },
     { label: "英文姓名 English", value: user.en_name, icon: "A" },
@@ -52,7 +42,7 @@ export default function ProfileScreen() {
     { label: "Telegram ID", value: user.telegram_id, icon: "T" },
     {
       label: "所在國家/地區",
-      value: user.country ? `${COUNTRY_FLAG[user.country] || ""} ${user.country}`.trim() : null,
+      value: user.country || null,
       icon: "◎",
     },
     { label: "所在城市/地區", value: user.location, icon: "◉" },
@@ -99,10 +89,9 @@ export default function ProfileScreen() {
             justifyContent: "center",
             cursor: "pointer",
             color: fg,
-            fontSize: fs(20),
           }}
         >
-          ‹
+          <ChevronLeftIcon size={20} />
         </button>
         <div style={{ fontSize: fs(16), fontWeight: 700, color: fg, flex: 1 }}>個人資料</div>
         <button

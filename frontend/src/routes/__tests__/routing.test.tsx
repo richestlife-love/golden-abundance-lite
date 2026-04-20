@@ -46,9 +46,9 @@ describe("public routes", () => {
 describe("authed simple routes", () => {
   it("renders home at /home when authed + complete", async () => {
     renderRoute("/home", { token: TOKEN });
-    // BottomNav.tsx:55 renders "首页" (Simplified) — match exactly.
+    // BottomNav renders "首頁" (Traditional) — match exactly.
     await waitFor(() => {
-      expect(screen.getByText("首页")).toBeInTheDocument();
+      expect(screen.getByText("首頁")).toBeInTheDocument();
     });
   });
 
@@ -106,14 +106,14 @@ describe("landing CTA", () => {
     // Guest sees the landing page; clicking the CTA navigates to /sign-in.
     const { router } = renderRoute("/");
     await waitFor(() => expect(screen.getByText("金富有志工")).toBeInTheDocument());
-    await userEvent.click(screen.getByRole("button", { name: /开启/ }));
+    await userEvent.click(screen.getByRole("button", { name: /開啟/ }));
     await expectScreen(router, "/sign-in", "選擇帳號");
   });
 
   it("authed + complete visiting / → /home (auto redirect)", async () => {
     // Index guard redirects authed+complete users away from the landing page.
     const { router } = renderRoute("/", { token: TOKEN });
-    await expectScreen(router, "/home", "首页");
+    await expectScreen(router, "/home", "首頁");
   });
 
   it("authed + incomplete visiting / → /welcome (auto redirect)", async () => {
@@ -126,12 +126,12 @@ describe("landing CTA", () => {
 describe("guard sweep", () => {
   it("authed complete visiting /sign-in → /home", async () => {
     const { router } = renderRoute("/sign-in", { token: TOKEN });
-    await expectScreen(router, "/home", "首页");
+    await expectScreen(router, "/home", "首頁");
   });
 
   it("authed complete visiting /welcome → /home", async () => {
     const { router } = renderRoute("/welcome", { token: TOKEN });
-    await expectScreen(router, "/home", "首页");
+    await expectScreen(router, "/home", "首頁");
   });
 
   it("authed incomplete visiting /sign-in → /welcome", async () => {
@@ -142,7 +142,7 @@ describe("guard sweep", () => {
 
   it("signing out while on /home redirects to /sign-in", async () => {
     const { router } = renderRoute("/home", { token: TOKEN });
-    await expectScreen(router, "/home", "首页");
+    await expectScreen(router, "/home", "首頁");
     const user = userEvent.setup();
     await user.click(screen.getByLabelText("登出"));
     await waitFor(() => expect(router.state.location.pathname).toBe("/sign-in"));
@@ -157,14 +157,14 @@ describe("not found", () => {
     // root __root notFoundComponent renders — one consistent 404 UX.
     renderRoute("/tasks/999", { token: TOKEN });
     await waitFor(() => {
-      expect(screen.getByText("找不到页面")).toBeInTheDocument();
+      expect(screen.getByText("找不到頁面")).toBeInTheDocument();
     });
   });
 
   it("a truly unmatched route also renders the root not-found component", async () => {
     renderRoute("/does-not-exist-at-all", { token: TOKEN });
     await waitFor(() => {
-      expect(screen.getByText("找不到页面")).toBeInTheDocument();
+      expect(screen.getByText("找不到頁面")).toBeInTheDocument();
     });
   });
 });
@@ -199,13 +199,13 @@ describe("click-through: start task", () => {
 describe("history back", () => {
   it("back() from /tasks/T1 re-renders /tasks (not just URL — DOM-level check)", async () => {
     const { router } = renderRoute("/tasks", { token: TOKEN });
-    await expectScreen(router, "/tasks", "任务");
+    await expectScreen(router, "/tasks", /個進行中/);
     await router.navigate({ to: "/tasks/$taskId", params: { taskId: "T1" } });
     // "任務說明" is unique to TaskDetailScreen — proves the detail view mounted.
     await expectScreen(router, "/tasks/T1", "任務說明");
     router.history.back();
     // After back, tasks list is visible and detail-only content is gone.
-    await expectScreen(router, "/tasks", "任务");
+    await expectScreen(router, "/tasks", /個進行中/);
     expect(screen.queryByText("任務說明")).toBeNull();
   });
 });

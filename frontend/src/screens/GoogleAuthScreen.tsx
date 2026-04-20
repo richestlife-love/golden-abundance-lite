@@ -90,7 +90,7 @@ export default function GoogleAuthScreen({ onCancel, onSelectAccount }: GoogleAu
             <div style={{ padding: "24px 28px 0", animation: "fadeInUp 0.4s ease" }}>
               <h1
                 style={{
-                  fontFamily: '"Google Sans", "Noto Sans SC", sans-serif',
+                  fontFamily: '"Google Sans", "Noto Sans TC", sans-serif',
                   fontSize: fs(24),
                   fontWeight: 400,
                   color: "#202124",
@@ -105,7 +105,7 @@ export default function GoogleAuthScreen({ onCancel, onSelectAccount }: GoogleAu
                   fontSize: fs(14),
                   color: "#5F6368",
                   margin: "0 0 4px",
-                  fontFamily: '"Google Sans", "Noto Sans SC", sans-serif',
+                  fontFamily: '"Google Sans", "Noto Sans TC", sans-serif',
                 }}
               >
                 繼續前往 <span style={{ color: "#1A73E8" }}>金富有志工</span>
@@ -210,10 +210,10 @@ export default function GoogleAuthScreen({ onCancel, onSelectAccount }: GoogleAu
                 animation: "fadeIn 0.6s 0.2s ease backwards",
               }}
             >
-              如要继续，Google
-              会将您的姓名、邮箱地址、语言偏好设置和个人资料照片分享给"金富有志工"。使用此应用前，请查看"金富有志工"的
-              <span style={{ color: "#1A73E8" }}> 隐私权政策</span> 和
-              <span style={{ color: "#1A73E8" }}> 服务条款</span>。
+              如要繼續，Google
+              會將您的姓名、電子郵件地址、語言偏好設定和大頭貼分享給「金富有志工」。使用此應用程式前，請先詳閱「金富有志工」的
+              <span style={{ color: "#1A73E8" }}>隱私權政策</span>和
+              <span style={{ color: "#1A73E8" }}>服務條款</span>。
             </div>
           </>
         )}
@@ -248,7 +248,7 @@ export default function GoogleAuthScreen({ onCancel, onSelectAccount }: GoogleAu
               {pending.label[0]}
             </div>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: fs(14), color: "#5F6368", marginBottom: 4 }}>正在登录…</div>
+              <div style={{ fontSize: fs(14), color: "#5F6368", marginBottom: 4 }}>正在登入…</div>
               <div style={{ fontSize: fs(13), color: "#202124" }}>{pending.email}</div>
             </div>
             <GoogleSpinner />

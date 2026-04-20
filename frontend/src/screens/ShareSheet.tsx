@@ -1,6 +1,16 @@
 import { fs } from "../utils";
 import { useEffect, useRef } from "react";
 import type { components } from "../api/schema";
+import type { ComponentType, SVGProps } from "react";
+import { CheckIcon, ClipboardIcon } from "../ui/Icon";
+import {
+  InstagramLogo,
+  LineLogo,
+  MessengerLogo,
+  SmsLogo,
+  WeChatLogo,
+  WhatsappLogo,
+} from "../ui/BrandLogos";
 
 type Team = components["schemas"]["Team"];
 
@@ -14,24 +24,29 @@ type Props = {
   muted: string;
 };
 
+type LogoProps = Omit<SVGProps<SVGSVGElement>, "width" | "height" | "viewBox"> & {
+  size?: number | string;
+};
+type LogoComponent = ComponentType<LogoProps>;
+
 export default function ShareSheet({ team, message, copied, onCopy, onClose, fg, muted }: Props) {
-  const apps = [
-    { key: "line", label: "LINE", bg: "#06C755", glyph: "L" },
-    { key: "whatsapp", label: "WhatsApp", bg: "#25D366", glyph: "◉" },
+  const apps: { key: string; label: string; bg: string; Logo: LogoComponent }[] = [
+    { key: "line", label: "LINE", bg: "#06C755", Logo: LineLogo },
+    { key: "whatsapp", label: "WhatsApp", bg: "#25D366", Logo: WhatsappLogo },
     {
       key: "messenger",
       label: "Messenger",
       bg: "linear-gradient(135deg, #0078FF, #9745FF)",
-      glyph: "✦",
+      Logo: MessengerLogo,
     },
     {
       key: "ig",
       label: "Instagram",
       bg: "linear-gradient(135deg, #F58529, #DD2A7B, #8134AF)",
-      glyph: "◎",
+      Logo: InstagramLogo,
     },
-    { key: "wechat", label: "微信", bg: "#07C160", glyph: "✉" },
-    { key: "sms", label: "訊息", bg: "#34D399", glyph: "💬" },
+    { key: "wechat", label: "微信", bg: "#07C160", Logo: WeChatLogo },
+    { key: "sms", label: "訊息", bg: "#34D399", Logo: SmsLogo },
   ];
 
   const sheetBg = "#FFFFFF";
@@ -130,55 +145,56 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
             marginBottom: 14,
           }}
         >
-          {apps.map((a) => (
-            <button
-              key={a.key}
-              type="button"
-              aria-label={`分享到 ${a.label}`}
-              onClick={onCopy}
-              title={`分享到 ${a.label}`}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 6,
-                padding: "4px 2px",
-                borderRadius: 12,
-                border: "none",
-                background: "transparent",
-                cursor: "pointer",
-                fontFamily: "inherit",
-              }}
-            >
-              <div
+          {apps.map((a) => {
+            const Logo = a.Logo;
+            return (
+              <button
+                key={a.key}
+                type="button"
+                aria-label={`分享到 ${a.label}`}
+                onClick={onCopy}
+                title={`分享到 ${a.label}`}
                 style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  background: a.bg,
-                  color: "#fff",
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: fs(20),
-                  fontWeight: 800,
-                  boxShadow: "0 3px 8px rgba(0,0,0,0.12)",
+                  gap: 6,
+                  padding: "4px 2px",
+                  borderRadius: 12,
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
                 }}
               >
-                {a.glyph}
-              </div>
-              <div
-                style={{
-                  fontSize: fs(10.5),
-                  color: fg,
-                  fontWeight: 600,
-                  textAlign: "center",
-                }}
-              >
-                {a.label}
-              </div>
-            </button>
-          ))}
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 12,
+                    background: a.bg,
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 3px 8px rgba(0,0,0,0.12)",
+                  }}
+                >
+                  <Logo size={24} />
+                </div>
+                <div
+                  style={{
+                    fontSize: fs(10.5),
+                    color: fg,
+                    fontWeight: 600,
+                    textAlign: "center",
+                  }}
+                >
+                  {a.label}
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         {/* Copy + close row */}
@@ -201,9 +217,14 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
               fontWeight: 800,
               fontFamily: "inherit",
               transition: "background 0.25s",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
             }}
           >
-            {copied ? "✓ 已複製到剪貼簿" : "📋 複製訊息"}
+            {copied ? <CheckIcon size={14} /> : <ClipboardIcon size={14} />}
+            {copied ? "已複製到剪貼簿" : "複製訊息"}
           </button>
           <button
             type="button"

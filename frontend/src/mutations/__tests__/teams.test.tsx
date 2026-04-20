@@ -9,11 +9,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { server } from "../../test/msw/server";
-import {
-  useApproveJoinRequest,
-  useRejectJoinRequest,
-  usePatchTeam,
-} from "../teams";
+import { useApproveJoinRequest, useRejectJoinRequest, usePatchTeam } from "../teams";
 import { qk } from "../../queries/keys";
 import * as f from "../../test/msw/fixtures";
 import type { components } from "../../api/schema";
@@ -96,9 +92,8 @@ describe("useApproveJoinRequest (optimistic)", () => {
     qc.setQueryData<MeTeamsResponse>(qk.myTeams, before);
 
     server.use(
-      http.post(
-        `/api/v1/teams/${team.id}/join-requests/${team.requests![0].id}/approve`,
-        () => HttpResponse.json({ detail: "boom" }, { status: 500 }),
+      http.post(`/api/v1/teams/${team.id}/join-requests/${team.requests![0].id}/approve`, () =>
+        HttpResponse.json({ detail: "boom" }, { status: 500 }),
       ),
     );
 
@@ -140,9 +135,7 @@ describe("usePatchTeam (optimistic alias/topic swap)", () => {
     qc.setQueryData<MeTeamsResponse>(qk.myTeams, { led: team, joined: null });
 
     server.use(
-      http.patch(`/api/v1/teams/${team.id}`, () =>
-        HttpResponse.json({ ...team, alias: "夢想隊" }),
-      ),
+      http.patch(`/api/v1/teams/${team.id}`, () => HttpResponse.json({ ...team, alias: "夢想隊" })),
     );
 
     const { result } = renderHook(() => usePatchTeam(), { wrapper: wrap(qc) });

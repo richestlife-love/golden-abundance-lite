@@ -11,8 +11,8 @@ export interface RouterContext {
 function NotFound() {
   return (
     <div style={{ padding: 24, textAlign: "center" }}>
-      <h1 style={{ fontSize: 20 }}>找不到页面</h1>
-      <p>该路径不存在。</p>
+      <h1 style={{ fontSize: 20 }}>找不到頁面</h1>
+      <p>該路徑不存在。</p>
     </div>
   );
 }

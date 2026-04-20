@@ -6,6 +6,7 @@ import { rankUsersInfiniteQueryOptions, rankTeamsInfiniteQueryOptions } from "..
 import type { RankPeriod } from "../api/rank";
 import { avatarBg, fs } from "../utils";
 import BottomNav from "../ui/BottomNav";
+import { PartyPopperIcon, StarIcon, UsersIcon } from "../ui/Icon";
 
 type Tab = "personal" | "team" | "challenge";
 
@@ -126,6 +127,7 @@ export default function RankScreen() {
             justifyContent: "space-between",
             position: "relative",
             zIndex: 2,
+            animation: "fadeInDown 0.5s ease",
           }}
         >
           <div>
@@ -151,7 +153,7 @@ export default function RankScreen() {
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: 4,
+              gap: 5,
               padding: "5px 10px 5px 8px",
               borderRadius: 999,
               background: "linear-gradient(135deg, #FFE29A, #FFC070)",
@@ -161,7 +163,7 @@ export default function RankScreen() {
               boxShadow: "0 3px 10px rgba(255,180,80,0.25)",
             }}
           >
-            ★ {myPoints}
+            <StarIcon size={11} /> {myPoints}
           </div>
         </div>
 
@@ -174,6 +176,7 @@ export default function RankScreen() {
             gap: 8,
             position: "relative",
             zIndex: 2,
+            animation: "fadeInUp 0.5s 0.08s ease backwards",
           }}
         >
           {[
@@ -380,24 +383,7 @@ export default function RankScreen() {
                               position: "relative",
                             }}
                           >
-                            {p.isTeam ? (
-                              <svg
-                                width="28"
-                                height="28"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.2"
-                                strokeLinecap="round"
-                              >
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
-                                <circle cx="10" cy="7" r="3.5" />
-                                <path d="M21 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M17 3.13a4 4 0 0 1 0 7.75" />
-                              </svg>
-                            ) : (
-                              p.name[0]
-                            )}
+                            {p.isTeam ? <UsersIcon size={28} /> : p.name[0]}
                             <div
                               style={{
                                 position: "absolute",
@@ -462,9 +448,13 @@ export default function RankScreen() {
                               fontSize: fs(11),
                               fontWeight: 800,
                               boxShadow: isWinner ? "0 3px 10px rgba(255,180,80,0.3)" : "none",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
                             }}
                           >
-                            ★ {p.points.toLocaleString()}
+                            <StarIcon size={11} />
+                            {p.points.toLocaleString()}
                           </div>
                           <div
                             style={{
@@ -542,6 +532,7 @@ export default function RankScreen() {
                         borderTop: i === 0 ? "none" : "1px solid rgba(254,199,1,0.12)",
                         background: r.isMe ? "rgba(254,199,1,0.18)" : "transparent",
                         position: "relative",
+                        animation: `fadeInUp 0.45s ${0.2 + i * 0.04}s ease backwards`,
                       }}
                     >
                       {r.isMe && (
@@ -585,24 +576,7 @@ export default function RankScreen() {
                           boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
                         }}
                       >
-                        {r.isTeam ? (
-                          <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.2"
-                            strokeLinecap="round"
-                          >
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
-                            <circle cx="10" cy="7" r="3.5" />
-                            <path d="M21 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M17 3.13a4 4 0 0 1 0 7.75" />
-                          </svg>
-                        ) : (
-                          r.name[0]
-                        )}
+                        {r.isTeam ? <UsersIcon size={18} /> : r.name[0]}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div
@@ -654,9 +628,13 @@ export default function RankScreen() {
                           color: r.isMe ? "#987701" : fg,
                           fontFamily: "var(--font-serif)",
                           letterSpacing: -0.3,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
                         }}
                       >
-                        ★ {r.points.toLocaleString()}
+                        <StarIcon size={12} />
+                        {r.points.toLocaleString()}
                       </div>
                     </div>
                   ))
@@ -752,12 +730,27 @@ export default function RankScreen() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: fs(13), fontWeight: 700, color: fg }}>{myName}</div>
-              <div style={{ fontSize: fs(10), color: muted }}>
-                {myRank <= 3
-                  ? "太厲害了！你在前三名 🎉"
-                  : myRank <= 10
-                    ? "加油，即將進入前十！"
-                    : "繼續完成任務累積星點"}
+              <div
+                style={{
+                  fontSize: fs(10),
+                  color: muted,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
+                {myRank <= 3 ? (
+                  <>
+                    太厲害了！你在前三名
+                    <span style={{ color: "#b8860b", display: "inline-flex" }}>
+                      <PartyPopperIcon size={11} />
+                    </span>
+                  </>
+                ) : myRank <= 10 ? (
+                  "加油，即將進入前十！"
+                ) : (
+                  "繼續完成任務累積星點"
+                )}
               </div>
             </div>
             <div
@@ -766,9 +759,13 @@ export default function RankScreen() {
                 fontWeight: 800,
                 color: "#987701",
                 fontFamily: "var(--font-serif)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
               }}
             >
-              ★ {myPoints.toLocaleString()}
+              <StarIcon size={12} />
+              {myPoints.toLocaleString()}
             </div>
           </div>
         )}

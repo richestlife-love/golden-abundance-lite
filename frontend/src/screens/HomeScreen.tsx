@@ -96,7 +96,7 @@ export default function HomeScreen() {
           }}
         >
           <div>
-            <div style={{ fontSize: fs(13), color: muted, marginBottom: 2 }}>欢迎回来</div>
+            <div style={{ fontSize: fs(13), color: muted, marginBottom: 2 }}>歡迎回來</div>
             <div
               style={{
                 fontSize: fs(16),
@@ -484,7 +484,7 @@ export default function HomeScreen() {
             animation: "fadeInUp 0.5s 0.1s ease backwards",
           }}
         >
-          <div style={{ fontSize: fs(16), fontWeight: 700, color: fg }}>探索任务</div>
+          <div style={{ fontSize: fs(16), fontWeight: 700, color: fg }}>探索任務</div>
           <button
             type="button"
             onClick={() => navigate({ to: "/tasks" })}

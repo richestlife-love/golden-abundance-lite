@@ -139,7 +139,7 @@ export default function LandingScreen({ onStart }: Props) {
             flexShrink: 0,
           }}
         >
-          <GradientButton label="开启" onClick={onStart} />
+          <GradientButton label="開啟" onClick={onStart} />
         </div>
       </div>
     </div>

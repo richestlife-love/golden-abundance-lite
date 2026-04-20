@@ -86,6 +86,7 @@ export default function TasksScreen() {
             justifyContent: "space-between",
             marginTop: 8,
             flexShrink: 0,
+            animation: "fadeInDown 0.5s ease",
           }}
         >
           <div>
@@ -115,6 +116,7 @@ export default function TasksScreen() {
             margin: "0 -20px",
             padding: "2px 20px 6px",
             scrollbarWidth: "none",
+            animation: "fadeInUp 0.5s 0.08s ease backwards",
           }}
         >
           {tabs.map((tab) => {

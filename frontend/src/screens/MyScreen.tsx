@@ -13,6 +13,7 @@ import {
   useRejectJoinRequest,
 } from "../mutations/teams";
 import BottomNav from "../ui/BottomNav";
+import { ChevronRightIcon, FlagIcon, SearchIcon, SparkleIcon, StarIcon } from "../ui/Icon";
 import TeamCard from "./TeamCard";
 
 export default function MyScreen() {
@@ -97,6 +98,7 @@ export default function MyScreen() {
             justifyContent: "space-between",
             padding: "6px 2px 0",
             flexShrink: 0,
+            animation: "fadeInDown 0.5s ease",
           }}
         >
           <div
@@ -194,6 +196,7 @@ export default function MyScreen() {
             border: "1px solid rgba(254,199,1,0.28)",
             boxShadow:
               "0 10px 30px rgba(200,160,0,0.14), 0 2px 6px rgba(184,164,227,0.12), inset 0 1px 0 rgba(255,255,255,0.7)",
+            animation: "fadeInUp 0.6s 0.05s ease backwards",
           }}
         >
           {/* Decorative starfield + mountain silhouette */}
@@ -400,14 +403,13 @@ export default function MyScreen() {
             </div>
             <div
               style={{
-                fontSize: fs(22),
                 color: muted,
                 flexShrink: 0,
-                lineHeight: 1,
                 paddingLeft: 4,
+                display: "inline-flex",
               }}
             >
-              ›
+              <ChevronRightIcon size={22} />
             </div>
           </button>
 
@@ -453,18 +455,7 @@ export default function MyScreen() {
                   flexShrink: 0,
                 }}
               >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
+                <StarIcon size={18} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
@@ -483,27 +474,25 @@ export default function MyScreen() {
                   fontSize: fs(18),
                   fontWeight: 900,
                   letterSpacing: -0.3,
-                  background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
+                  color: "var(--gold-deep)",
                   fontFamily: "var(--font-serif)",
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 3,
+                  gap: 5,
                   flexShrink: 0,
                 }}
               >
-                ★ {totalPoints}
+                <StarIcon size={14} />
+                {totalPoints}
               </div>
               <div
                 style={{
-                  fontSize: fs(20),
                   color: muted,
                   flexShrink: 0,
-                  lineHeight: 1,
+                  display: "inline-flex",
                 }}
               >
-                ›
+                <ChevronRightIcon size={20} />
               </div>
             </button>
           </div>
@@ -516,6 +505,7 @@ export default function MyScreen() {
             flexDirection: "column",
             gap: 12,
             flexShrink: 0,
+            animation: "fadeInUp 0.55s 0.15s ease backwards",
           }}
         >
           {/* Tabs — underline-style, role-colored */}
@@ -530,7 +520,7 @@ export default function MyScreen() {
             {[
               {
                 id: "member",
-                glyph: "✦",
+                Icon: SparkleIcon,
                 label: "我是組員",
                 color: "#3d7a2e",
                 accent: "#6dae4a",
@@ -538,7 +528,7 @@ export default function MyScreen() {
               },
               {
                 id: "leader",
-                glyph: "⚑",
+                Icon: FlagIcon,
                 label: "我是組長",
                 color: "#8c6d00",
                 accent: "#fec701",
@@ -546,6 +536,7 @@ export default function MyScreen() {
               },
             ].map((t) => {
               const active = teamTab === t.id;
+              const TabIcon = t.Icon;
               return (
                 <button
                   key={t.id}
@@ -574,13 +565,12 @@ export default function MyScreen() {
                 >
                   <span
                     style={{
-                      fontSize: fs(15),
                       transform: active ? "scale(1.15)" : "scale(1)",
                       transition: "transform 0.22s ease",
-                      display: "inline-block",
+                      display: "inline-flex",
                     }}
                   >
-                    {t.glyph}
+                    <TabIcon size={15} />
                   </span>
                   <span>{t.label}</span>
                   {/* Active indicator bar — overlaps container border */}
@@ -627,12 +617,11 @@ export default function MyScreen() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: fs(14),
                       color: "#3d7a2e",
                       flexShrink: 0,
                     }}
                   >
-                    ✦
+                    <SparkleIcon size={14} />
                   </div>
                   <div
                     style={{
@@ -662,9 +651,13 @@ export default function MyScreen() {
                       whiteSpace: "nowrap",
                       flexShrink: 0,
                       fontSize: "15px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
                     }}
                   >
-                    🔍 搜尋加入
+                    <SearchIcon size={14} />
+                    搜尋加入
                   </button>
                 </div>
               ) : (
@@ -706,12 +699,11 @@ export default function MyScreen() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: fs(14),
                       color: muted,
                       flexShrink: 0,
                     }}
                   >
-                    ⚑
+                    <FlagIcon size={14} />
                   </div>
                   <div
                     style={{
@@ -740,9 +732,13 @@ export default function MyScreen() {
                       boxShadow: "0 3px 10px rgba(254,210,52,0.4)",
                       whiteSpace: "nowrap",
                       flexShrink: 0,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 5,
                     }}
                   >
-                    ⚑ 建立團隊
+                    <FlagIcon size={12} />
+                    建立團隊
                   </button>
                 </div>
               ) : (
@@ -753,12 +749,8 @@ export default function MyScreen() {
                   variant="led"
                   fg={fg}
                   muted={muted}
-                  onApproveRequest={(reqId) =>
-                    approve.mutate({ teamId: ledTeam.id, reqId })
-                  }
-                  onRejectRequest={(reqId) =>
-                    reject.mutate({ teamId: ledTeam.id, reqId })
-                  }
+                  onApproveRequest={(reqId) => approve.mutate({ teamId: ledTeam.id, reqId })}
+                  onRejectRequest={(reqId) => reject.mutate({ teamId: ledTeam.id, reqId })}
                   onRenameTeam={(alias) =>
                     patchTeam.mutate({ teamId: ledTeam.id, body: { alias } })
                   }

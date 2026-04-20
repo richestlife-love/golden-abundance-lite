@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import FormShell from "../ui/FormShell";
 import FieldLabel from "../ui/FieldLabel";
 import SubmitButton from "../ui/SubmitButton";
+import { SearchIcon } from "../ui/Icon";
 
 // Demo-only list of searchable teams. The display_id values here are
 // synthetic; when selected, `onSubmit` receives them verbatim so the
@@ -115,12 +116,12 @@ export default function TeamForm({ onCancel, onSubmit, isSubmitting = false }: P
               left: 14,
               top: "50%",
               transform: "translateY(-50%)",
-              fontSize: fs(14),
               color: muted,
               pointerEvents: "none",
+              display: "inline-flex",
             }}
           >
-            🔍
+            <SearchIcon size={14} />
           </span>
           <input
             type="text"

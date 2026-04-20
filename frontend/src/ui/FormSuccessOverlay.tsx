@@ -1,6 +1,7 @@
 import { fs } from "../utils";
 import { useEffect } from "react";
 import type { SuccessData } from "./UIStateProvider";
+import { CheckIcon, GiftIcon } from "./Icon";
 
 type Props = SuccessData & { onDone: () => void };
 
@@ -45,14 +46,13 @@ export default function FormSuccessOverlay({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: fs(54),
             color: "#fff",
             margin: "0 auto 18px",
             boxShadow: `0 12px 36px ${color}60`,
             animation: "fadeInUp 0.5s 0.1s ease backwards",
           }}
         >
-          ✓
+          <CheckIcon size={54} />
         </div>
         <div
           style={{
@@ -84,12 +84,12 @@ export default function FormSuccessOverlay({
               color: "#FFE8B8",
               display: "inline-flex",
               alignItems: "center",
-              gap: 4,
+              gap: 6,
               textAlign: "center",
               maxWidth: 260,
             }}
           >
-            <span>🎁</span> {bonus}
+            <GiftIcon size={13} /> {bonus}
           </div>
         )}
       </div>

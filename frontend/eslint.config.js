@@ -27,11 +27,7 @@ export default tseslint.config(
     // component. Same shape for the UI state provider (context + provider
     // component live together). Disable the fast-refresh-only warning here
     // — HMR just does a full reload for these files, which is acceptable.
-    files: [
-      "src/routes/**/*.tsx",
-      "src/ui/UIStateProvider.tsx",
-      "src/auth/session.tsx",
-    ],
+    files: ["src/routes/**/*.tsx", "src/ui/UIStateProvider.tsx", "src/auth/session.tsx"],
     rules: { "react-refresh/only-export-components": "off" },
   },
 );

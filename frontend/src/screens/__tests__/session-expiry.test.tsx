@@ -24,8 +24,6 @@ describe("401 interceptor — session expiry", () => {
       returnTo: expect.stringContaining("/me"),
     });
     expect(tokenStore.get()).toBeNull();
-    await waitFor(() =>
-      expect(screen.getByText(/工作階段已過期/)).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText(/工作階段已過期/)).toBeInTheDocument());
   });
 });

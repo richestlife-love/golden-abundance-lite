@@ -45,7 +45,7 @@ export default function LaunchOverlay({ onDone }: Props) {
           color: "#987701",
         }}
       >
-        启航中…
+        啟航中…
       </div>
     </div>
   );

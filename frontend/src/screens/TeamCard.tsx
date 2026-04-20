@@ -3,6 +3,19 @@ import { useEffect, useState } from "react";
 import RenameTeamSheet from "./RenameTeamSheet";
 import ShareSheet from "./ShareSheet";
 import type { components } from "../api/schema";
+import {
+  CheckIcon,
+  CrossIcon,
+  DoorIcon,
+  FlagIcon,
+  MailIcon,
+  PencilIcon,
+  ShareIcon,
+  SparkleIcon,
+  StarIcon,
+  TrophyIcon,
+  UpArrowIcon,
+} from "../ui/Icon";
 
 type Team = components["schemas"]["Team"];
 
@@ -226,7 +239,15 @@ export default function TeamCard({
                   marginBottom: 7,
                 }}
               >
-                {isLeader ? "⚑ 組長團隊" : "✦ 組員身份"}
+                {isLeader ? (
+                  <>
+                    <FlagIcon size={10} /> 組長團隊
+                  </>
+                ) : (
+                  <>
+                    <SparkleIcon size={10} /> 組員身份
+                  </>
+                )}
               </div>
               <div
                 style={{
@@ -256,16 +277,14 @@ export default function TeamCard({
                       border: rc.borderStrong,
                       background: "rgba(255,255,255,0.85)",
                       color: rc.primary,
-                      fontSize: fs(11),
                       cursor: "pointer",
                       padding: 0,
-                      lineHeight: 1,
                       display: "inline-flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
-                    ✎
+                    <PencilIcon size={12} />
                   </button>
                 )}
                 {!isLeader && onLeaveTeam && (
@@ -453,14 +472,14 @@ export default function TeamCard({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: fs(22),
+                color: "#8c6d00",
                 flexShrink: 0,
                 position: "relative",
                 zIndex: 1,
                 boxShadow: "var(--shadow-1), inset 0 0 0 1.5px rgba(254,199,1,0.4)",
               }}
             >
-              📨
+              <MailIcon size={22} />
             </div>
             <div style={{ flex: 1, minWidth: 0, position: "relative", zIndex: 1 }}>
               <div
@@ -476,7 +495,7 @@ export default function TeamCard({
                   marginBottom: 3,
                 }}
               >
-                <span style={{ fontSize: fs(9) }}>✦</span> 組長專屬任務
+                <SparkleIcon size={10} /> 組長專屬任務
               </div>
               <div
                 style={{
@@ -535,20 +554,7 @@ export default function TeamCard({
                 boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
               }}
             >
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                <polyline points="16 6 12 2 8 6" />
-                <line x1="12" y1="2" x2="12" y2="15" />
-              </svg>
+              <ShareIcon size={13} />
               分享
             </div>
           </button>
@@ -605,7 +611,9 @@ export default function TeamCard({
                   letterSpacing: -0.8,
                 }}
               >
-                <span style={{ color: rc.starIcon, fontSize: fs(22) }}>★</span>
+                <span style={{ color: rc.starIcon, display: "inline-flex" }}>
+                  <StarIcon size={22} />
+                </span>
                 {teamPoints.toLocaleString()}
               </span>
             </div>
@@ -620,7 +628,7 @@ export default function TeamCard({
                 marginTop: 2,
               }}
             >
-              <span style={{ fontSize: fs(9) }}>▲</span>
+              <UpArrowIcon size={9} />
               本週 +{weekPoints.toLocaleString()}
             </div>
           </div>
@@ -685,9 +693,20 @@ export default function TeamCard({
                 fontWeight: 700,
                 color: muted,
                 marginTop: 2,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
               }}
             >
-              {teamRank <= 3 ? "🏆 進入前三" : teamRank <= 10 ? "進入前十" : "持續努力中"}
+              {teamRank <= 3 ? (
+                <>
+                  <TrophyIcon size={12} /> 進入前三
+                </>
+              ) : teamRank <= 10 ? (
+                "進入前十"
+              ) : (
+                "持續努力中"
+              )}
             </div>
           </div>
         </div>
@@ -848,10 +867,10 @@ export default function TeamCard({
                       flexShrink: 0,
                       display: "flex",
                       alignItems: "center",
-                      gap: 3,
+                      gap: 4,
                     }}
                   >
-                    <span style={{ fontSize: fs(11) }}>★</span>
+                    <StarIcon size={11} />
                     {m.points.toLocaleString()}
                   </div>
                 </div>
@@ -937,17 +956,14 @@ export default function TeamCard({
                       cursor: "pointer",
                       background: "linear-gradient(135deg, #7FCFA3, #5BAE85)",
                       color: "#fff",
-                      fontSize: fs(14),
-                      fontWeight: 800,
                       fontFamily: "inherit",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
-                      lineHeight: 1,
                     }}
                   >
-                    ✓
+                    <CheckIcon size={14} />
                   </button>
                   <button
                     type="button"
@@ -962,17 +978,14 @@ export default function TeamCard({
                       cursor: "pointer",
                       background: "transparent",
                       color: muted,
-                      fontSize: fs(13),
-                      fontWeight: 700,
                       fontFamily: "inherit",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
-                      lineHeight: 1,
                     }}
                   >
-                    ✕
+                    <CrossIcon size={13} />
                   </button>
                 </div>
               ))}
@@ -1067,10 +1080,10 @@ export default function TeamCard({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: fs(26),
+                color: "#b03e3e",
               }}
             >
-              🚪
+              <DoorIcon size={26} />
             </div>
             <div
               style={{

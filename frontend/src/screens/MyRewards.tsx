@@ -1,5 +1,6 @@
 import { fs } from "../utils";
 import type { components } from "../api/schema";
+import { CheckIcon, GiftIcon, LockIcon, PartyPopperIcon, StarIcon } from "../ui/Icon";
 
 type Reward = components["schemas"]["Reward"];
 
@@ -136,16 +137,19 @@ export default function MyRewards({
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div
               style={{
-                padding: "3px 9px",
+                padding: "3px 9px 3px 8px",
                 borderRadius: 999,
                 background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                 fontWeight: 800,
                 letterSpacing: 0.3,
                 fontSize: fs(13),
                 color: "#fff",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
               }}
             >
-              🎁 我的獎勵
+              <GiftIcon size={13} /> 我的獎勵
             </div>
           </div>
           <div style={{ fontSize: fs(11), color: muted, fontWeight: 600 }}>
@@ -164,6 +168,7 @@ export default function MyRewards({
           border: "1px solid rgba(254,199,1,0.4)",
           position: "relative",
           overflow: "hidden",
+          animation: "fadeInUp 0.55s ease",
         }}
       >
         {/* sparkle dots */}
@@ -204,7 +209,21 @@ export default function MyRewards({
                 {renderIcon("crown", 24)}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: fs(14), fontWeight: 800, color: fg }}>金牌志工達成 🎉</div>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: fs(14),
+                    fontWeight: 800,
+                    color: fg,
+                  }}
+                >
+                  金牌志工達成
+                  <span style={{ color: "#8D71C7", display: "inline-flex" }}>
+                    <PartyPopperIcon size={14} />
+                  </span>
+                </div>
                 <div style={{ fontSize: fs(11), color: muted, marginTop: 2 }}>
                   你已解鎖所有階段獎勵
                 </div>
@@ -337,7 +356,7 @@ export default function MyRewards({
           msOverflowStyle: "none",
         }}
       >
-        {tiers.map((t) => {
+        {tiers.map((t, tIdx) => {
           const unlocked = totalPoints >= t.required;
           const current = !unlocked && t === nextTier;
           return (
@@ -348,6 +367,7 @@ export default function MyRewards({
                 flexShrink: 0,
                 width: 118,
                 padding: "12px 10px 10px",
+                animation: `fadeInUp 0.5s ${0.12 + tIdx * 0.06}s ease backwards`,
                 borderRadius: 16,
                 background: unlocked
                   ? `linear-gradient(160deg, ${t.color}28, ${t.gradEnd}14)`
@@ -401,11 +421,10 @@ export default function MyRewards({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: fs(10),
                       color: muted,
                     }}
                   >
-                    🔒
+                    <LockIcon size={10} />
                   </div>
                 )}
                 {unlocked && (
@@ -419,15 +438,13 @@ export default function MyRewards({
                       borderRadius: 999,
                       background: "linear-gradient(135deg, #7FCFA3, #5BAE85)",
                       color: "#fff",
-                      fontSize: fs(11),
-                      fontWeight: 900,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       border: "2px solid #fff9e6",
                     }}
                   >
-                    ✓
+                    <CheckIcon size={10} />
                   </div>
                 )}
               </div>
@@ -459,9 +476,12 @@ export default function MyRewards({
                   fontSize: fs(10),
                   fontWeight: 800,
                   color: unlocked ? "#987701" : muted,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 3,
                 }}
               >
-                ★ {t.required.toLocaleString()}
+                <StarIcon size={10} /> {t.required.toLocaleString()}
               </div>
             </div>
           );
@@ -529,6 +549,7 @@ export default function MyRewards({
                 alignItems: "center",
                 gap: 12,
                 borderTop: i === 0 ? "none" : "1px solid rgba(254,199,1,0.1)",
+                animation: `fadeInUp 0.45s ${0.25 + i * 0.05}s ease backwards`,
               }}
             >
               <div
@@ -539,15 +560,13 @@ export default function MyRewards({
                   flexShrink: 0,
                   background: "linear-gradient(135deg, #fec701, #fed234)",
                   color: "#fff",
-                  fontSize: fs(15),
-                  fontWeight: 800,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: "0 4px 10px rgba(254,199,1,0.35)",
                 }}
               >
-                🎁
+                <GiftIcon size={16} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div

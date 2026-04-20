@@ -1,6 +1,26 @@
 import { useNavigate } from "@tanstack/react-router";
 import { getEffectiveStatus, daysUntil, fs } from "../utils";
 import type { components } from "../api/schema";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CheckIcon,
+  ClockIcon,
+  FlagIcon,
+  GiftIcon,
+  HourglassIcon,
+  LinkIcon,
+  LockIcon,
+  ShareIcon,
+  SparkleIcon,
+  CircleIcon,
+  FlowerIcon,
+  SparkleGlyphXL,
+  CircleGlyphXL,
+  FlowerGlyphXL,
+  StarIcon,
+  TrophyIcon,
+} from "../ui/Icon";
 
 type Task = components["schemas"]["Task"];
 
@@ -31,7 +51,13 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
   const { status, unmet } = getEffectiveStatus(t, tasks);
   const daysLeft = daysUntil(t.due_at);
   const dueDisplay = t.due_at ? t.due_at.slice(0, 10) : null;
-  const icon = t.tag === "探索" ? "✦" : t.tag === "社区" ? "◉" : "❋";
+  const TagInlineIcon = t.tag === "探索" ? SparkleIcon : t.tag === "社区" ? CircleIcon : FlowerIcon;
+  const TagWatermarkIcon =
+    t.tag === "探索" ? SparkleGlyphXL : t.tag === "社区" ? CircleGlyphXL : FlowerGlyphXL;
+  // API tag enum uses Simplified "社区"; display as Traditional "社區" to stay
+  // consistent with the rest of the zh-Hant UI without requiring a backend
+  // schema change.
+  const tagLabel = t.tag === "社区" ? "社區" : t.tag;
   const urgent = status === "todo" && daysLeft != null && daysLeft > 0 && daysLeft <= 7;
 
   const statusChip =
@@ -51,7 +77,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
 
   const cta =
     status === "completed"
-      ? { label: "✓ 已完成", disabled: true, tone: "success" }
+      ? { label: "已完成", disabled: true, tone: "success" }
       : status === "expired"
         ? { label: "此任務已過期", disabled: true, tone: "muted" }
         : isTeamTask && !teamHasTeam && status !== "locked"
@@ -114,6 +140,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
             justifyContent: "space-between",
             padding: "6px 16px 6px 12px",
             flexShrink: 0,
+            animation: "fadeInDown 0.5s ease",
           }}
         >
           <button
@@ -134,15 +161,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
               fontFamily: "inherit",
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M15 18l-6-6 6-6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <ChevronLeftIcon size={20} />
             返回
           </button>
           <button
@@ -155,11 +174,13 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
               padding: 8,
               borderRadius: 10,
               color: muted,
-              fontSize: fs(18),
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
             title="分享"
           >
-            ⇪
+            <ShareIcon size={20} />
           </button>
         </div>
 
@@ -174,23 +195,24 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
             position: "relative",
             overflow: "hidden",
             flexShrink: 0,
+            animation: "fadeInUp 0.6s 0.05s ease backwards",
           }}
         >
-          {/* Giant background glyph */}
+          {/* Giant background glyph — SVG so the mark renders identically
+              across platforms at any size (emoji/Unicode fallbacks would not). */}
           <div
+            aria-hidden
             style={{
               position: "absolute",
-              right: -20,
-              bottom: -40,
-              fontSize: fs(220),
-              color: "rgba(255,255,255,0.13)",
-              lineHeight: 1,
-              fontWeight: 900,
+              right: -32,
+              bottom: -48,
+              color: "rgba(255,255,255,0.16)",
+              lineHeight: 0,
               pointerEvents: "none",
               userSelect: "none",
             }}
           >
-            {status === "locked" ? "🔒" : icon}
+            {status === "locked" ? <LockIcon size={240} /> : <TagWatermarkIcon size={240} />}
           </div>
 
           <div
@@ -208,7 +230,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
               letterSpacing: 0.5,
             }}
           >
-            <span>{icon}</span> {t.tag}
+            <TagInlineIcon size={12} /> {tagLabel}
           </div>
 
           <div
@@ -268,7 +290,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 5,
                   padding: "4px 10px",
                   borderRadius: 999,
                   background: "rgba(0,0,0,0.15)",
@@ -278,7 +300,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                   fontWeight: 600,
                 }}
               >
-                <span style={{ fontSize: fs(10) }}>⏱</span>
+                <ClockIcon size={11} />
                 截止 {dueDisplay}
                 {urgent ? ` · 剩 ${daysLeft} 天` : ""}
               </div>
@@ -325,6 +347,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
               alignItems: "center",
               gap: 14,
               flexShrink: 0,
+              animation: "fadeInUp 0.5s 0.15s ease backwards",
             }}
           >
             <div
@@ -337,11 +360,11 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: fs(22),
+                color: "#fff",
                 boxShadow: "0 4px 14px rgba(255,180,80,0.35)",
               }}
             >
-              🏆
+              <TrophyIcon size={24} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
@@ -362,12 +385,12 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                   marginTop: 2,
                   letterSpacing: -0.2,
                   display: "inline-flex",
-                  alignItems: "baseline",
+                  alignItems: "center",
                   gap: 4,
                 }}
               >
                 <span>+{t.points}</span>
-                <span style={{ fontSize: fs(18) }}>★</span>
+                <StarIcon size={18} />
                 <span style={{ fontSize: fs(13), fontWeight: 700, opacity: 0.7 }}>星點</span>
               </div>
             </div>
@@ -388,6 +411,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                 gap: 14,
                 flexShrink: 0,
                 boxShadow: "0 6px 18px rgba(184,164,227,0.22)",
+                animation: "fadeInUp 0.5s 0.2s ease backwards",
               }}
             >
               {/* sparkle accents */}
@@ -427,13 +451,12 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: fs(24),
                   color: "#fff",
                   boxShadow: "0 6px 18px rgba(148,120,207,0.45)",
                   position: "relative",
                 }}
               >
-                🎁
+                <GiftIcon size={24} />
                 <div
                   style={{
                     position: "absolute",
@@ -446,13 +469,11 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: fs(11),
                     color: "#fff",
-                    fontWeight: 800,
                     boxShadow: "0 2px 6px rgba(254,199,1,0.5)",
                   }}
                 >
-                  ✦
+                  <SparkleIcon size={10} />
                 </div>
               </div>
               <div
@@ -465,6 +486,9 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
               >
                 <div
                   style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
                     fontSize: fs(10),
                     fontWeight: 700,
                     letterSpacing: 1.5,
@@ -472,7 +496,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                     textTransform: "uppercase",
                   }}
                 >
-                  ✦ 限定贈品
+                  <SparkleIcon size={10} /> 限定贈品
                 </div>
                 <div
                   style={{
@@ -510,6 +534,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                 border: cardBorder,
                 backdropFilter: "blur(10px)",
                 flexShrink: 0,
+                animation: "fadeInUp 0.5s 0.25s ease backwards",
               }}
             >
               <div
@@ -520,7 +545,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                   marginBottom: 10,
                 }}
               >
-                <span style={{ fontSize: fs(14) }}>🔗</span>
+                <LinkIcon size={14} />
                 <div style={{ fontSize: fs(13), fontWeight: 700, color: fg }}>前置任務</div>
                 <div style={{ fontSize: fs(11), color: muted, marginLeft: "auto" }}>
                   {prereqTasks.filter((p) => p.status === "completed").length}/{prereqTasks.length}{" "}
@@ -564,11 +589,9 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          fontSize: fs(12),
-                          fontWeight: 700,
                         }}
                       >
-                        {done ? "✓" : ""}
+                        {done && <CheckIcon size={12} />}
                       </div>
                       <div
                         style={{
@@ -587,7 +610,9 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                       <div style={{ fontSize: fs(11), color: muted }}>
                         {done ? "已完成" : p.status === "in_progress" ? "進行中" : "待開始"}
                       </div>
-                      <span style={{ color: muted, fontSize: fs(12) }}>›</span>
+                      <span style={{ color: muted, display: "inline-flex" }}>
+                        <ChevronRightIcon size={12} />
+                      </span>
                     </button>
                   );
                 })}
@@ -607,6 +632,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                 border: teamHasTeam ? "1px solid rgba(254,199,1,0.4)" : cardBorder,
                 backdropFilter: "blur(10px)",
                 flexShrink: 0,
+                animation: "fadeInUp 0.5s 0.3s ease backwards",
               }}
             >
               <div
@@ -624,15 +650,13 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                     borderRadius: 12,
                     background: "linear-gradient(135deg, var(--gold-light), var(--gold))",
                     color: "#fff",
-                    fontSize: fs(18),
-                    fontWeight: 700,
                     flexShrink: 0,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  ⚑
+                  <FlagIcon size={18} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: fs(13), fontWeight: 700, color: fg }}>組隊進度</div>
@@ -707,13 +731,11 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: fs(10),
-                        fontWeight: 700,
                         color: filled ? "#fff" : muted,
                         boxShadow: filled ? "0 3px 10px rgba(254,199,1,0.35)" : "none",
                       }}
                     >
-                      {isLeader ? "⚑" : filled ? "✓" : ""}
+                      {isLeader ? <FlagIcon size={14} /> : filled ? <CheckIcon size={14} /> : null}
                     </div>
                   );
                 })}
@@ -735,14 +757,19 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
               {teamHasTeam && teamState.total >= teamState.cap && (
                 <div
                   style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 5,
                     fontSize: fs(11),
                     marginTop: 12,
+                    width: "100%",
                     textAlign: "center",
                     color: "#2E9B65",
                     fontWeight: 700,
                   }}
                 >
-                  ✓ 已達標·可繼續邀請更多夥伴加入
+                  <CheckIcon size={12} /> 已達標·可繼續邀請更多夥伴加入
                 </div>
               )}
               {!teamHasTeam && (
@@ -770,6 +797,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                 border: cardBorder,
                 backdropFilter: "blur(10px)",
                 flexShrink: 0,
+                animation: "fadeInUp 0.5s 0.3s ease backwards",
               }}
             >
               <div
@@ -823,14 +851,12 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                         background: s.done ? t.color : "transparent",
                         border: s.done ? "none" : `1.5px solid ${"rgba(120,110,150,0.3)"}`,
                         color: "#fff",
-                        fontSize: fs(11),
-                        fontWeight: 700,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
                     >
-                      {s.done ? "✓" : ""}
+                      {s.done && <CheckIcon size={12} />}
                     </div>
                     <div
                       style={{
@@ -857,6 +883,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
               border: cardBorder,
               backdropFilter: "blur(10px)",
               flexShrink: 0,
+              animation: "fadeInUp 0.5s 0.35s ease backwards",
             }}
           >
             <div
@@ -892,7 +919,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
                   color: muted,
                 }}
               >
-                <span>⏲</span> 預估需時約 {t.est_minutes} 分鐘
+                <HourglassIcon size={12} /> 預估需時約 {t.est_minutes} 分鐘
               </div>
             )}
           </div>
@@ -932,11 +959,16 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
               border: cta.tone === "secondary" ? `1.5px solid ${t.color}` : "none",
               boxShadow: cta.disabled ? "none" : `0 8px 24px ${t.color}50`,
               transition: "transform 0.15s, box-shadow 0.15s",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
             }}
             onMouseDown={(e) => !cta.disabled && (e.currentTarget.style.transform = "scale(0.98)")}
             onMouseUp={(e) => !cta.disabled && (e.currentTarget.style.transform = "scale(1)")}
             onMouseLeave={(e) => !cta.disabled && (e.currentTarget.style.transform = "scale(1)")}
           >
+            {status === "completed" && <CheckIcon size={18} />}
             {cta.label}
           </button>
         </div>

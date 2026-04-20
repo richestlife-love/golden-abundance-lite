@@ -31,13 +31,13 @@ export default function GlobalStyles() {
         --peach-deep: #F39770;
 
         /* Typography */
-        --font-sans: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif;
-        --font-serif: "Noto Serif SC", serif;
+        --font-sans: "Noto Sans TC", "PingFang TC", -apple-system, sans-serif;
+        --font-serif: "Noto Serif TC", serif;
         /* Display tier — reserved for hero headlines, the brand mark, and
            oversized numerals. Pairs a refined Chinese calligraphic serif
            (XiaoWei) with a classical Latin serif (Cormorant) so mixed-script
            headlines share one voice. */
-        --font-display: "ZCOOL XiaoWei", "Cormorant Garamond", "Noto Serif SC", serif;
+        --font-display: "ZCOOL XiaoWei", "Cormorant Garamond", "Noto Serif TC", serif;
 
         /* Radius scale — use tokens over raw numbers so shapes stay in sync. */
         --radius-xs: 8px;   /* chips, inline badges */
@@ -121,7 +121,14 @@ export default function GlobalStyles() {
         100% { transform: translateX(220%) skewX(-18deg); opacity: 0; }
       }
       @media (prefers-reduced-motion: reduce) {
-        .ga-sheen { animation: none !important; }
+        /* Honour OS-level reduced-motion — all load-in animations collapse
+           to a static reveal, and infinite loops (sheen, sparkles, orbit,
+           bobble) stop entirely. */
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+        }
       }
     `}</style>
   );
