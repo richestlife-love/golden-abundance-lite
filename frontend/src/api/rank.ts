@@ -1,8 +1,16 @@
 // frontend/src/api/rank.ts
-import type { components } from "./schema";
+import type { components, paths } from "./schema";
 import { apiFetch } from "./client";
 
-export type RankPeriod = "week" | "month" | "all_time";
+// Derived from the backend's generated OpenAPI rather than hand-maintained.
+// If the backend changes the accepted period set (adds "quarter", drops
+// "all_time", etc.), `just gen-types` regenerates `schema.d.ts` and the
+// drift lands in every caller at typecheck time — no drift-guard unit
+// test needed.
+export type RankPeriod = NonNullable<
+  NonNullable<paths["/api/v1/rank/users"]["get"]["parameters"]["query"]>["period"]
+>;
+
 type UserRankEntry = components["schemas"]["UserRankEntry"];
 type TeamRankEntry = components["schemas"]["TeamRankEntry"];
 type Paginated<T> = { items: T[]; next_cursor: string | null };
