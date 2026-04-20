@@ -11,19 +11,23 @@ on the unique constraint, which is acceptable for a dev seed.
 
 import asyncio
 from datetime import UTC, datetime, timedelta
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.db.engine import get_session_maker
 from backend.db.models import (
+    JoinRequestRow,
     NewsItemRow,
     TaskDefRequiresRow,
     TaskDefRow,
     TaskStepDefRow,
+    TeamRow,
     UserRow,
 )
 from backend.services.team import create_led_team
+from backend.services.team_join import JoinConflictError, create_join_request
 from backend.services.user import upsert_user_by_email
 
 DEMO_USERS: list[dict[str, str]] = [
@@ -87,6 +91,15 @@ DEMO_USERS: list[dict[str, str]] = [
         "country": "TW",
         "location": "台南",
     },
+]
+
+# γ-with-two-leaders fan-out: two pending requests each at jet and ami teams.
+# Exercises leader-approval UX (team-detail pending list) for Phase 4 plumbing.
+DEMO_FANOUT: list[tuple[str, str]] = [
+    ("alex@demo.gal", "jet@demo.gal"),
+    ("mei@demo.gal", "jet@demo.gal"),
+    ("kai@demo.gal", "ami@demo.gal"),
+    ("yu@demo.gal", "ami@demo.gal"),
 ]
 
 
@@ -236,6 +249,47 @@ async def _upsert_demo_users(session: AsyncSession) -> dict[str, UserRow]:
     return out
 
 
+async def _upsert_demo_join_requests(session: AsyncSession, users: dict[str, UserRow]) -> None:
+    """Seed the γ-with-two-leaders pending join requests.
+
+    Idempotent: any requester with a pre-existing pending request
+    anywhere is skipped (Phase 5c invariant: at-most-one-pending-per-user).
+    ``create_join_request`` re-enforces the invariant and raises
+    ``JoinConflictError`` if violated — we wrap it defensively so a
+    partial-seed replay can't abort the whole run.
+    """
+    teams_by_leader: dict[UUID, TeamRow] = {
+        t.leader_id: t for t in (await session.execute(select(TeamRow))).scalars().all()
+    }
+    existing_pending_by_user: dict[UUID, list[JoinRequestRow]] = {}
+    for req in (
+        (
+            await session.execute(
+                select(JoinRequestRow).where(JoinRequestRow.status == "pending")  # ty: ignore[invalid-argument-type]
+            )
+        )
+        .scalars()
+        .all()
+    ):
+        existing_pending_by_user.setdefault(req.user_id, []).append(req)
+
+    for requester_email, leader_email in DEMO_FANOUT:
+        requester = users.get(requester_email)
+        leader = users.get(leader_email)
+        if requester is None or leader is None:
+            continue
+        if existing_pending_by_user.get(requester.id):
+            continue
+        team = teams_by_leader.get(leader.id)
+        if team is None:
+            continue
+        try:
+            await create_join_request(session, team=team, requester=requester)
+        except JoinConflictError:
+            continue
+    await session.flush()
+
+
 async def run() -> None:
     # get_session_maker() resolves lazily against whatever engine
     # backend.db.engine is currently bound to (production by default;
@@ -244,7 +298,8 @@ async def run() -> None:
     async with get_session_maker()() as session:
         await _upsert_task_defs(session)
         await _upsert_news(session)
-        await _upsert_demo_users(session)
+        users = await _upsert_demo_users(session)
+        await _upsert_demo_join_requests(session, users)
         await session.commit()
     print("seed: done")
 
