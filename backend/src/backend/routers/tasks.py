@@ -42,6 +42,8 @@ async def submit(
     if task_def is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
     try:
-        return await submit_task(session, caller=me, task_def=task_def, body=body)
+        response = await submit_task(session, caller=me, task_def=task_def, body=body)
     except TaskSubmitError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+    await session.commit()
+    return response

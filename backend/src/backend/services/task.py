@@ -242,7 +242,6 @@ async def submit_task(
     await session.flush()
 
     reward_row = await create_reward_if_bonus(session, user=caller, task_def=task_def)
-    await session.commit()
 
     contract_task = await row_to_contract_task(session, task_def, caller=caller)
     return TaskSubmissionResponse(
