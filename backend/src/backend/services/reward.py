@@ -65,17 +65,20 @@ async def maybe_grant_challenge_rewards(session: AsyncSession, *, user: UserRow)
     total = max(led_total, joined_total)
 
     for td in challenge_defs:
-        assert td.cap is not None  # enforced by row_to_contract_task; re-verify here
-        if total < td.cap:
+        cap, bonus = td.cap, td.bonus
+        # ``bonus`` is non-None by the query filter; ``cap`` is non-None for
+        # any bonused challenge by convention (see row_to_contract_task).
+        # Both are re-checked here so this function is safe if those
+        # invariants ever slip — asserts would be stripped under ``-O``.
+        if cap is None or bonus is None or total < cap:
             continue
-        assert td.bonus is not None  # filtered by the query above
         stmt = (
             pg_insert(RewardRow)
             .values(
                 user_id=user.id,
                 task_def_id=td.id,
                 task_title=td.title,
-                bonus=td.bonus,
+                bonus=bonus,
                 status="earned",
             )
             .on_conflict_do_nothing(constraint="uq_reward_user_task")

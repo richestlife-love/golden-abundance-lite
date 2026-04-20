@@ -6,17 +6,15 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
-from backend.contract.common import UserRef
+from backend.contract.common import StrictModel, UserRef
 from backend.contract.user import User
 
 
-class JoinRequest(BaseModel):
+class JoinRequest(StrictModel):
     """A pending/approved/rejected request to join a team. Visible to
     the team's leader and to the requester themselves."""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID
     team_id: UUID
@@ -25,15 +23,13 @@ class JoinRequest(BaseModel):
     requested_at: datetime
 
 
-class Team(BaseModel):
+class Team(StrictModel):
     """Full team view.
 
     `role` reflects the caller's relationship to the team (leader /
     member / None for outsiders). `requests` is populated only when the
     caller is the leader; members and outsiders see `None`.
     """
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID
     display_id: str = Field(pattern=r"^T-[A-Z0-9]{3,10}$")
@@ -51,33 +47,27 @@ class Team(BaseModel):
     created_at: datetime
 
 
-class TeamUpdate(BaseModel):
+class TeamUpdate(StrictModel):
     """Request body for PATCH /teams/{id} (leader only). All fields
     optional for partial update."""
-
-    model_config = ConfigDict(extra="forbid")
 
     name: str | None = None
     alias: str | None = None
     topic: str | None = None
 
 
-class MeTeamsResponse(BaseModel):
+class MeTeamsResponse(StrictModel):
     """Response body for GET /me/teams. Named envelope over an inline
     dict so Phase 4 TS codegen and Phase 5 FastAPI share one OpenAPI
     schema."""
-
-    model_config = ConfigDict(extra="forbid")
 
     led: Team | None = None
     joined: Team | None = None
 
 
-class MeProfileCreateResponse(BaseModel):
+class MeProfileCreateResponse(StrictModel):
     """Response body for POST /me/profile. Returned atomically with the
     profile completion and led-team creation."""
-
-    model_config = ConfigDict(extra="forbid")
 
     user: User
     led_team: Team

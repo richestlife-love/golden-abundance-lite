@@ -8,14 +8,14 @@ Field derivation rules (server-authoritative):
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import EmailStr, Field
+
+from backend.contract.common import StrictModel
 
 
-class User(BaseModel):
+class User(StrictModel):
     """Authenticated caller's profile. Returned by GET /me and embedded
     in AuthResponse.user on sign-in."""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID
     display_id: str = Field(pattern=r"^U[A-Z0-9]{3,7}$")
@@ -35,12 +35,10 @@ class User(BaseModel):
     created_at: datetime
 
 
-class ProfileCreate(BaseModel):
+class ProfileCreate(StrictModel):
     """Request body for POST /me/profile (first-time profile completion).
     Side effect on the backend: user's led team is created in the same
     transaction."""
-
-    model_config = ConfigDict(extra="forbid")
 
     zh_name: str = Field(min_length=1)
     en_name: str | None = None
@@ -53,10 +51,8 @@ class ProfileCreate(BaseModel):
     location: str = Field(min_length=1)
 
 
-class ProfileUpdate(BaseModel):
+class ProfileUpdate(StrictModel):
     """Request body for PATCH /me. Partial update; all fields optional."""
-
-    model_config = ConfigDict(extra="forbid")
 
     zh_name: str | None = None
     en_name: str | None = None

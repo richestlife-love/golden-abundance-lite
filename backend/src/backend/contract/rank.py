@@ -4,17 +4,13 @@ endpoint level."""
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
-
-from backend.contract.common import TeamRef, UserRef
+from backend.contract.common import StrictModel, TeamRef, UserRef
 
 RankPeriod = Literal["week", "month", "all_time"]
 
 
-class UserRankEntry(BaseModel):
+class UserRankEntry(StrictModel):
     """Single entry in the user leaderboard."""
-
-    model_config = ConfigDict(extra="forbid")
 
     user: UserRef
     rank: int
@@ -22,10 +18,8 @@ class UserRankEntry(BaseModel):
     week_points: int
 
 
-class TeamRankEntry(BaseModel):
+class TeamRankEntry(StrictModel):
     """Single entry in the team leaderboard."""
-
-    model_config = ConfigDict(extra="forbid")
 
     team: TeamRef
     rank: int

@@ -5,13 +5,11 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from backend.contract.common import StrictModel
 
 
-class NewsItem(BaseModel):
+class NewsItem(StrictModel):
     """A single entry in the home-screen news carousel."""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID
     title: str

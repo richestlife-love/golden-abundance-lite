@@ -48,7 +48,7 @@ async def complete_profile(
     if me.profile_complete:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Profile already complete.",
+            detail="Profile already complete",
         )
     # Atomic: all profile fields + flag + led team, single commit.
     me.zh_name = body.zh_name

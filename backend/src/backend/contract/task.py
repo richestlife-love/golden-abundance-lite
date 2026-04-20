@@ -14,15 +14,14 @@ from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
+from backend.contract.common import StrictModel
 from backend.contract.reward import Reward
 
 
-class TaskStep(BaseModel):
+class TaskStep(StrictModel):
     """One step in a task's checklist. `done` reflects the caller's state."""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID
     label: str
@@ -30,14 +29,12 @@ class TaskStep(BaseModel):
     order: int
 
 
-class TeamChallengeProgress(BaseModel):
+class TeamChallengeProgress(StrictModel):
     """Aggregate progress for a team-challenge task.
 
     `total = max(led_total, joined_total)` — the higher of the caller's
     led-team or joined-team head count (server-computed).
     """
-
-    model_config = ConfigDict(extra="forbid")
 
     total: int
     cap: int
@@ -45,11 +42,9 @@ class TeamChallengeProgress(BaseModel):
     joined_total: int
 
 
-class Task(BaseModel):
+class Task(StrictModel):
     """User-facing task view. Server-side merge of the global task
     definition and the caller's per-user state."""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID
     display_id: str
@@ -73,11 +68,9 @@ class Task(BaseModel):
     created_at: datetime
 
 
-class InterestFormBody(BaseModel):
+class InterestFormBody(StrictModel):
     """POST /tasks/{id}/submit body for tasks with form_type == 'interest'
     (task 1)."""
-
-    model_config = ConfigDict(extra="forbid")
 
     form_type: Literal["interest"]
     name: str = Field(min_length=1)
@@ -87,11 +80,9 @@ class InterestFormBody(BaseModel):
     availability: list[str] = Field(min_length=1)
 
 
-class TicketFormBody(BaseModel):
+class TicketFormBody(StrictModel):
     """POST /tasks/{id}/submit body for tasks with form_type == 'ticket'
     (task 2)."""
-
-    model_config = ConfigDict(extra="forbid")
 
     form_type: Literal["ticket"]
     name: str = Field(min_length=1)
@@ -112,13 +103,11 @@ TypeScript clients get a clean discriminated union.
 """
 
 
-class TaskSubmissionResponse(BaseModel):
+class TaskSubmissionResponse(StrictModel):
     """Response body for POST /tasks/{id}/submit.
 
     `reward` is null when the task has `bonus is None`.
     """
-
-    model_config = ConfigDict(extra="forbid")
 
     task: Task
     reward: Reward | None = None

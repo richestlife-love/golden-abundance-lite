@@ -8,13 +8,11 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from backend.contract.common import StrictModel
 
 
-class Reward(BaseModel):
+class Reward(StrictModel):
     """A user's earned (or claimed) reward."""
-
-    model_config = ConfigDict(extra="forbid")
 
     id: UUID
     user_id: UUID

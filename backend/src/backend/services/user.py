@@ -34,7 +34,8 @@ async def upsert_user_by_email(session: AsyncSession, *, email: str) -> UserRow:
     return row
 
 
-def _derive_name(row: UserRow) -> str:
+def derive_user_name(row: UserRow) -> str:
+    """Display name fallback chain: zh_name → nickname → email local-part."""
     if row.zh_name:
         return row.zh_name
     if row.nickname:
@@ -50,7 +51,7 @@ def row_to_contract_user(row: UserRow) -> ContractUser:
         zh_name=row.zh_name,
         en_name=row.en_name,
         nickname=row.nickname,
-        name=_derive_name(row),
+        name=derive_user_name(row),
         phone=row.phone,
         phone_code=row.phone_code,
         line_id=row.line_id,

@@ -48,6 +48,7 @@ from backend.services.pagination import (
     decode_cursor,
     encode_cursor,
 )
+from backend.services.user import derive_user_name
 
 
 def _since(period: RankPeriod) -> datetime | None:
@@ -155,14 +156,13 @@ async def leaderboard_users(
     items: list[UserRankEntry] = []
     for offset, (pts, uid) in enumerate(page):
         u = users[uid]
-        name = u.zh_name or u.nickname or u.email.split("@", 1)[0]
         _, week_pts = pts_by_user.get(uid, (0, 0))
         items.append(
             UserRankEntry(
                 user=UserRef(
                     id=u.id,
                     display_id=u.display_id,
-                    name=name,
+                    name=derive_user_name(u),
                     avatar_url=u.avatar_url,
                 ),
                 rank=start_idx + offset + 1,
@@ -227,7 +227,6 @@ async def leaderboard_teams(
     for offset, (pts, tid) in enumerate(page):
         t = team_by_id[tid]
         leader = leaders[t.leader_id]
-        leader_name = leader.zh_name or leader.nickname or leader.email.split("@", 1)[0]
         items.append(
             TeamRankEntry(
                 team=TeamRef(
@@ -238,7 +237,7 @@ async def leaderboard_teams(
                     leader=UserRef(
                         id=leader.id,
                         display_id=leader.display_id,
-                        name=leader_name,
+                        name=derive_user_name(leader),
                         avatar_url=leader.avatar_url,
                     ),
                 ),

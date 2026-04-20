@@ -8,28 +8,25 @@ only, and is never used as a request or response body.
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import EmailStr
 
+from backend.contract.common import StrictModel
 from backend.contract.user import User
 
 
-class GoogleAuthRequest(BaseModel):
+class GoogleAuthRequest(StrictModel):
     """Request body for POST /auth/google."""
-
-    model_config = ConfigDict(extra="forbid")
 
     id_token: str
 
 
-class AuthResponse(BaseModel):
+class AuthResponse(StrictModel):
     """Response body for POST /auth/google.
 
     `profile_complete` mirrors `user.profile_complete` for convenience
     on the client so the first screen routing decision can be made
     without a second round-trip.
     """
-
-    model_config = ConfigDict(extra="forbid")
 
     access_token: str
     token_type: Literal["bearer"] = "bearer"
@@ -38,15 +35,13 @@ class AuthResponse(BaseModel):
     profile_complete: bool
 
 
-class TokenClaims(BaseModel):
+class TokenClaims(StrictModel):
     """JWT payload shape (documentation only).
 
     NOT a request/response body and NOT re-exported from
     backend.contract — this model exists so backend authors have a
     Pydantic description of what to encode in the access_token.
     """
-
-    model_config = ConfigDict(extra="forbid")
 
     sub: UUID
     email: EmailStr

@@ -26,14 +26,14 @@ from backend.db.models import (
 )
 from backend.services.display_id import generate_team_display_id
 from backend.services.pagination import SortCol, paginate_keyset
+from backend.services.user import derive_user_name
 
 
 def user_to_ref(row: UserRow) -> ContractUserRef:
-    name = row.zh_name or row.nickname or row.email.split("@", 1)[0]
     return ContractUserRef(
         id=row.id,
         display_id=row.display_id,
-        name=name,
+        name=derive_user_name(row),
         avatar_url=row.avatar_url,
     )
 
@@ -90,10 +90,9 @@ async def create_led_team(session: AsyncSession, user: UserRow) -> TeamRow:
     result = await session.execute(select(TeamRow.display_id))  # ty: ignore[no-matching-overload]
     taken = {row[0] for row in result.all()}
     display_id = generate_team_display_id(user_display_id=user.display_id, used=taken)
-    leader_name = user.zh_name or user.nickname or user.email.split("@", 1)[0]
     team = TeamRow(
         display_id=display_id,
-        name=f"{leader_name}的團隊",
+        name=f"{derive_user_name(user)}的團隊",
         leader_id=user.id,
     )  # ty: ignore[missing-argument]
     session.add(team)
