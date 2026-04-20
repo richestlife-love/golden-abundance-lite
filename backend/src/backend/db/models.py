@@ -16,7 +16,7 @@ from datetime import UTC, datetime
 from typing import Literal
 from uuid import UUID, uuid4
 
-from sqlalchemy import JSON, Column, DateTime, String, UniqueConstraint
+from sqlalchemy import JSON, Column, DateTime, Index, String, UniqueConstraint, text
 from sqlmodel import Field, SQLModel
 
 
@@ -72,6 +72,18 @@ class TeamMembershipRow(SQLModel, table=True):
 
 class JoinRequestRow(SQLModel, table=True):
     __tablename__ = "join_requests"
+    # Partial unique index closes the at-most-one-pending-per-user race
+    # the service-layer check in `create_join_request` can lose under
+    # concurrent requests. Mirrors the `uq_reward_user_task` backstop
+    # for double-award races.
+    __table_args__ = (
+        Index(
+            "uq_join_requests_one_pending_per_user",
+            "user_id",
+            unique=True,
+            postgresql_where=text("status = 'pending'"),
+        ),
+    )
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     team_id: UUID = Field(foreign_key="teams.id", index=True)
