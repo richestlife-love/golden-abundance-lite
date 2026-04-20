@@ -23,8 +23,8 @@
     "@tanstack/react-query": "^5.99.2",
     "@tanstack/react-query-devtools": "^5.99.2",
     "@tanstack/react-router": "^1.168.23",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
@@ -38,9 +38,9 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^25.6.0",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^10.2.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
@@ -49,9 +49,9 @@
     "msw": "^2.13.4",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.3",
-    "typescript": "^5.7.2",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.58.2",
-    "vite": "^6.0.5",
+    "vite": "^8.0.9",
     "vitest": "^4.1.4"
   }
 }
