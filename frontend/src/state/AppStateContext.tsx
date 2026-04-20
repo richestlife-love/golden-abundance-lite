@@ -5,9 +5,7 @@ import { createContext, useContext, type ReactNode } from "react";
 // deletes this file entirely.
 
 const NOT_MIGRATED = (name: string): never => {
-  throw new Error(
-    `${name} is not migrated yet (plan 4c rewires write-side mutations).`,
-  );
+  throw new Error(`${name} is not migrated yet (plan 4c rewires write-side mutations).`);
 };
 
 export interface AppState {

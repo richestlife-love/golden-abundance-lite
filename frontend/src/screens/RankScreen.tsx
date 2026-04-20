@@ -2,10 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useMe } from "../hooks/useMe";
 import { useMyTasks } from "../hooks/useMyTasks";
-import {
-  rankUsersInfiniteQueryOptions,
-  rankTeamsInfiniteQueryOptions,
-} from "../queries/rank";
+import { rankUsersInfiniteQueryOptions, rankTeamsInfiniteQueryOptions } from "../queries/rank";
 import type { RankPeriod } from "../api/rank";
 import { avatarBg, fs } from "../utils";
 import BottomNav from "../ui/BottomNav";
@@ -79,7 +76,7 @@ export default function RankScreen() {
   const top3 = sorted.slice(0, 3);
   const rest = sorted.slice(3);
 
-  const myRank = tab === "personal" ? userRows.find((r) => r.isMe)?.rank ?? null : null;
+  const myRank = tab === "personal" ? (userRows.find((r) => r.isMe)?.rank ?? null) : null;
 
   // Podium positions: 2nd (left), 1st (center), 3rd (right)
   const podiumOrder = top3.length === 3 ? [top3[1], top3[0], top3[2]] : top3;
@@ -143,7 +140,11 @@ export default function RankScreen() {
               排行榜
             </div>
             <div style={{ fontSize: fs(11), color: muted, marginTop: 2 }}>
-              {tab === "personal" ? "志工星點排名" : tab === "team" ? "團隊星點排名" : "挑戰任務排名"}
+              {tab === "personal"
+                ? "志工星點排名"
+                : tab === "team"
+                  ? "團隊星點排名"
+                  : "挑戰任務排名"}
             </div>
           </div>
           <div

@@ -140,8 +140,7 @@ export default function GoogleAuthScreen({ onCancel, onSelectAccount }: GoogleAu
                       padding: "14px 16px",
                       cursor: "pointer",
                       border: "none",
-                      borderBottom:
-                        i < DEMO_ACCOUNTS.length - 1 ? "1px solid #DADCE0" : "none",
+                      borderBottom: i < DEMO_ACCOUNTS.length - 1 ? "1px solid #DADCE0" : "none",
                       background: "transparent",
                       transition: "background 0.15s",
                     }}

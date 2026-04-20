@@ -1,9 +1,6 @@
 import { createRoute } from "@tanstack/react-router";
 import RankScreen from "../screens/RankScreen";
-import {
-  rankTeamsInfiniteQueryOptions,
-  rankUsersInfiniteQueryOptions,
-} from "../queries/rank";
+import { rankTeamsInfiniteQueryOptions, rankUsersInfiniteQueryOptions } from "../queries/rank";
 import { authedRoute } from "./_authed";
 
 export const leaderboardRoute = createRoute({

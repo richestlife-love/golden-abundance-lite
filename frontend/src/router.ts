@@ -37,10 +37,7 @@ const routeTree = rootRoute.addChildren([
   ]),
 ]);
 
-export function createAppRouter(opts: {
-  queryClient: QueryClient;
-  history?: RouterHistory;
-}) {
+export function createAppRouter(opts: { queryClient: QueryClient; history?: RouterHistory }) {
   return createRouter({
     routeTree,
     history: opts.history ?? createBrowserHistory(),

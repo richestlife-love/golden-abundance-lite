@@ -17,8 +17,7 @@ function StartRoute() {
   const { data: tasks } = useSuspenseQuery(myTasksQueryOptions());
   const task = tasks.find((t: Task) => t.display_id === taskId);
   if (!task) throw notFound();
-  const goDetail = () =>
-    navigate({ to: "/tasks/$taskId", params: { taskId: task.display_id } });
+  const goDetail = () => navigate({ to: "/tasks/$taskId", params: { taskId: task.display_id } });
 
   if (task.form_type === "interest") {
     return <InterestForm onCancel={goDetail} onSubmit={goDetail} />;
@@ -27,7 +26,9 @@ function StartRoute() {
     return <TicketForm onCancel={goDetail} onSubmit={goDetail} />;
   }
   if (task.is_challenge) {
-    return <TeamForm onCancel={() => navigate({ to: "/me" })} onSubmit={() => navigate({ to: "/me" })} />;
+    return (
+      <TeamForm onCancel={() => navigate({ to: "/me" })} onSubmit={() => navigate({ to: "/me" })} />
+    );
   }
   throw notFound();
 }
