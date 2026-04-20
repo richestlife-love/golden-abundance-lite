@@ -8,6 +8,7 @@ import { pushSuccess } from "../ui/useUIState";
 
 type TeamUpdate = components["schemas"]["TeamUpdate"];
 type MeTeamsResponse = components["schemas"]["MeTeamsResponse"];
+type Task = components["schemas"]["Task"];
 
 export function useCreateJoinRequest() {
   const qc = useQueryClient();
@@ -61,14 +62,21 @@ export function useApproveJoinRequest() {
       pushToast({ kind: "error", message: "審核失敗，請再試一次" });
     },
     onSuccess: (team) => {
-      // §6.4: success overlay when approval fills the team to cap.
+      // §6.4: success overlay when approval fills the team to cap. Read
+      // the challenge task from the cache (spec §6.4: no server-side
+      // just_completed_tasks field) so color/points/bonus come from the
+      // real task def instead of hard-coded placeholders.
       if ((team.members?.length ?? 0) >= team.cap) {
-        pushSuccess({
-          color: "#ff5c8a",
-          points: 120,
-          bonus: null,
-          title: "組隊完成！",
-        });
+        const tasks = qc.getQueryData<Task[]>(qk.myTasks);
+        const challenge = tasks?.find((t) => t.is_challenge);
+        if (challenge) {
+          pushSuccess({
+            color: challenge.color,
+            points: challenge.points,
+            bonus: challenge.bonus,
+            title: "組隊完成！",
+          });
+        }
       }
     },
     onSettled: (_data, _err, { teamId }) => {
