@@ -14,7 +14,7 @@ from backend.contract.auth import AuthResponse, GoogleAuthRequest
 from backend.contract.common import Paginated, TeamRef, UserRef
 from backend.contract.news import NewsItem
 from backend.contract.rank import RankPeriod, TeamRankEntry, UserRankEntry
-from backend.contract.rewards import Reward
+from backend.contract.reward import Reward
 from backend.contract.task import (
     InterestFormBody,
     SubmitBody,

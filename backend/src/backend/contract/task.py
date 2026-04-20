@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.contract.rewards import Reward
+from backend.contract.reward import Reward
 
 
 class TaskStep(BaseModel):
