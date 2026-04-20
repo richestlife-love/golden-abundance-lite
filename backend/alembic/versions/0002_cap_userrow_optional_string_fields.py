@@ -1,6 +1,6 @@
 """cap UserRow optional string fields
 
-Revision ID: 7afb2471867b
+Revision ID: 0002
 Revises: 0001
 Create Date: 2026-04-20 03:01:13.192308
 
@@ -15,7 +15,7 @@ import sqlmodel.sql.sqltypes
 
 from alembic import op
 
-revision: str = "7afb2471867b"
+revision: str = "0002"
 down_revision: str | None = "0001"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None

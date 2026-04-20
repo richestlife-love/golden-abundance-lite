@@ -171,7 +171,7 @@ async def test_task_progress_progress_unit_interval(session: AsyncSession) -> No
 
 async def test_delete_user_cascades_to_dependent_rows(session: AsyncSession) -> None:
     """Deleting a user row must cascade through every child table — the FKs
-    were rewritten with ``ON DELETE CASCADE`` in migration c004."""
+    were rewritten with ``ON DELETE CASCADE`` in migration 0007."""
     team_a, _, requester = await _seed_two_teams_and_user(session)
     session.add(TeamMembershipRow(team_id=team_a.id, user_id=requester.id))  # ty: ignore[missing-argument]
     session.add(JoinRequestRow(team_id=team_a.id, user_id=requester.id, status="rejected"))  # ty: ignore[missing-argument]

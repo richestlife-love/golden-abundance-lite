@@ -1,7 +1,7 @@
 """FK ON DELETE CASCADE
 
-Revision ID: c004
-Revises: c003
+Revision ID: 0007
+Revises: 0006
 Create Date: 2026-04-20 11:03:00.000000
 
 Every child-side FK cascades on parent delete. Matches the TRUNCATE
@@ -22,8 +22,8 @@ from sqlalchemy.engine import Connection
 
 from alembic import op
 
-revision: str = "c004"
-down_revision: str | None = "c003"
+revision: str = "0007"
+down_revision: str | None = "0006"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

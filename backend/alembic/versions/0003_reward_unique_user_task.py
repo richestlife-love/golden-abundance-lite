@@ -1,7 +1,7 @@
 """reward unique (user_id, task_def_id)
 
-Revision ID: b07d97980abc
-Revises: 7afb2471867b
+Revision ID: 0003
+Revises: 0002
 Create Date: 2026-04-20 10:00:00.000000
 
 Closes the concurrent double-award race in maybe_grant_challenge_rewards
@@ -15,8 +15,8 @@ from collections.abc import Sequence
 
 from alembic import op
 
-revision: str = "b07d97980abc"
-down_revision: str | None = "7afb2471867b"
+revision: str = "0003"
+down_revision: str | None = "0002"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
