@@ -31,7 +31,7 @@ async def _completed_task_def_ids(session: AsyncSession, user_id: UUID) -> set[U
         await session.execute(
             select(TaskProgressRow.task_def_id)
             .where(TaskProgressRow.user_id == user_id)
-            .where(TaskProgressRow.status == "completed")
+            .where(TaskProgressRow.status == "completed"),
         )
     ).all()
     return {row[0] for row in rows}
@@ -40,7 +40,7 @@ async def _completed_task_def_ids(session: AsyncSession, user_id: UUID) -> set[U
 async def _required_ids(session: AsyncSession, task_def_id: UUID) -> list[UUID]:
     rows = (
         await session.execute(
-            select(TaskDefRequiresRow.requires_id).where(TaskDefRequiresRow.task_def_id == task_def_id)
+            select(TaskDefRequiresRow.requires_id).where(TaskDefRequiresRow.task_def_id == task_def_id),
         )
     ).all()
     return [row[0] for row in rows]
@@ -62,7 +62,7 @@ async def _steps_for(session: AsyncSession, task_def_id: UUID, user_id: UUID) ->
             await session.execute(
                 select(TaskStepDefRow)
                 .where(TaskStepDefRow.task_def_id == task_def_id)
-                .order_by(TaskStepDefRow.order.asc())
+                .order_by(TaskStepDefRow.order.asc()),
             )
         )
         .scalars()
@@ -76,7 +76,7 @@ async def _steps_for(session: AsyncSession, task_def_id: UUID, user_id: UUID) ->
             await session.execute(
                 select(TaskStepProgressRow)
                 .where(TaskStepProgressRow.user_id == user_id)
-                .where(TaskStepProgressRow.step_id.in_(step_ids))
+                .where(TaskStepProgressRow.step_id.in_(step_ids)),
             )
         )
         .scalars()
@@ -109,14 +109,14 @@ async def row_to_contract_task(
         await session.execute(
             select(TaskProgressRow)
             .where(TaskProgressRow.user_id == caller.id)
-            .where(TaskProgressRow.task_def_id == task_def.id)
+            .where(TaskProgressRow.task_def_id == task_def.id),
         )
     ).scalar_one_or_none()
 
     if task_def.is_challenge:
         if task_def.cap is None:
             raise RuntimeError(
-                f"Challenge task {task_def.display_id} is missing cap — is_challenge=True requires a non-null cap."
+                f"Challenge task {task_def.display_id} is missing cap — is_challenge=True requires a non-null cap.",
             )
         team_progress = await _team_totals(session, caller, cap=task_def.cap)
     else:
@@ -186,7 +186,8 @@ async def list_caller_tasks(session: AsyncSession, *, caller: UserRow) -> list[C
 
 class TaskSubmitError(Exception):
     """Raised by submit_task on a business-rule violation; the router
-    maps status_code 1:1 to an HTTPException."""
+    maps status_code 1:1 to an HTTPException.
+    """
 
     def __init__(self, status_code: int, detail: str) -> None:
         super().__init__(detail)
@@ -215,7 +216,7 @@ async def submit_task(
         await session.execute(
             select(TaskProgressRow)
             .where(TaskProgressRow.user_id == caller.id)
-            .where(TaskProgressRow.task_def_id == task_def.id)
+            .where(TaskProgressRow.task_def_id == task_def.id),
         )
     ).scalar_one_or_none()
     if existing is not None and existing.status == "completed":

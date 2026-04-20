@@ -16,7 +16,8 @@ async def test_user_display_id_from_email(session: AsyncSession) -> None:
 
 def test_base_from_email_pads_short_local_parts() -> None:
     """Local parts with <3 alphanumerics are right-padded with 'USR' to
-    satisfy the ``^U[A-Z0-9]{3,7}$`` contract regex."""
+    satisfy the ``^U[A-Z0-9]{3,7}$`` contract regex.
+    """
     from backend.services.display_id import _base_from_email
 
     assert _base_from_email("1@x.com") == "1US"  # 1 alnum → 2-char pad

@@ -1,5 +1,6 @@
 """Team read endpoints (list + detail). Mutations live below in
-separate handlers (D5 patch + E1-E3 join-request workflow)."""
+separate handlers (D5 patch + E1-E3 join-request workflow).
+"""
 
 from uuid import UUID
 

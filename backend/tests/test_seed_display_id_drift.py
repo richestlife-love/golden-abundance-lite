@@ -1,6 +1,7 @@
 """Phase 5e debt item, addressed in Phase 4a: every display_id emitted
 by the seed must round-trip through the contract's regex. If the
-validator tightens, this catches it before the next seed run."""
+validator tightens, this catches it before the next seed run.
+"""
 
 import re
 

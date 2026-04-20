@@ -30,7 +30,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 class InvalidCursorError(ValueError):
     """Malformed or tampered cursor. The global exception handler in
-    `backend.server.create_app()` translates this into HTTP 400."""
+    `backend.server.create_app()` translates this into HTTP 400.
+    """
 
 
 @dataclass(frozen=True)

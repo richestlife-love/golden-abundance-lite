@@ -47,7 +47,7 @@ class UserRow(SQLModel, table=True):
             nullable=False,
             default=_utcnow,
             server_default=text("now()"),
-        )
+        ),
     )
 
 
@@ -76,7 +76,7 @@ class TeamRow(SQLModel, table=True):
             nullable=False,
             default=_utcnow,
             server_default=text("now()"),
-        )
+        ),
     )
 
 
@@ -92,7 +92,7 @@ class TeamMembershipRow(SQLModel, table=True):
             nullable=False,
             default=_utcnow,
             server_default=text("now()"),
-        )
+        ),
     )
 
 
@@ -124,7 +124,7 @@ class JoinRequestRow(SQLModel, table=True):
             nullable=False,
             default=_utcnow,
             server_default=text("now()"),
-        )
+        ),
     )
 
 
@@ -158,7 +158,7 @@ class TaskDefRow(SQLModel, table=True):
             nullable=False,
             default=_utcnow,
             server_default=text("now()"),
-        )
+        ),
     )
 
 
@@ -207,7 +207,7 @@ class TaskProgressRow(SQLModel, table=True):
             nullable=False,
             default=_utcnow,
             server_default=text("now()"),
-        )
+        ),
     )
 
 
@@ -240,7 +240,7 @@ class RewardRow(SQLModel, table=True):
             nullable=False,
             default=_utcnow,
             server_default=text("now()"),
-        )
+        ),
     )
     claimed_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True), nullable=True))
 
@@ -260,6 +260,6 @@ class NewsItemRow(SQLModel, table=True):
             default=_utcnow,
             server_default=text("now()"),
             index=True,
-        )
+        ),
     )
     pinned: bool = Field(default=False, index=True)

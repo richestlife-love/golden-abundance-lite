@@ -25,7 +25,8 @@ async def test_google_sign_in_is_idempotent_for_existing_email(
 ) -> None:
     r1 = await client.post("/api/v1/auth/google", json={"id_token": "same@example.com"})
     r2 = await client.post("/api/v1/auth/google", json={"id_token": "same@example.com"})
-    assert r1.status_code == 200 and r2.status_code == 200
+    assert r1.status_code == 200
+    assert r2.status_code == 200
     assert r1.json()["user"]["id"] == r2.json()["user"]["id"]
 
 
@@ -97,7 +98,7 @@ async def test_auth_response_expires_in_matches_token_exp(
 
 
 @pytest.mark.parametrize(
-    "body,expected",
+    ("body", "expected"),
     [
         ({}, 422),
         ({"id_token": None}, 422),

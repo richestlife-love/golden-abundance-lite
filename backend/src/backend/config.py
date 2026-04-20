@@ -37,7 +37,7 @@ class Settings(BaseSettings):
         default_factory=lambda: [
             "http://localhost:5173",
             "http://localhost:8000",
-        ]
+        ],
     )
 
     @field_validator("cors_origins", mode="before")

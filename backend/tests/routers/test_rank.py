@@ -74,7 +74,9 @@ async def test_rank_users_cursor_walks_to_end(client: AsyncClient, seeded_task_d
 
 
 async def test_rank_users_week_filters_out_old_completions(
-    session: AsyncSession, client: AsyncClient, seeded_task_defs
+    session: AsyncSession,
+    client: AsyncClient,
+    seeded_task_defs,
 ) -> None:
     """Completion >7 days old must appear in all_time but NOT in week.
 
@@ -93,7 +95,7 @@ async def test_rank_users_week_filters_out_old_completions(
             status="completed",
             progress=1.0,
             completed_at=datetime.now(UTC) - timedelta(days=10),
-        )
+        ),
     )
     await session.commit()
 

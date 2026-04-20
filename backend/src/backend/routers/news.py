@@ -1,5 +1,6 @@
 """News feed endpoint. Cursor pagination; auth-required for parity with
-the rest of the read API."""
+the rest of the read API.
+"""
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -24,9 +24,6 @@ dev = [
   "ty>=0.0.31",
 ]
 
-[tool.uv]
-required-version = "==0.11.7"
-
 [tool.fastapi]
 entrypoint = "backend.server:app"
 
@@ -34,7 +31,6 @@ entrypoint = "backend.server:app"
 testpaths = ["tests"]
 addopts = ["-v", "--cov"]
 asyncio_mode = "auto"
-pythonpath = ["."]
 
 [tool.coverage.run]
 source = ["src"]
@@ -46,11 +42,18 @@ show_missing = true
 # SQLAlchemy's InstrumentedAttribute descriptors (`Row.col == value`,
 # `.is_()`, `.in_()`, `.asc()`, `.desc()`, `.ilike()`) and SQLModel's
 # dynamically-synthesized `__init__` don't survive ty's type resolution,
-# producing false positives throughout query code. These rules never
-# catch real bugs in this codebase because nearly every module touches
-# SQLAlchemy — scope the override to src/ and tests/ only.
+# producing false positives in query code. Scope the override to the
+# layers that actually touch SQLAlchemy/SQLModel (DB, services, routers,
+# seed scripts, and tests) so auth/, config, contract/, and scripts/
+# still get full type checking.
 [[tool.ty.overrides]]
-include = ["src/**/*.py", "tests/**/*.py"]
+include = [
+  "src/backend/db/**/*.py",
+  "src/backend/services/**/*.py",
+  "src/backend/routers/**/*.py",
+  "src/backend/seed.py",
+  "tests/**/*.py",
+]
 
 [tool.ty.overrides.rules]
 invalid-argument-type = "ignore"
@@ -63,15 +66,21 @@ unsupported-operator = "ignore"
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "N"]
+select = [
+  "E", "F", "W", "I", "UP", "B", "SIM", "RUF", "N", "C4", "PTH",
+  "ASYNC", "DTZ", "PT", "LOG", "G", "RET", "PIE", "TID",
+]
 # B008: FastAPI's `= Depends(...)` / `= Query(...)` defaults are idiomatic,
-#       not the anti-pattern this rule targets.
-# RUF001/002/003: ambiguous-unicode noise from zh-Hant strings in seed data.
-ignore = ["B008", "RUF001", "RUF002", "RUF003"]
+#       not the anti-pattern this rule targets. Project-wide because Depends
+#       can appear in any module, not just routers.
+ignore = ["B008"]
 
+# Scope ambiguous-unicode ignores to the specific files that legitimately
+# need non-ASCII characters (zh-Hant seed content, en-dash in docstrings)
+# so the rest of the codebase still catches typo/lookalike-attack cases.
 [tool.ruff.lint.per-file-ignores]
-# Tests intentionally use local imports (to scope heavy fixtures) and assert.
-"tests/**" = ["PLC0415"]
+"src/backend/seed.py" = ["RUF001", "RUF002", "RUF003"]
+"src/backend/services/display_id.py" = ["RUF002"]
 
 [build-system]
 requires = ["uv_build>=0.11.7,<0.12.0"]

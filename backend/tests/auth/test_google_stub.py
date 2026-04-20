@@ -8,10 +8,10 @@ def test_stub_treats_id_token_as_email() -> None:
 
 
 def test_stub_rejects_empty_token() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="empty"):
         verify_id_token("")
 
 
 def test_stub_rejects_non_email_shape() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="must be an email"):
         verify_id_token("not-an-email")

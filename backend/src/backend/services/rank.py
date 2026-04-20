@@ -138,7 +138,11 @@ def _slice_after_cursor(
 
 
 async def leaderboard_users(
-    session: AsyncSession, *, period: RankPeriod, cursor: str | None, limit: int
+    session: AsyncSession,
+    *,
+    period: RankPeriod,
+    cursor: str | None,
+    limit: int,
 ) -> Paginated[UserRankEntry]:
     pts_by_user = await _user_points_window_and_week(session, period)
 
@@ -164,13 +168,17 @@ async def leaderboard_users(
                 rank=start_idx + offset + 1,
                 points=pts,
                 week_points=week_pts,
-            )
+            ),
         )
     return Paginated[UserRankEntry](items=items, next_cursor=next_cursor)
 
 
 async def leaderboard_teams(
-    session: AsyncSession, *, period: RankPeriod, cursor: str | None, limit: int
+    session: AsyncSession,
+    *,
+    period: RankPeriod,
+    cursor: str | None,
+    limit: int,
 ) -> Paginated[TeamRankEntry]:
     pts_by_user = await _user_points_window_and_week(session, period)
 
@@ -183,7 +191,7 @@ async def leaderboard_teams(
     team_ids = [t.id for t in teams]
     membership_rows = (
         await session.execute(
-            select(TeamMembershipRow.team_id, TeamMembershipRow.user_id).where(TeamMembershipRow.team_id.in_(team_ids))
+            select(TeamMembershipRow.team_id, TeamMembershipRow.user_id).where(TeamMembershipRow.team_id.in_(team_ids)),
         )
     ).all()
     team_member_ids: dict[UUID, list[UUID]] = {t.id: [t.leader_id] for t in teams}
@@ -232,6 +240,6 @@ async def leaderboard_teams(
                 rank=start_idx + offset + 1,
                 points=pts,
                 week_points=week_totals.get(tid, 0),
-            )
+            ),
         )
     return Paginated[TeamRankEntry](items=items, next_cursor=next_cursor)

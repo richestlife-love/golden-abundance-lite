@@ -97,7 +97,7 @@ async def test_news_cursor_terminal_page_next_cursor_is_none(client: AsyncClient
                 pinned=False,
                 category="活動",
                 published_at=datetime(2026, 4, 10 + i, tzinfo=UTC),
-            )
+            ),
         )
     await session.commit()
 

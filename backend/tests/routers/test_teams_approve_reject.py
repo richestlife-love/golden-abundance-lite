@@ -29,7 +29,8 @@ async def test_approve_adds_member(client: AsyncClient) -> None:
 
 async def test_team_can_grow_past_cap(client: AsyncClient) -> None:
     """Spec §2.4: teams can grow past cap. Pin current behavior so a future
-    cap-enforcement change is a conscious, tested decision."""
+    cap-enforcement change is a conscious, tested decision.
+    """
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
     # Leader + 6 approved members = 7 > cap (default 6).
     for i in range(6):
@@ -132,7 +133,7 @@ async def test_approve_grants_challenge_reward_at_cap(client: AsyncClient, sessi
             is_challenge=True,
             cap=2,
             form_type=None,
-        )
+        ),
     )
     await session.commit()
 

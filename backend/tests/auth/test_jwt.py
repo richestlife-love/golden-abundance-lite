@@ -25,7 +25,7 @@ def test_decode_rejects_tampered_token() -> None:
     # bytes and the "tamper" is a no-op ~6% of the time.
     header_payload, sig = token.rsplit(".", 1)
     tampered = f"{header_payload}.{'A' if sig[0] != 'A' else 'B'}{sig[1:]}"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=r"[Ss]ignature"):
         decode_token(tampered)
 
 
@@ -43,7 +43,7 @@ def test_decode_rejects_token_signed_with_different_secret() -> None:
         "attacker-secret-not-ours",
         algorithm="HS256",
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=r"[Ss]ignature"):
         decode_token(forged)
 
 
@@ -56,7 +56,7 @@ def test_decode_rejects_alg_none() -> None:
         key="",
         algorithm="none",
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="alg"):
         decode_token(none_alg)
 
 
@@ -81,5 +81,5 @@ def test_decode_requires_sub_claim() -> None:
 
 def test_decode_rejects_expired_token() -> None:
     token = encode_token(user_id=uuid4(), email="x@example.com", ttl=timedelta(seconds=-10))
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="expired"):
         decode_token(token)

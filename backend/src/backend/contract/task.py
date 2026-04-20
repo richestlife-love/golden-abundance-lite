@@ -44,7 +44,8 @@ class TeamChallengeProgress(StrictModel):
 
 class Task(StrictModel):
     """User-facing task view. Server-side merge of the global task
-    definition and the caller's per-user state."""
+    definition and the caller's per-user state.
+    """
 
     id: UUID
     display_id: str
@@ -70,7 +71,8 @@ class Task(StrictModel):
 
 class InterestFormBody(StrictModel):
     """POST /tasks/{id}/submit body for tasks with form_type == 'interest'
-    (task 1)."""
+    (task 1).
+    """
 
     form_type: Literal["interest"]
     name: str = Field(min_length=1)
@@ -82,7 +84,8 @@ class InterestFormBody(StrictModel):
 
 class TicketFormBody(StrictModel):
     """POST /tasks/{id}/submit body for tasks with form_type == 'ticket'
-    (task 2)."""
+    (task 2).
+    """
 
     form_type: Literal["ticket"]
     name: str = Field(min_length=1)

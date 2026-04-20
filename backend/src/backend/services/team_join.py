@@ -33,7 +33,7 @@ async def create_join_request(session: AsyncSession, *, team: TeamRow, requester
             select(TeamMembershipRow).where(
                 TeamMembershipRow.team_id == team.id,
                 TeamMembershipRow.user_id == requester.id,
-            )
+            ),
         )
     ).scalar_one_or_none()
     if existing_membership is not None:
@@ -51,7 +51,7 @@ async def create_join_request(session: AsyncSession, *, team: TeamRow, requester
         await session.execute(
             select(JoinRequestRow)
             .where(JoinRequestRow.user_id == requester.id)
-            .where(JoinRequestRow.status == "pending")
+            .where(JoinRequestRow.status == "pending"),
         )
     ).scalar_one_or_none()
     if any_pending is not None:
@@ -74,7 +74,7 @@ async def approve_join_request(session: AsyncSession, *, team: TeamRow, req: Joi
     challenge_defs = (
         (
             await session.execute(
-                select(TaskDefRow).where(TaskDefRow.is_challenge.is_(True)).where(TaskDefRow.bonus.is_not(None))
+                select(TaskDefRow).where(TaskDefRow.is_challenge.is_(True)).where(TaskDefRow.bonus.is_not(None)),
             )
         )
         .scalars()
@@ -106,7 +106,7 @@ async def leave_team(session: AsyncSession, *, team: TeamRow, user: UserRow) -> 
             select(TeamMembershipRow).where(
                 TeamMembershipRow.team_id == team.id,
                 TeamMembershipRow.user_id == user.id,
-            )
+            ),
         )
     ).scalar_one_or_none()
     if link is not None:

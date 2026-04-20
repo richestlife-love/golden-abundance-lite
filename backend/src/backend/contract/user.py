@@ -15,7 +15,8 @@ from backend.contract.common import StrictModel
 
 class User(StrictModel):
     """Authenticated caller's profile. Returned by GET /me and embedded
-    in AuthResponse.user on sign-in."""
+    in AuthResponse.user on sign-in.
+    """
 
     id: UUID
     display_id: str = Field(pattern=r"^U[A-Z0-9]{3,7}$")
@@ -38,7 +39,8 @@ class User(StrictModel):
 class ProfileCreate(StrictModel):
     """Request body for POST /me/profile (first-time profile completion).
     Side effect on the backend: user's led team is created in the same
-    transaction."""
+    transaction.
+    """
 
     zh_name: str = Field(min_length=1)
     en_name: str | None = None

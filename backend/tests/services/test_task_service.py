@@ -30,7 +30,7 @@ async def test_task_status_unlocks_when_prereq_completed(session: AsyncSession, 
             task_def_id=seeded_task_defs["T1"].id,
             status="completed",
             progress=1.0,
-        )
+        ),
     )
     await session.commit()
     task = await row_to_contract_task(session, seeded_task_defs["T2"], caller=user)

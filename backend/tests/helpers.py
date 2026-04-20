@@ -33,7 +33,8 @@ async def sign_in(client: AsyncClient, email: str) -> dict[str, str]:
 
 async def sign_in_and_complete(client: AsyncClient, email: str, zh_name: str = "X") -> SignedInUser:
     """Sign in + complete profile (auto-creates led team). Returns
-    headers, user_id, and the auto-created led_team_id."""
+    headers, user_id, and the auto-created led_team_id.
+    """
     headers = await sign_in(client, email)
     body = {**_BASE_PROFILE, "zh_name": zh_name}
     response = await client.post("/api/v1/me/profile", json=body, headers=headers)

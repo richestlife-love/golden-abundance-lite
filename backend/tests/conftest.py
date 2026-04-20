@@ -129,8 +129,8 @@ async def client(session: AsyncSession) -> AsyncIterator[AsyncClient]:
 async def seeded_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
     """Seed the four prototype tasks (T1 interest form, T2 ticket form,
     T3 team challenge, T4 expired training). Returns a dict keyed by
-    display_id."""
-
+    display_id.
+    """
     t1 = TaskDefRow(
         display_id="T1",
         title="填寫金富有志工表單",

@@ -1,6 +1,7 @@
 """Team shapes — the led/joined team views, the join-request workflow,
 the partial-update body, and named response envelopes for the two /me
-endpoints whose shape involves a Team."""
+endpoints whose shape involves a Team.
+"""
 
 from datetime import datetime
 from typing import Literal
@@ -14,7 +15,8 @@ from backend.contract.user import User
 
 class JoinRequest(StrictModel):
     """A pending/approved/rejected request to join a team. Visible to
-    the team's leader and to the requester themselves."""
+    the team's leader and to the requester themselves.
+    """
 
     id: UUID
     team_id: UUID
@@ -49,7 +51,8 @@ class Team(StrictModel):
 
 class TeamUpdate(StrictModel):
     """Request body for PATCH /teams/{id} (leader only). All fields
-    optional for partial update."""
+    optional for partial update.
+    """
 
     name: str | None = None
     alias: str | None = None
@@ -59,7 +62,8 @@ class TeamUpdate(StrictModel):
 class MeTeamsResponse(StrictModel):
     """Response body for GET /me/teams. Named envelope over an inline
     dict so Phase 4 TS codegen and Phase 5 FastAPI share one OpenAPI
-    schema."""
+    schema.
+    """
 
     led: Team | None = None
     joined: Team | None = None
@@ -67,7 +71,8 @@ class MeTeamsResponse(StrictModel):
 
 class MeProfileCreateResponse(StrictModel):
     """Response body for POST /me/profile. Returned atomically with the
-    profile completion and led-team creation."""
+    profile completion and led-team creation.
+    """
 
     user: User
     led_team: Team

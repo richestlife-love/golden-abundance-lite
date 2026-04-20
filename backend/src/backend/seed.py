@@ -208,7 +208,7 @@ async def _upsert_news(session: AsyncSession) -> None:
                 category=category,
                 pinned=pinned,
                 published_at=_now - timedelta(days=offset_days),
-            )
+            ),
         )
     await session.flush()
 

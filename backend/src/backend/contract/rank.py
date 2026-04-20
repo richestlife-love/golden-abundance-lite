@@ -1,6 +1,7 @@
 """Leaderboard shapes — one per user, one per team, both filterable by
 period ("week" / "month" / "all_time"). Wrapped in Paginated[T] at the
-endpoint level."""
+endpoint level.
+"""
 
 from typing import Literal
 

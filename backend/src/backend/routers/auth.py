@@ -1,5 +1,6 @@
 """Auth endpoints: POST /auth/google (sign-in/sign-up) and
-POST /auth/logout (best-effort; tokens expire naturally)."""
+POST /auth/logout (best-effort; tokens expire naturally).
+"""
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,4 +44,5 @@ async def sign_in_with_google(
 async def logout(_: UserRow = Depends(current_user)) -> None:
     """No server-side revocation in Phase 5; tokens expire naturally.
     Endpoint exists so the frontend can drop its token on a successful
-    200/204 and know the caller's identity was valid at sign-out time."""
+    200/204 and know the caller's identity was valid at sign-out time.
+    """

@@ -73,7 +73,7 @@ NEGATIVE_CHECKS: list[tuple[str, Any]] = [
                 "name": "Jet",
                 "profile_complete": True,
                 "created_at": "2026-04-01T00:00:00Z",
-            }
+            },
         ),
     ),
     (
@@ -87,7 +87,7 @@ NEGATIVE_CHECKS: list[tuple[str, Any]] = [
                 "profile_complete": True,
                 "created_at": "2026-04-01T00:00:00Z",
                 "unexpected_field": "nope",
-            }
+            },
         ),
     ),
     (
@@ -139,7 +139,7 @@ def main() -> int:
     total_negatives = len(NEGATIVE_CHECKS)
     print(
         f"\n{total_fixtures - fixture_failures}/{total_fixtures} fixtures valid, "
-        f"{total_negatives - negative_failures}/{total_negatives} negative checks passed."
+        f"{total_negatives - negative_failures}/{total_negatives} negative checks passed.",
     )
     return 1 if (fixture_failures or negative_failures) else 0
 

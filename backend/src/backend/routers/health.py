@@ -1,5 +1,6 @@
 """Unauthenticated liveness probe. Not under /api/v1 — deployment
-load balancers typically hit /health at the root."""
+load balancers typically hit /health at the root.
+"""
 
 from fastapi import APIRouter
 

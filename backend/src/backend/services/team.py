@@ -115,7 +115,7 @@ async def row_to_contract_team(session: AsyncSession, team: TeamRow, *, caller_i
                     select(JoinRequestRow)
                     .where(JoinRequestRow.team_id == team.id)
                     .where(JoinRequestRow.status == "pending")
-                    .order_by(JoinRequestRow.requested_at.asc())
+                    .order_by(JoinRequestRow.requested_at.asc()),
                 )
             )
             .scalars()
@@ -126,7 +126,7 @@ async def row_to_contract_team(session: AsyncSession, team: TeamRow, *, caller_i
             requester = await session.get(UserRow, jr.user_id)
             if requester is None:
                 raise RuntimeError(
-                    f"FK violation: JoinRequestRow(id={jr.id}).user_id={jr.user_id} has no matching UserRow"
+                    f"FK violation: JoinRequestRow(id={jr.id}).user_id={jr.user_id} has no matching UserRow",
                 )
             requests.append(
                 ContractJoinRequest(
@@ -135,7 +135,7 @@ async def row_to_contract_team(session: AsyncSession, team: TeamRow, *, caller_i
                     user=user_to_ref(requester),
                     status=jr.status,
                     requested_at=jr.requested_at,
-                )
+                ),
             )
     else:
         requests = None

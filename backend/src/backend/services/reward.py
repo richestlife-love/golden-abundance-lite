@@ -50,7 +50,7 @@ async def maybe_grant_challenge_rewards(session: AsyncSession, *, user: UserRow)
     challenge_defs = (
         (
             await session.execute(
-                select(TaskDefRow).where(TaskDefRow.is_challenge.is_(True)).where(TaskDefRow.bonus.is_not(None))
+                select(TaskDefRow).where(TaskDefRow.is_challenge.is_(True)).where(TaskDefRow.bonus.is_not(None)),
             )
         )
         .scalars()
@@ -89,7 +89,7 @@ async def list_rewards_for(session: AsyncSession, user: UserRow) -> list[Contrac
     rows = (
         (
             await session.execute(
-                select(RewardRow).where(RewardRow.user_id == user.id).order_by(RewardRow.earned_at.desc())
+                select(RewardRow).where(RewardRow.user_id == user.id).order_by(RewardRow.earned_at.desc()),
             )
         )
         .scalars()

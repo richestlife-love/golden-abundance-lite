@@ -94,7 +94,7 @@ async def test_search_team_refs_filters_by_leader_display_id(
 async def test_search_team_refs_filters_by_q_on_name(
     session: AsyncSession,
 ) -> None:
-    """q does an ILIKE match against name OR alias."""
+    """Q does an ILIKE match against name OR alias."""
     jet = await upsert_user_by_email(session, email="jet@example.com")
     jet.zh_name = "簡傑特"
     wei = await upsert_user_by_email(session, email="wei@example.com")
@@ -128,7 +128,7 @@ async def test_search_team_refs_filters_by_q_on_name(
 
 
 async def test_search_team_refs_filters_by_topic(session: AsyncSession) -> None:
-    """topic is an exact-match filter (not ILIKE)."""
+    """Topic is an exact-match filter (not ILIKE)."""
     jet = await upsert_user_by_email(session, email="jet@example.com")
     wei = await upsert_user_by_email(session, email="wei@example.com")
     await session.flush()

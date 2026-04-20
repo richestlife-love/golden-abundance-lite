@@ -1,5 +1,6 @@
 """News feed shapes. `category` drives the badge colour client-side;
-the mapping lives in `frontend/app.jsx` NewsBoard."""
+the mapping lives in `frontend/app.jsx` NewsBoard.
+"""
 
 from datetime import datetime
 from typing import Literal

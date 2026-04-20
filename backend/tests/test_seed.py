@@ -53,7 +53,7 @@ async def test_seed_news_has_one_pinned(session: AsyncSession) -> None:
     await seed_run()
     pinned_count = (
         await session.execute(
-            select(func.count()).select_from(NewsItemRow).where(NewsItemRow.pinned == True)  # noqa: E712
+            select(func.count()).select_from(NewsItemRow).where(NewsItemRow.pinned == True),  # noqa: E712
         )
     ).scalar_one()
     assert pinned_count == 1
@@ -70,7 +70,7 @@ async def test_seed_t2_requires_t1(session: AsyncSession) -> None:
                 select(TaskDefRequiresRow).where(
                     TaskDefRequiresRow.task_def_id == t2.id,
                     TaskDefRequiresRow.requires_id == t1.id,
-                )
+                ),
             )
         )
         .scalars()
@@ -100,8 +100,10 @@ async def test_seed_runs_via_python_module_entrypoint(session: AsyncSession, pos
     }
     # Use sys.executable directly — avoids relying on `uv` being on PATH
     # inside the subprocess (tests already run inside the uv-managed venv,
-    # so sys.executable points at the right interpreter).
-    r = subprocess.run(
+    # so sys.executable points at the right interpreter). Blocking the
+    # loop here is fine: this is a one-shot seed-script invocation in an
+    # otherwise-idle test, not shared with concurrent tasks.
+    r = subprocess.run(  # noqa: ASYNC221
         [sys.executable, "-m", "backend.seed"],
         env=env,
         capture_output=True,

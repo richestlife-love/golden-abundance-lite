@@ -5,7 +5,7 @@ from httpx import AsyncClient
 
 
 @pytest.mark.parametrize(
-    "method,path",
+    ("method", "path"),
     [
         ("POST", "/api/v1/me/profile"),
         ("PATCH", "/api/v1/me"),

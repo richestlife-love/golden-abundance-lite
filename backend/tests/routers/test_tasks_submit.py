@@ -105,7 +105,9 @@ async def test_submit_interest_with_empty_list_is_422(client: AsyncClient, seede
 
 
 async def test_submit_t2_twice_does_not_create_second_reward(
-    client: AsyncClient, session: AsyncSession, seeded_task_defs
+    client: AsyncClient,
+    session: AsyncSession,
+    seeded_task_defs,
 ) -> None:
     """Bonus-carrying tasks must not double-issue rewards on resubmit."""
     from sqlalchemy import func, select
@@ -137,7 +139,7 @@ async def test_submit_t2_twice_does_not_create_second_reward(
 
 
 @pytest.mark.parametrize(
-    "method,path",
+    ("method", "path"),
     [
         ("GET", f"/api/v1/tasks/{uuid4()}"),
         ("POST", f"/api/v1/tasks/{uuid4()}/submit"),

@@ -61,7 +61,7 @@ async def test_pending_index_allows_mixed_statuses(session: AsyncSession) -> Non
             user_id=requester.id,
             status="rejected",
             requested_at=datetime.now(UTC),
-        )
+        ),
     )
     session.add(
         JoinRequestRow(
@@ -69,7 +69,7 @@ async def test_pending_index_allows_mixed_statuses(session: AsyncSession) -> Non
             team_id=team_b.id,
             user_id=requester.id,
             status="pending",
-        )
+        ),
     )
     await session.flush()
 
@@ -107,7 +107,10 @@ async def test_teams_check_constraints(session: AsyncSession, stmt: str, params:
     leader = UserRow(display_id="ULCK", email="lck@example.com", profile_complete=True)
     session.add(leader)
     await session.flush()
-    with pytest.raises(IntegrityError):
+    # Async-session CHECK violations may surface at either execute or flush
+    # depending on statement boundary — both awaits must live inside the
+    # block to catch whichever raises.
+    with pytest.raises(IntegrityError):  # noqa: PT012
         await session.execute(text(stmt), {"leader": leader.id, **params})
         await session.flush()
     await session.rollback()
@@ -123,9 +126,9 @@ async def test_task_defs_check_constraints(session: AsyncSession, col: str, valu
         f"                       points, est_minutes, is_challenge, created_at)"
         " VALUES (gen_random_uuid(), 'TCK', 'x', 'x', 'x', '探索', '#000000',"
         f"        {value if col == 'points' else 0}, {value if col == 'est_minutes' else 0},"
-        "        false, now())"
+        "        false, now())",
     )
-    with pytest.raises(IntegrityError):
+    with pytest.raises(IntegrityError):  # noqa: PT012 — see test_teams_check_constraints
         await session.execute(stmt)
         await session.flush()
     await session.rollback()
@@ -133,12 +136,13 @@ async def test_task_defs_check_constraints(session: AsyncSession, col: str, valu
 
 async def test_timestamp_server_defaults_populate_on_raw_insert(session: AsyncSession) -> None:
     """Raw SQL inserts that omit the timestamp column must still succeed —
-    ``server_default=now()`` fills it in so seed-reset / ad-hoc psql work."""
+    ``server_default=now()`` fills it in so seed-reset / ad-hoc psql work.
+    """
     await session.execute(
         text(
             "INSERT INTO users (id, display_id, email, profile_complete)"
-            " VALUES (gen_random_uuid(), 'URAW', 'raw@example.com', false)"
-        )
+            " VALUES (gen_random_uuid(), 'URAW', 'raw@example.com', false)",
+        ),
     )
     created = (await session.execute(text("SELECT created_at FROM users WHERE email = 'raw@example.com'"))).scalar_one()
     assert created is not None
@@ -153,15 +157,15 @@ async def test_task_progress_progress_unit_interval(session: AsyncSession) -> No
     td_insert = text(
         "INSERT INTO task_defs (id, display_id, title, summary, description, tag, color,"
         "                       points, est_minutes, is_challenge, created_at)"
-        " VALUES (:tid, 'TPRG', 'x', 'x', 'x', '探索', '#000000', 0, 0, false, now())"
+        " VALUES (:tid, 'TPRG', 'x', 'x', 'x', '探索', '#000000', 0, 0, false, now())",
     )
     td_id = uuid4()
     await session.execute(td_insert, {"tid": td_id})
     stmt = text(
         "INSERT INTO task_progress (id, user_id, task_def_id, status, progress, updated_at)"
-        " VALUES (gen_random_uuid(), :uid, :tid, 'in_progress', 1.5, now())"
+        " VALUES (gen_random_uuid(), :uid, :tid, 'in_progress', 1.5, now())",
     )
-    with pytest.raises(IntegrityError):
+    with pytest.raises(IntegrityError):  # noqa: PT012 — see test_teams_check_constraints
         await session.execute(stmt, {"uid": user.id, "tid": td_id})
         await session.flush()
     await session.rollback()
@@ -169,7 +173,8 @@ async def test_task_progress_progress_unit_interval(session: AsyncSession) -> No
 
 async def test_delete_user_cascades_to_dependent_rows(session: AsyncSession) -> None:
     """Deleting a user row must cascade through every child table — the FKs
-    were rewritten with ``ON DELETE CASCADE`` in migration 0007."""
+    were rewritten with ``ON DELETE CASCADE`` in migration 0007.
+    """
     team_a, _, requester = await _seed_two_teams_and_user(session)
     session.add(TeamMembershipRow(team_id=team_a.id, user_id=requester.id))
     session.add(JoinRequestRow(team_id=team_a.id, user_id=requester.id, status="rejected"))
