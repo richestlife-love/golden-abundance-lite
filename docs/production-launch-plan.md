@@ -29,7 +29,23 @@ See the [design spec](superpowers/specs/2026-04-19-api-contract-design.md).
 ## Phase 5 — Persistence
 - [x] Add Postgres via SQLModel
 - [x] Set up Alembic migrations
-- [ ] Implement CRUD for each resource
+- [x] Implement CRUD for each resource
+
+See Phase 5 sub-plans:
+- [5a Foundation](superpowers/plans/2026-04-19-phase-5a-foundation.md)
+- [5b Auth](superpowers/plans/2026-04-19-phase-5b-auth.md)
+- [5c Teams](superpowers/plans/2026-04-19-phase-5c-teams.md)
+- [5d Content](superpowers/plans/2026-04-19-phase-5d-content.md)
+- [5e Polish](superpowers/plans/2026-04-19-phase-5e-polish.md)
+
+Phase 5 ships the persistence layer + runnable backend via five sub-plans:
+- **5a Foundation:** FastAPI + SQLModel + Postgres scaffold, `/health`, 11 tables, testcontainers harness.
+- **5b Auth:** HS256 JWT + Google ID-token stub, `/auth/google`, `/auth/logout`, `/me`.
+- **5c Teams:** profile completion, `/teams/*`, join-request workflow, `/me/teams`.
+- **5d Content:** `/tasks/*`, `/me/tasks`, `/me/rewards`, `/rank/{users,teams}`, `/news`.
+- **5e Polish:** idempotent dev seed (T1-T4 + 3 news items), `just seed` recipe.
+
+Backend now serves every endpoint listed in `backend/src/backend/contract/endpoints.md`.
 
 ## Phase 6 — Auth
 - [ ] Decide: Clerk / Supabase Auth vs. roll-your-own Google OAuth
