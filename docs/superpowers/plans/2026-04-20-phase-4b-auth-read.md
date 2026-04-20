@@ -23,7 +23,7 @@
 - `frontend/src/types.ts` is deleted
 - `taskId: "1" | "2" | "3"` route literals are replaced with `"T1" | "T2" | "T3"`
 - Manual smoke (with `just -f backend/justfile db-up && just -f backend/justfile migrate && just -f backend/justfile seed-reset && just dev`):
-  - Sign in as `jet@demo.gal` → land on `/home`
+  - Sign in as `jet@demo.ga` → land on `/home`
   - All four tasks (T1-T4) appear with seeded titles
   - `/me` shows the led team `金杰的團隊`
   - `/leaderboard` shows real (empty) rank tables, no mock data
@@ -1520,7 +1520,7 @@ just dev
 
 - [ ] **Step 2: Sign in as Jet**
 
-Open `http://localhost:5173/sign-in` → click `金杰 (Jet Kan)` → expect a token in localStorage (`gal.token`) and redirect to `/home`.
+Open `http://localhost:5173/sign-in` → click `金杰 (Jet Kan)` → expect a token in localStorage (`ga.token`) and redirect to `/home`.
 
 - [ ] **Step 3: Verify each screen renders from server data**
 

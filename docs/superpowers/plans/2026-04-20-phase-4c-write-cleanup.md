@@ -23,11 +23,11 @@
 - `frontend/src/state/` directory is empty (or deleted)
 - `react-refresh/only-export-components` ESLint warnings on routes/state modules are gone (lines for deleted modules removed; remaining warnings on surviving route files documented or rule-disabled per §3.4 Phase 3 debt resolution)
 - Manual smoke (with `just -f backend/justfile seed-reset && just dev`):
-  - Sign in as `jet@demo.gal` → approve `alex@demo.gal`'s pending request → success overlay fires (if T3 reward applies) → team has 2 members + 1 pending request remaining
-  - Approve `mei@demo.gal`'s request → 3 members, 0 pending; T3 progress shows 3/6
+  - Sign in as `jet@demo.ga` → approve `alex@demo.ga`'s pending request → success overlay fires (if T3 reward applies) → team has 2 members + 1 pending request remaining
+  - Approve `mei@demo.ga`'s request → 3 members, 0 pending; T3 progress shows 3/6
   - Click rename team → set alias → optimistic update appears instantly, persists after refresh
   - Sign out → land on `/sign-in`; sign back in → land on `/home`
-  - Manually clear localStorage `gal.token` mid-session → next fetch fires 401 interceptor → toast appears, redirect to `/sign-in?returnTo=/me`
+  - Manually clear localStorage `ga.token` mid-session → next fetch fires 401 interceptor → toast appears, redirect to `/sign-in?returnTo=/me`
   - Submit T1 (interest form) → server records completion → reward overlay fires → T1 status flips to `completed` → T2 unlocks
 - `docs/production-launch-plan.md` has Phase 4 marked complete and Phase 3 debt items resolved-by-Phase-4 crossed out
 
@@ -1139,7 +1139,7 @@ git commit -m "test(frontend): 401 interceptor end-to-end (redirect + toast)"
 
 The toast already fires from `signOut({reason:'expired', returnTo})` (Task C2), so `/sign-in?returnTo=...` already shows it via the toast container in `__root.tsx`. No additional code needed unless we want the toast to *persist* when the user lands on `/sign-in` via a direct URL (not via the redirect path). For Phase 4, the redirect path is the only producer — skip.
 
-- [ ] **Step 1: Manual smoke** — open the app, sign in, manually `localStorage.removeItem('gal.token')`, navigate to `/me`, confirm the toast appears on `/sign-in`.
+- [ ] **Step 1: Manual smoke** — open the app, sign in, manually `localStorage.removeItem('ga.token')`, navigate to `/me`, confirm the toast appears on `/sign-in`.
 
 - [ ] **Step 2: No commit** if no code change.
 
@@ -1378,7 +1378,7 @@ just dev
 
 - Click 登出 → land on `/sign-in`; toast does NOT appear (no expiry, just user-initiated)
 - Sign in again as jet
-- Open devtools → `localStorage.removeItem('gal.token')`
+- Open devtools → `localStorage.removeItem('ga.token')`
 - Navigate to `/me` → 401 fires → land on `/sign-in?returnTo=/me`, toast shows "您的工作階段已過期，請重新登入"
 - Sign in again → land on `/me` (returnTo honored)
 

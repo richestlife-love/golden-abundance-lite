@@ -1,5 +1,5 @@
 """Idempotent dev seed. Creates task definitions (T1-T4), a few
-news items, and the six @demo.gal demo users (Phase 4a). Users that
+news items, and the six @demo.ga demo users (Phase 4a). Users that
 sign in via /auth/google complete their own profile + team via the
 same code path.
 
@@ -32,7 +32,7 @@ from backend.services.user import upsert_user_by_email
 
 DEMO_USERS: list[dict[str, str]] = [
     {
-        "email": "jet@demo.gal",
+        "email": "jet@demo.ga",
         "zh_name": "金杰",
         "en_name": "Jet Kan",
         "nickname": "Jet",
@@ -42,7 +42,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "台北",
     },
     {
-        "email": "ami@demo.gal",
+        "email": "ami@demo.ga",
         "zh_name": "林詠瑜",
         "en_name": "Ami Lin",
         "nickname": "Ami",
@@ -52,7 +52,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "台北",
     },
     {
-        "email": "alex@demo.gal",
+        "email": "alex@demo.ga",
         "zh_name": "陳志豪",
         "en_name": "Alex Chen",
         "nickname": "Alex",
@@ -62,7 +62,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "新北",
     },
     {
-        "email": "mei@demo.gal",
+        "email": "mei@demo.ga",
         "zh_name": "王美玲",
         "en_name": "Mei Wang",
         "nickname": "Mei",
@@ -72,7 +72,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "台中",
     },
     {
-        "email": "kai@demo.gal",
+        "email": "kai@demo.ga",
         "zh_name": "黃凱文",
         "en_name": "Kai Huang",
         "nickname": "Kai",
@@ -82,7 +82,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "高雄",
     },
     {
-        "email": "yu@demo.gal",
+        "email": "yu@demo.ga",
         "zh_name": "張詩宇",
         "en_name": "Yu Chang",
         "nickname": "Yu",
@@ -96,10 +96,10 @@ DEMO_USERS: list[dict[str, str]] = [
 # γ-with-two-leaders fan-out: two pending requests each at jet and ami teams.
 # Exercises leader-approval UX (team-detail pending list) for Phase 4 plumbing.
 DEMO_FANOUT: list[tuple[str, str]] = [
-    ("alex@demo.gal", "jet@demo.gal"),
-    ("mei@demo.gal", "jet@demo.gal"),
-    ("kai@demo.gal", "ami@demo.gal"),
-    ("yu@demo.gal", "ami@demo.gal"),
+    ("alex@demo.ga", "jet@demo.ga"),
+    ("mei@demo.ga", "jet@demo.ga"),
+    ("kai@demo.ga", "ami@demo.ga"),
+    ("yu@demo.ga", "ami@demo.ga"),
 ]
 
 
@@ -214,7 +214,7 @@ async def _upsert_news(session: AsyncSession) -> None:
 
 
 async def _upsert_demo_users(session: AsyncSession) -> dict[str, UserRow]:
-    """Seed the six @demo.gal demo users via the real sign-in flow.
+    """Seed the six @demo.ga demo users via the real sign-in flow.
 
     Idempotent: existing rows (by email) are skipped; returns a dict
     of ``{email: UserRow}`` spanning both pre-existing and newly
@@ -224,7 +224,7 @@ async def _upsert_demo_users(session: AsyncSession) -> dict[str, UserRow]:
     downstream A2 fan-out.
     """
     existing = {
-        u.email: u for u in (await session.execute(select(UserRow))).scalars().all() if u.email.endswith("@demo.gal")
+        u.email: u for u in (await session.execute(select(UserRow))).scalars().all() if u.email.endswith("@demo.ga")
     }
     out: dict[str, UserRow] = dict(existing)
     for spec in DEMO_USERS:

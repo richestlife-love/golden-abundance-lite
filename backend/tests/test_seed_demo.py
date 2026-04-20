@@ -31,7 +31,7 @@ async def test_demo_users_seeded(engine: AsyncEngine) -> None:
     emails = {u.email for u in rows}
     assert emails >= {u["email"] for u in DEMO_USERS}
     for u in rows:
-        if u.email.endswith("@demo.gal"):
+        if u.email.endswith("@demo.ga"):
             assert u.profile_complete is True, f"{u.email} should be profile-complete"
             assert u.zh_name, f"{u.email} should have zh_name set"
             assert u.display_id.startswith("U"), f"{u.email} display_id shape"
@@ -49,10 +49,10 @@ async def test_demo_users_idempotent(engine: AsyncEngine) -> None:
 
 
 DEMO_FANOUT_EXPECTED = {
-    "alex@demo.gal": "jet@demo.gal",
-    "mei@demo.gal": "jet@demo.gal",
-    "kai@demo.gal": "ami@demo.gal",
-    "yu@demo.gal": "ami@demo.gal",
+    "alex@demo.ga": "jet@demo.ga",
+    "mei@demo.ga": "jet@demo.ga",
+    "kai@demo.ga": "ami@demo.ga",
+    "yu@demo.ga": "ami@demo.ga",
 }
 
 
@@ -84,7 +84,7 @@ async def test_demo_join_requests_fanout(engine: AsyncEngine) -> None:
         if team is None or requester is None:
             continue
         leader = next((u for u in users.values() if u.id == team.leader_id), None)
-        if leader is None or not requester.email.endswith("@demo.gal"):
+        if leader is None or not requester.email.endswith("@demo.ga"):
             continue
         actual[requester.email] = leader.email
 

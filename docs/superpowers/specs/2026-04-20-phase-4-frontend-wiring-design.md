@@ -48,7 +48,7 @@ frontend/src/
   mutations/
     me.ts, tasks.ts, teams.ts
   auth/
-    token.ts             # localStorage get/set/clear under key "gal.token"
+    token.ts             # localStorage get/set/clear under key "ga.token"
     session.ts           # AuthProvider: isSignedIn, signIn(email), signOut(opts?)
   ui/
     UIStateProvider.tsx  # successData + toast queue
@@ -167,7 +167,7 @@ The Phase 5 stub (`backend/src/backend/auth/google_stub.py`) validates the `id_t
 
 ```ts
 // auth/token.ts
-const KEY = 'gal.token';
+const KEY = 'ga.token';
 export const tokenStore = {
   get: () => localStorage.getItem(KEY),
   set: (t: string) => localStorage.setItem(KEY, t),
@@ -275,8 +275,8 @@ New justfile recipe `gen-types`. It generates offline from FastAPI's in-process 
 
 ```
 gen-types:
-    uv run --project backend python -c 'import json; from backend.server import app; print(json.dumps(app.openapi()))' > /tmp/gal-openapi.json
-    pnpm -C frontend dlx openapi-typescript /tmp/gal-openapi.json -o src/api/schema.d.ts
+    uv run --project backend python -c 'import json; from backend.server import app; print(json.dumps(app.openapi()))' > /tmp/ga-openapi.json
+    pnpm -C frontend dlx openapi-typescript /tmp/ga-openapi.json -o src/api/schema.d.ts
 ```
 
 Generated file is gitignored. Running the recipe requires `uv sync` in `backend/` (which CI does anyway for the backend build). Per-resource modules import via `import type { components } from './schema'` and re-export named aliases:
@@ -497,12 +497,12 @@ Same idempotent skip-on-conflict pattern as the Phase 5e T1-T4 + news seed.
 
 ```python
 DEMO_USERS = [
-    {"email": "jet@demo.gal", "zh_name": "金杰", ...},
-    {"email": "ami@demo.gal", "zh_name": "林詠瑜", ...},
-    {"email": "alex@demo.gal", "zh_name": "陳志豪", ...},
-    {"email": "mei@demo.gal", "zh_name": "王美玲", ...},
-    {"email": "kai@demo.gal", "zh_name": "黃凱文", ...},
-    {"email": "yu@demo.gal", "zh_name": "張詩宇", ...},
+    {"email": "jet@demo.ga", "zh_name": "金杰", ...},
+    {"email": "ami@demo.ga", "zh_name": "林詠瑜", ...},
+    {"email": "alex@demo.ga", "zh_name": "陳志豪", ...},
+    {"email": "mei@demo.ga", "zh_name": "王美玲", ...},
+    {"email": "kai@demo.ga", "zh_name": "黃凱文", ...},
+    {"email": "yu@demo.ga", "zh_name": "張詩宇", ...},
 ]
 ```
 
@@ -512,7 +512,7 @@ Six accounts. Each gets a profile-complete `UserRow` + an auto-created led `Team
 
 The backend's `POST /teams/:id/join-requests` returns 409 if the caller already has a pending request to *any* team (Phase 5c). Each demo non-leader can therefore have at most one pending request total. To preserve a demo for both jet and ami, split the four non-leaders 2/2:
 
-- `jet@demo.gal` and `ami@demo.gal` are both designated demo leaders.
+- `jet@demo.ga` and `ami@demo.ga` are both designated demo leaders.
 - `alex` and `mei` have a pending request against **jet's** team (2 rows).
 - `kai` and `yu` have a pending request against **ami's** team (2 rows).
 - Total: 4 rows.

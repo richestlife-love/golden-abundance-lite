@@ -11,7 +11,7 @@ type AuthResponse = components["schemas"]["AuthResponse"];
 export const userJet: User = {
   id: "00000000-0000-0000-0000-000000000001",
   display_id: "UJET",
-  email: "jet@demo.gal",
+  email: "jet@demo.ga",
   zh_name: "金杰",
   en_name: "Jet Kan",
   nickname: "Jet",
@@ -31,7 +31,7 @@ export const userIncomplete: User = {
   ...userJet,
   id: "00000000-0000-0000-0000-000000000099",
   display_id: "UNEW",
-  email: "new@demo.gal",
+  email: "new@demo.ga",
   zh_name: null,
   name: "new",
   profile_complete: false,

@@ -1,4 +1,4 @@
-const KEY = "gal.token";
+const KEY = "ga.token";
 
 export const tokenStore = {
   get(): string | null {

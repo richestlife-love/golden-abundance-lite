@@ -37,7 +37,7 @@
 | Demo seed leader teams | Created via `services.team.create_led_team` (the same code path real users hit) | Avoids duplicating logic; respects all invariants. |
 | Demo join-request creation | Via `services.team.create_join_request` (same code path) | Same reasoning. |
 | `gen-demo-accounts` script location | `backend/src/backend/scripts/dump_demo_accounts.py` | New `scripts/` dir; stays inside the package so `python -m backend.scripts.dump_demo_accounts` works. |
-| Demo email domain | `@demo.gal` | Distinct from real Google accounts; obvious in logs. |
+| Demo email domain | `@demo.ga` | Distinct from real Google accounts; obvious in logs. |
 | Demo display IDs | Server-assigned via existing `services.display_id` (no hand-coding) | Avoids the Phase 5e "seed bypasses display_id" debt item entirely. |
 | `gen-types` placement | Repo-root justfile (NOT backend's) | Cross-stack recipe; stays out of `backend/justfile` which is Python-only. |
 | Repo-root justfile existence | Create one if missing; it's the right home for cross-stack recipes | Phase 5 had `backend/justfile` only; Phase 4 needs cross-stack. |
@@ -115,7 +115,7 @@ Files created (C) or modified (M) by this plan. Paths are relative to repo root 
 
 | Path | Action | Contents |
 |---|---|---|
-| `frontend/src/auth/token.ts` | C | `tokenStore` (localStorage under `gal.token`) |
+| `frontend/src/auth/token.ts` | C | `tokenStore` (localStorage under `ga.token`) |
 | `frontend/src/auth/session.ts` | C | `AuthProvider`, `useAuth`, module-level `signOut`, registers `setSessionExpiredHandler` at import |
 | `frontend/src/ui/toasts.ts` | C | `Toast` type, `setToastSink`, `pushToast` |
 | `frontend/src/ui/UIStateProvider.tsx` | C | Provider with `successData` + `toasts`; on mount registers toast sink |
@@ -186,7 +186,7 @@ async def test_demo_users_seeded(session_factory) -> None:
     emails = {u.email for u in rows}
     assert emails >= {u["email"] for u in DEMO_USERS}
     for u in rows:
-        if u.email.endswith("@demo.gal"):
+        if u.email.endswith("@demo.ga"):
             assert u.profile_complete is True, f"{u.email} should be profile-complete"
             assert u.zh_name, f"{u.email} should have zh_name set"
             assert u.display_id.startswith("U"), f"{u.email} display_id shape"
@@ -242,7 +242,7 @@ After `_upsert_news`, add:
 ```python
 DEMO_USERS: list[dict[str, str]] = [
     {
-        "email": "jet@demo.gal",
+        "email": "jet@demo.ga",
         "zh_name": "金杰",
         "en_name": "Jet Kan",
         "nickname": "Jet",
@@ -252,7 +252,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "台北",
     },
     {
-        "email": "ami@demo.gal",
+        "email": "ami@demo.ga",
         "zh_name": "林詠瑜",
         "en_name": "Ami Lin",
         "nickname": "Ami",
@@ -262,7 +262,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "台北",
     },
     {
-        "email": "alex@demo.gal",
+        "email": "alex@demo.ga",
         "zh_name": "陳志豪",
         "en_name": "Alex Chen",
         "nickname": "Alex",
@@ -272,7 +272,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "新北",
     },
     {
-        "email": "mei@demo.gal",
+        "email": "mei@demo.ga",
         "zh_name": "王美玲",
         "en_name": "Mei Wang",
         "nickname": "Mei",
@@ -282,7 +282,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "台中",
     },
     {
-        "email": "kai@demo.gal",
+        "email": "kai@demo.ga",
         "zh_name": "黃凱文",
         "en_name": "Kai Huang",
         "nickname": "Kai",
@@ -292,7 +292,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "高雄",
     },
     {
-        "email": "yu@demo.gal",
+        "email": "yu@demo.ga",
         "zh_name": "張詩宇",
         "en_name": "Yu Chang",
         "nickname": "Yu",
@@ -312,7 +312,7 @@ async def _upsert_demo_users(session: AsyncSession) -> dict[str, UserRow]:
     existing = {
         u.email: u
         for u in (await session.execute(select(UserRow))).scalars().all()
-        if u.email.endswith("@demo.gal")
+        if u.email.endswith("@demo.ga")
     }
     out: dict[str, UserRow] = dict(existing)
     for spec in DEMO_USERS:
@@ -389,10 +389,10 @@ Append to `backend/tests/test_seed_demo.py`:
 ```python
 DEMO_FANOUT_EXPECTED = {
     # requester_email -> leader_email
-    "alex@demo.gal": "jet@demo.gal",
-    "mei@demo.gal": "jet@demo.gal",
-    "kai@demo.gal": "ami@demo.gal",
-    "yu@demo.gal": "ami@demo.gal",
+    "alex@demo.ga": "jet@demo.ga",
+    "mei@demo.ga": "jet@demo.ga",
+    "kai@demo.ga": "ami@demo.ga",
+    "yu@demo.ga": "ami@demo.ga",
 }
 
 
@@ -421,7 +421,7 @@ async def test_demo_join_requests_fanout(session_factory) -> None:
         team = next(t for t in teams.values() if t.id == r.team_id)
         leader_email = next(u.email for u in users.values() if u.id == team.leader_id)
         requester_email = next(u.email for u in users.values() if u.id == r.user_id)
-        if requester_email.endswith("@demo.gal"):
+        if requester_email.endswith("@demo.ga"):
             actual[requester_email] = leader_email
 
     assert actual == DEMO_FANOUT_EXPECTED, f"fan-out mismatch: {actual}"
@@ -481,10 +481,10 @@ from backend.services import team as team_service
 
 DEMO_FANOUT: list[tuple[str, str]] = [
     # (requester_email, leader_email)
-    ("alex@demo.gal", "jet@demo.gal"),
-    ("mei@demo.gal", "jet@demo.gal"),
-    ("kai@demo.gal", "ami@demo.gal"),
-    ("yu@demo.gal", "ami@demo.gal"),
+    ("alex@demo.ga", "jet@demo.ga"),
+    ("mei@demo.ga", "jet@demo.ga"),
+    ("kai@demo.ga", "ami@demo.ga"),
+    ("yu@demo.ga", "ami@demo.ga"),
 ]
 
 
@@ -689,8 +689,8 @@ Create `justfile` at the repo root:
 # Generate frontend OpenAPI schema types from the FastAPI app (no running server, no DB).
 # Output: frontend/src/api/schema.d.ts (gitignored).
 gen-types:
-    uv run --project backend python -c 'import json; from backend.server import app; print(json.dumps(app.openapi()))' > /tmp/gal-openapi.json
-    pnpm -C frontend dlx openapi-typescript /tmp/gal-openapi.json -o src/api/schema.d.ts
+    uv run --project backend python -c 'import json; from backend.server import app; print(json.dumps(app.openapi()))' > /tmp/ga-openapi.json
+    pnpm -C frontend dlx openapi-typescript /tmp/ga-openapi.json -o src/api/schema.d.ts
 
 # Generate frontend demo-account picker JSON from backend.seed.DEMO_USERS.
 # Output: frontend/src/dev/demo-accounts.json (checked in).
@@ -808,7 +808,7 @@ just -f backend/justfile seed-reset
 Expected: both invocations succeed. After the second one, query the user count:
 
 ```
-docker compose -f backend/docker-compose.yml exec postgres psql -U postgres -d gal -c "select count(*) from users where email like '%@demo.gal';"
+docker compose -f backend/docker-compose.yml exec postgres psql -U postgres -d ga -c "select count(*) from users where email like '%@demo.ga';"
 ```
 
 Expected: `6`.
@@ -1034,7 +1034,7 @@ type AuthResponse = components["schemas"]["AuthResponse"];
 export const userJet: User = {
   id: "00000000-0000-0000-0000-000000000001",
   display_id: "UJET",
-  email: "jet@demo.gal",
+  email: "jet@demo.ga",
   zh_name: "金杰",
   en_name: "Jet Kan",
   nickname: "Jet",
@@ -1054,7 +1054,7 @@ export const userIncomplete: User = {
   ...userJet,
   id: "00000000-0000-0000-0000-000000000099",
   display_id: "UNEW",
-  email: "new@demo.gal",
+  email: "new@demo.ga",
   zh_name: null,
   name: "new",
   profile_complete: false,
@@ -1321,7 +1321,7 @@ describe("apiFetch", () => {
 Create `frontend/src/auth/token.ts`:
 
 ```ts
-const KEY = "gal.token";
+const KEY = "ga.token";
 
 export const tokenStore = {
   get(): string | null {
@@ -2350,7 +2350,7 @@ function probe(qc: QueryClient) {
     return (
       <div>
         <div data-testid="signed">{String(isSignedIn)}</div>
-        <button onClick={() => signIn("jet@demo.gal")}>in</button>
+        <button onClick={() => signIn("jet@demo.ga")}>in</button>
         <button onClick={() => signOut()}>out</button>
       </div>
     );

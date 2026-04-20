@@ -14,7 +14,7 @@ function probe(qc: QueryClient) {
     return (
       <div>
         <div data-testid="signed">{String(isSignedIn)}</div>
-        <button onClick={() => signIn("jet@demo.gal")}>in</button>
+        <button onClick={() => signIn("jet@demo.ga")}>in</button>
         <button onClick={() => signOut()}>out</button>
       </div>
     );
