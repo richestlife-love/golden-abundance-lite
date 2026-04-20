@@ -46,10 +46,18 @@ export function _setActiveQueryClient(qc: QueryClient | null): void {
   activeQueryClient = qc;
 }
 
+// Registered at module-import time — before AuthProvider mounts. The
+// handler deliberately does NOT call signOut(): signOut lives on the
+// AuthProvider closure (React state + inFlightSignOut guard), which may
+// not exist yet when a 401 fires (e.g. during a pre-mount loader).
+// Consequence until plan 4c wires setRouterRef: useAuth().isSignedIn
+// stays stale after a 401, and concurrent loader-401s bypass the
+// inFlightSignOut dedup (each fires tokenStore.clear + qc.clear + toast
+// independently). Plan 4c mirrors _setActiveQueryClient with
+// _setActiveRouter(router) and routes both user- and
+// expired-initiated logouts through signOut so state + dedup + nav all
+// converge.
 setSessionExpiredHandler(({ returnTo }) => {
-  // Best-effort: clear token + cache immediately so subsequent requests
-  // don't loop on the now-expired token. Router-navigate to /sign-in
-  // lands in plan 4c along with router wire-in.
   tokenStore.clear();
   pushToast({ kind: "info", message: "您的工作階段已過期，請重新登入" });
   activeQueryClient?.clear();
