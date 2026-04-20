@@ -37,8 +37,13 @@ function ProfileEditRoute() {
         // ProfileCreate (all required) structurally satisfies ProfileUpdate
         // (all optional); the server treats a full overwrite as equivalent
         // to the current semantics the edit screen has always sent.
-        await patch.mutateAsync(profile);
-        navigate({ to: "/me/profile" });
+        try {
+          await patch.mutateAsync(profile);
+          navigate({ to: "/me/profile" });
+        } catch {
+          // error surfaces via patch.error; form stays mounted so the
+          // user can retry without an unhandled-rejection warning.
+        }
       }}
     />
   );
