@@ -74,6 +74,7 @@ export default function GlobalStyles() {
         --text-2xl: clamp(24px, 7vw, 28px);
         --text-display: clamp(40px, 12vw, 52px);
       }
+      html { font-size: 125%; }
       html, body { margin: 0; padding: 0; background: var(--bg-shell); }
       * { box-sizing: border-box; }
 
