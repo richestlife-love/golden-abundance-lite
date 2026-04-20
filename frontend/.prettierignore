@@ -2,6 +2,7 @@ node_modules
 dist
 dist-ssr
 .vite
+.tsbuild
 package-lock.json
 pnpm-lock.yaml
 src/assets

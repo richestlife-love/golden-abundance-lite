@@ -1,16 +1,22 @@
 set dotenv-filename := ".env.local"
 
-# Run full CI (install, lint, format, typecheck + bundle). Mirrors backend's `ci`.
+# Run full CI (install, lint, format, typecheck, tests, bundle). Mirrors backend's `ci`.
 ci:
     pnpm install
     pnpm run lint
     pnpm run format
+    pnpm run typecheck
+    pnpm run test
     pnpm run build
 
-# Run the Vite dev server on http://localhost:5173
+# Run the Vite dev server (default :5173; override with VITE_PORT in .env.local).
 dev:
     pnpm run dev
 
-# Expose local port 5173 via ngrok (uses NGROK_HOST from .env.local if set)
+# Run Vitest once (extra args pass through to vitest).
+test *args:
+    pnpm run test {{args}}
+
+# Expose the local dev server via ngrok (uses NGROK_HOST + VITE_PORT from .env.local).
 tunnel:
-    ngrok http ${NGROK_HOST:+--url=$NGROK_HOST} 5173
+    ngrok http ${NGROK_HOST:+--url=$NGROK_HOST} ${VITE_PORT:-5173}

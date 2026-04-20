@@ -4,9 +4,9 @@ React 18 + TypeScript + Vite.
 
 ## Running
 
-Prereqs: [`just`](https://github.com/casey/just), `pnpm`, Node 20+, Docker (for the backend's Postgres), and [`uv`](https://github.com/astral-sh/uv) (used by `gen-types` to load the FastAPI app in-process).
+Prereqs: [`just`](https://github.com/casey/just), `pnpm` 10+ (see `packageManager` in `package.json`), Node 22+ — dev uses Node 25 via `.nvmrc` (`nvm use` / `fnm use` picks it up); the `engines` floor is 22 so LTS contributors can run too. Also Docker (for the backend's Postgres), and [`uv`](https://github.com/astral-sh/uv) (used by `gen-types` to load the FastAPI app in-process).
 
-Recipes are grouped by where you run them from. Cross-stack recipes live at the repo root; backend-only recipes live under `backend/`; frontend-only commands are `pnpm` scripts you run from `frontend/`.
+Recipes are organised as a root justfile plus per-subtree justfiles (`backend/justfile`, `frontend/justfile`) wired together with `just` modules. Cross-stack recipes (`dev`, `gen-types`, `gen-demo-accounts`) live at the repo root. Subtree recipes can be run either by `cd`ing in or via the module prefix from root (e.g. `just backend db-up`). Frontend-only commands that have no just recipe are `pnpm` scripts under `frontend/`.
 
 ### Daily dev loop — from the repo root
 
@@ -25,29 +25,29 @@ just gen-demo-accounts    # rewrites frontend/src/dev/demo-accounts.json from ba
 
 `gen-types` needs neither a running server nor a DB — it imports the FastAPI app and dumps OpenAPI in-process. `schema.d.ts` is gitignored; CI must run this before any `tsc`/`vite build` step. `demo-accounts.json` is checked in — regenerate and commit after changing `DEMO_USERS`.
 
-### One-time / after-DB-schema-change setup — from `backend/`
+### One-time / after-DB-schema-change setup — backend recipes
 
 ```sh
-cd backend
-just db-up        # docker compose up Postgres
-just migrate      # alembic upgrade head
-just seed-reset   # truncate seed tables + reseed demo users, tasks, news
+just backend db-up        # docker compose up Postgres
+just backend migrate      # alembic upgrade head
+just backend seed-reset   # truncate seed tables + reseed demo users, tasks, news
 ```
 
-`seed-reset` is refused when `APP_ENV=prod`. Use it (instead of `just seed`) when seed *content* has changed — `seed` is idempotent but skip-on-conflict, so it won't update rows that already exist. Run `just --list` inside `backend/` to see the full recipe set (`ci`, `test`, `makemigration`, etc.).
+Or `cd backend && just db-up` etc. if you prefer. `seed-reset` is refused when `APP_ENV=prod`. Use it (instead of `just backend seed`) when seed _content_ has changed — `seed` is idempotent but skip-on-conflict, so it won't update rows that already exist. Run `just --list backend` (or `just --list` inside `backend/`) to see the full recipe set (`ci`, `test`, `makemigration`, etc.).
 
-### Frontend-only commands — from `frontend/`
+### Frontend-only commands
 
-For quick loops that don't touch the backend:
+From repo root (preferred):
 
 ```sh
-cd frontend
-pnpm dev            # Vite only (no backend; API calls 404 at the proxy)
-pnpm test           # Vitest run once
-pnpm test --watch   # Vitest watch mode
-pnpm build          # tsc -b + vite build (requires src/api/schema.d.ts — run `just gen-types` from root first)
-pnpm lint           # eslint
+just frontend dev          # Vite only (no backend; API calls 404 at the proxy)
+just frontend test         # Vitest run (pass extra args: just frontend test --watch)
+just frontend ci           # install + lint + format + typecheck + test + bundle
 ```
+
+Or `cd frontend` and drop the `frontend` prefix. The underlying `pnpm` scripts (`pnpm dev`, `pnpm test`, `pnpm test:watch`, `pnpm build`, `pnpm typecheck`, `pnpm lint`, `pnpm format`) are also available for direct invocation. `pnpm build` (and `pnpm typecheck`) require `frontend/src/api/schema.d.ts` — run `just gen-types` from root first.
+
+Local env overrides go in `frontend/.env.local` (gitignored). See `frontend/.env.example` for the supported variables (`VITE_API_BASE_URL`, `VITE_PORT`, `VITE_ALLOWED_HOSTS`, `NGROK_HOST`).
 
 ## Layout
 
