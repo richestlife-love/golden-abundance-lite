@@ -9,9 +9,3 @@ gen-types:
 # Generate frontend demo-account picker JSON from backend.seed.DEMO_USERS (writes frontend/src/dev/demo-accounts.json, checked in).
 gen-demo-accounts:
     uv run --project backend python -m backend.scripts.dump_demo_accounts > frontend/src/dev/demo-accounts.json
-
-# Boot backend and frontend dev servers in parallel (Ctrl-C kills both).
-dev:
-    just backend dev & \
-    just frontend dev & \
-    wait

@@ -19,7 +19,7 @@ Recipes are organised as a root justfile plus per-subtree justfiles (`backend/ju
 
 ```sh
 # From repo root — cross-stack recipes and module dispatch
-just dev
+just gen-types
 just backend <recipe>
 just frontend <recipe>
 just --list
@@ -37,7 +37,6 @@ cd frontend && just ci
 
 | Recipe | Purpose | When to run |
 | --- | --- | --- |
-| `just dev` | Boot backend (`:8000`) + frontend (`:5173`) dev servers in parallel (Ctrl-C kills both). | Daily. |
 | `just gen-types` | Regenerate `frontend/src/api/schema.d.ts` from FastAPI OpenAPI (gitignored; loaded in-process, no running server or DB needed). | After backend routes/schemas change. |
 | `just gen-demo-accounts` | Regenerate `frontend/src/dev/demo-accounts.json` from `backend.seed.DEMO_USERS` (checked in — commit the result). | After editing `DEMO_USERS`. |
 
@@ -68,7 +67,7 @@ cd frontend && just ci
 
 | Situation | Commands |
 | --- | --- |
-| Fresh clone | `just backend db-up` → `just backend migrate` → `just backend seed-reset` → `just dev` |
+| Fresh clone | `just backend db-up` → `just backend migrate` → `just backend seed-reset` → `just backend dev` + `just frontend dev` |
 | After `git pull` | `just backend migrate` → `just backend seed-reset` (if seed content changed) → `just gen-types` (if backend API changed) |
 | Changed models | `just backend makemigration MSG="…"` → `just backend migrate` |
 | Changed routes / schemas | `just gen-types` |
