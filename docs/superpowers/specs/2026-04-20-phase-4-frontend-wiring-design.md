@@ -65,7 +65,7 @@ frontend/src/
 `UIStateProvider` (~50 LOC):
 
 - `successData` + `setSuccessData` — celebration modal overlay
-- `toasts` + `pushToast`/`dismissToast` — transient banners (mutation errors, 401 expiry message)
+- `toasts` + `dismissToast` — transient banners (mutation errors, 401 expiry message). The enqueue side (`pushToast`) is a module-level late-bound function in `ui/toasts.ts`, not a context hook — so `signOut` (module-scoped; see §4.4) and mutation `onError` callbacks can emit toasts from outside the React tree. Wiring in §3.4.
 
 That's it. Everything else moves to the server cache or is derived at the call site.
 
@@ -109,7 +109,9 @@ The `_authed` parent loader warms `myTasks` (§4.3), so the resolution works on 
 
 Internal navigations pass `display_id`: `navigate({ to: '/tasks/$taskId', params: { taskId: 'T3' } })`. The old hardcoded `"1" | "2" | "3"` in `routes/_authed.tasks.$taskId.start.tsx:8` and `screens/MyScreen.tsx:60,755` becomes `"T1" | "T2" | "T3"`; the form-dispatch there switches from `id === 1 → InterestForm` to `task.form_type === 'interest' → InterestForm` (source of truth is the task's own `form_type`, not a URL heuristic).
 
-**401-handler wiring — late-bound.** `api/client.ts` must not import `auth/session.ts` (the session module depends on `api/auth.ts` for `postLogout`, creating a cycle). The 401 handler is a module-level late-bound function:
+**Late-bound handlers — 401 interceptor and toast emission.** Two hooks bridge module-scoped callers (the 401 interceptor in `api/client.ts`; the module-scoped `signOut` in `auth/session.ts`) to state that lives in the React tree. `api/client.ts` must not import `auth/session.ts` (the session module depends on `api/auth.ts` for `postLogout`, creating a cycle), and `signOut` — which runs outside any provider — cannot reach `UIStateProvider`'s state directly. Both use the same registrar pattern: a module-level setter overrides a null default, callers invoke through a null-safe wrapper.
+
+**401 handler:**
 
 ```ts
 // api/client.ts
@@ -125,7 +127,27 @@ import { setSessionExpiredHandler } from '../api/client';
 setSessionExpiredHandler(({ returnTo }) => signOut({ reason: 'expired', returnTo }));
 ```
 
-`auth/session.ts` is imported from `main.tsx` before the router mounts, so the handler is registered before any loader fires. Tests wire their own handler (or none) inside `renderRoute` (§8.2).
+**Toast handler:**
+
+```ts
+// ui/toasts.ts
+export type Toast = { kind: 'info' | 'error' | 'success'; message: string };
+let sink: ((t: Toast) => void) | null = null;
+export function setToastSink(fn: typeof sink): void { sink = fn; }
+export function pushToast(t: Toast): void { sink?.(t); }
+```
+
+```ts
+// ui/UIStateProvider.tsx — inside the provider component
+useEffect(() => {
+  setToastSink(enqueue);
+  return () => setToastSink(null);
+}, [enqueue]);
+```
+
+All callers (`signOut`, mutation `onError` defaults, screens) import `pushToast` from `ui/toasts.ts`. A null sink is a graceful no-op, so a toast fired before the provider mounts is dropped silently rather than crashing.
+
+`auth/session.ts` is imported from `main.tsx` before the router mounts, so the session-expired handler is registered before any loader fires. `UIStateProvider` wraps the router, so its mount `useEffect` runs before any child-component query can 401. Tests wire their own handlers (or none) inside `renderRoute` (§8.2).
 
 ## 4. Auth lifecycle
 
@@ -392,8 +414,8 @@ Override per call site if a screen needs fresher data.
 | `POST /tasks/:id/submit` | `qk.task(id)`, `qk.myTasks`, `qk.myRewards`, `qk.me`, `['rank']` |
 | `POST /teams/:id/join-requests` | `qk.team(id)`, `qk.myTeams` |
 | `DELETE /teams/:id/join-requests/:req` | `qk.team(id)`, `qk.myTeams` |
-| `POST .../approve` (leader) | optimistic patch (§6.2); on settle `qk.team(id)`, `qk.myTeams`, `qk.myTasks`, `qk.myRewards`, `qk.me`, `['rank']` |
-| `POST .../reject` (leader) | optimistic patch (§6.2); on settle `qk.team(id)` |
+| `POST .../approve` (leader) | optimistic patch on `qk.myTeams` (§6.2); on settle `qk.myTeams`, `qk.team(id)` (defensive — no Phase 3/4 subscriber), `qk.myTasks`, `qk.myRewards`, `qk.me`, `['rank']` |
+| `POST .../reject` (leader) | optimistic patch on `qk.myTeams` (§6.2); on settle `qk.myTeams`, `qk.team(id)` (defensive) |
 | `POST /teams/:id/leave` | `qk.team(id)`, `qk.myTeams`, `qk.myTasks`, `qk.myRewards`, `qk.me`, `['rank']` |
 | `PATCH /teams/:id` (rename/topic) | optimistic patch (§6.2); on settle `qk.team(id)`, `qk.myTeams`, `['teams']` (search results) |
 | `POST /auth/logout` | `queryClient.clear()` |
@@ -402,33 +424,39 @@ The reward cascade in approve is a known backend N+1 (Phase 5c debt). The fronte
 
 ### 6.2 Optimistic mutations (three only)
 
+All three patch `qk.myTeams` — the `MeTeamsResponse.led` slot — because `MyScreen.tsx` (and `RenameTeamSheet`) renders `ledTeam` from `useMyTeams().data.led`, not from `qk.team(id)`. Phase 3/4 has no team-detail route, so `qk.team(id)` has no subscriber; writing optimistically to it would leave the visible UI stale until settle-time invalidation, defeating the point.
+
 **Approve join-request:**
 
 ```ts
 onMutate: async ({ teamId, reqId }) => {
-  await queryClient.cancelQueries({ queryKey: qk.team(teamId) });
-  const prev = queryClient.getQueryData<Team>(qk.team(teamId));
-  if (prev) {
-    const req = prev.requests?.find(r => r.id === reqId);
+  await queryClient.cancelQueries({ queryKey: qk.myTeams });
+  const prev = queryClient.getQueryData<MeTeamsResponse>(qk.myTeams);
+  const team = prev?.led;
+  if (prev && team && team.id === teamId) {
+    const req = team.requests?.find(r => r.id === reqId);
     if (req) {
       // `req.user` is already a complete UserRef ({id, display_id, name, avatar_url}) —
       // spread it whole so no required field is dropped.
-      queryClient.setQueryData<Team>(qk.team(teamId), {
+      queryClient.setQueryData<MeTeamsResponse>(qk.myTeams, {
         ...prev,
-        members: [...prev.members, req.user],
-        requests: prev.requests!.filter(r => r.id !== reqId),
+        led: {
+          ...team,
+          members: [...team.members, req.user],
+          requests: team.requests!.filter(r => r.id !== reqId),
+        },
       });
     }
   }
   return { prev };
 },
-onError: (_err, { teamId }, ctx) => {
-  if (ctx?.prev) queryClient.setQueryData(qk.team(teamId), ctx.prev);
+onError: (_err, _vars, ctx) => {
+  if (ctx?.prev) queryClient.setQueryData(qk.myTeams, ctx.prev);
   pushToast({ kind: 'error', message: '審核失敗，請再試一次' });
 },
 onSettled: (_data, _err, { teamId }) => {
-  queryClient.invalidateQueries({ queryKey: qk.team(teamId) });
   queryClient.invalidateQueries({ queryKey: qk.myTeams });
+  queryClient.invalidateQueries({ queryKey: qk.team(teamId) });
   queryClient.invalidateQueries({ queryKey: qk.myTasks });
   queryClient.invalidateQueries({ queryKey: qk.myRewards });
   queryClient.invalidateQueries({ queryKey: qk.me });
@@ -436,9 +464,9 @@ onSettled: (_data, _err, { teamId }) => {
 },
 ```
 
-**Reject join-request:** same shape, `requests: requests.filter(...)`, no `members` push.
+**Reject join-request:** same shape against `qk.myTeams.led`, `requests: requests.filter(...)`, no `members` push. Settle-time invalidates `qk.myTeams` (to reconcile) and `qk.team(id)` (defensive).
 
-**Rename team / patch topic** (`PATCH /teams/:id`): optimistic string swap on the cached `Team`, rollback on error, invalidate on settle.
+**Rename team / patch topic** (`PATCH /teams/:id`): optimistic string swap on `qk.myTeams.led` (patch the `name` / `alias` / `topic` field on the `led` team when `led.id === teamId`), rollback the whole `MeTeamsResponse` on error, invalidate `qk.myTeams`, `qk.team(id)` (defensive), and `['teams']` (search result `name` is denormalized) on settle.
 
 ### 6.3 Error surfacing
 
