@@ -37,8 +37,7 @@ asyncio_mode = "auto"
 pythonpath = ["."]
 
 [tool.coverage.run]
-source = ["backend"]
-omit = ["*/backend/contract/*"]
+source = ["src"]
 
 [tool.coverage.report]
 fail_under = 90
