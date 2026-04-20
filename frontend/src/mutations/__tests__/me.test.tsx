@@ -94,7 +94,7 @@ const cases: Case[] = [
         availability: ["weekend"],
       },
     },
-    expectedKeys: [qk.task(taskId), qk.myTasks, qk.myRewards, qk.me, ["rank"]],
+    expectedKeys: [qk.task(taskId), qk.myTasks, qk.myRewards, qk.me, ["leaderboard"]],
   },
   {
     name: "useCreateJoinRequest",
@@ -122,7 +122,7 @@ const cases: Case[] = [
       HttpResponse.json(f.teamJetLed),
     ),
     args: { teamId, reqId },
-    expectedKeys: [qk.myTeams, qk.team(teamId), qk.myTasks, qk.myRewards, qk.me, ["rank"]],
+    expectedKeys: [qk.myTeams, qk.team(teamId), qk.myTasks, qk.myRewards, qk.me, ["leaderboard"]],
   },
   {
     name: "useRejectJoinRequest",
@@ -142,7 +142,7 @@ const cases: Case[] = [
       () => new HttpResponse(null, { status: 204 }),
     ),
     args: teamId,
-    expectedKeys: [qk.team(teamId), qk.myTeams, qk.myTasks, qk.myRewards, qk.me, ["rank"]],
+    expectedKeys: [qk.team(teamId), qk.myTeams, qk.myTasks, qk.myRewards, qk.me, ["leaderboard"]],
   },
   {
     name: "usePatchTeam",

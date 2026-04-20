@@ -85,7 +85,7 @@ export function useApproveJoinRequest() {
       qc.invalidateQueries({ queryKey: qk.myTasks });
       qc.invalidateQueries({ queryKey: qk.myRewards });
       qc.invalidateQueries({ queryKey: qk.me });
-      qc.invalidateQueries({ queryKey: ["rank"] });
+      qc.invalidateQueries({ queryKey: ["leaderboard"] });
     },
   });
 }
@@ -128,7 +128,7 @@ export function useLeaveTeam() {
       qc.invalidateQueries({ queryKey: qk.myTasks });
       qc.invalidateQueries({ queryKey: qk.myRewards });
       qc.invalidateQueries({ queryKey: qk.me });
-      qc.invalidateQueries({ queryKey: ["rank"] });
+      qc.invalidateQueries({ queryKey: ["leaderboard"] });
     },
   });
 }

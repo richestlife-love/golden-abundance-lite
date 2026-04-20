@@ -2,8 +2,11 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useMe } from "../hooks/useMe";
 import { useMyTasks } from "../hooks/useMyTasks";
-import { rankUsersInfiniteQueryOptions, rankTeamsInfiniteQueryOptions } from "../queries/rank";
-import type { RankPeriod } from "../api/rank";
+import {
+  leaderboardUsersInfiniteQueryOptions,
+  leaderboardTeamsInfiniteQueryOptions,
+} from "../queries/leaderboard";
+import type { LeaderboardPeriod } from "../api/leaderboard";
 import { avatarBg, fs } from "../utils";
 import BottomNav from "../ui/BottomNav";
 import { PartyPopperIcon, StarIcon, UsersIcon } from "../ui/Icon";
@@ -21,13 +24,13 @@ interface RowCommon {
   isTeam?: boolean;
 }
 
-const PERIODS: Array<{ key: RankPeriod; label: string }> = [
+const PERIODS: Array<{ key: LeaderboardPeriod; label: string }> = [
   { key: "week", label: "本週" },
   { key: "month", label: "本月" },
   { key: "all_time", label: "總榜" },
 ];
 
-export default function RankScreen() {
+export default function LeaderboardScreen() {
   const { data: user } = useMe();
   const { data: tasks } = useMyTasks();
   const bg = "var(--bg)";
@@ -37,13 +40,13 @@ export default function RankScreen() {
   const cardBorder = "1px solid var(--card-strong)";
 
   const [tab, setTab] = useState<Tab>("personal");
-  const [period, setPeriod] = useState<RankPeriod>("month");
+  const [period, setPeriod] = useState<LeaderboardPeriod>("month");
 
   const myPoints = tasks.filter((t) => t.status === "completed").reduce((s, t) => s + t.points, 0);
   const myName = user.nickname || user.zh_name || user.name || "你";
 
-  const usersQ = useInfiniteQuery(rankUsersInfiniteQueryOptions(period));
-  const teamsQ = useInfiniteQuery(rankTeamsInfiniteQueryOptions(period));
+  const usersQ = useInfiniteQuery(leaderboardUsersInfiniteQueryOptions(period));
+  const teamsQ = useInfiniteQuery(leaderboardTeamsInfiniteQueryOptions(period));
 
   const userRows: RowCommon[] =
     usersQ.data?.pages.flatMap((p) =>

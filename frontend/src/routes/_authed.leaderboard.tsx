@@ -1,6 +1,9 @@
 import { createRoute } from "@tanstack/react-router";
-import RankScreen from "../screens/RankScreen";
-import { rankTeamsInfiniteQueryOptions, rankUsersInfiniteQueryOptions } from "../queries/rank";
+import LeaderboardScreen from "../screens/LeaderboardScreen";
+import {
+  leaderboardTeamsInfiniteQueryOptions,
+  leaderboardUsersInfiniteQueryOptions,
+} from "../queries/leaderboard";
 import { authedRoute } from "./_authed";
 
 export const leaderboardRoute = createRoute({
@@ -8,8 +11,8 @@ export const leaderboardRoute = createRoute({
   path: "/leaderboard",
   loader: ({ context }) =>
     Promise.all([
-      context.queryClient.ensureInfiniteQueryData(rankUsersInfiniteQueryOptions("week")),
-      context.queryClient.ensureInfiniteQueryData(rankTeamsInfiniteQueryOptions("week")),
+      context.queryClient.ensureInfiniteQueryData(leaderboardUsersInfiniteQueryOptions("week")),
+      context.queryClient.ensureInfiniteQueryData(leaderboardTeamsInfiniteQueryOptions("week")),
     ]),
-  component: RankScreen,
+  component: LeaderboardScreen,
 });

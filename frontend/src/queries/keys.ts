@@ -1,4 +1,4 @@
-import type { RankPeriod } from "../api/rank";
+import type { LeaderboardPeriod } from "../api/leaderboard";
 import type { TeamSearchParams } from "../api/teams";
 
 export const qk = {
@@ -9,7 +9,7 @@ export const qk = {
   task: (id: string) => ["tasks", id] as const,
   teams: (params: TeamSearchParams) => ["teams", params] as const,
   team: (id: string) => ["teams", id] as const,
-  rankUsers: (period: RankPeriod) => ["rank", "users", period] as const,
-  rankTeams: (period: RankPeriod) => ["rank", "teams", period] as const,
+  leaderboardUsers: (period: LeaderboardPeriod) => ["leaderboard", "users", period] as const,
+  leaderboardTeams: (period: LeaderboardPeriod) => ["leaderboard", "teams", period] as const,
   news: ["news"] as const,
 } as const;

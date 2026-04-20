@@ -15,7 +15,7 @@ export const defaultHandlers = [
       : HttpResponse.json({ detail: "Task not found" }, { status: 404 });
   }),
   http.get("/api/v1/news", () => HttpResponse.json({ items: f.newsList, next_cursor: null })),
-  http.get("/api/v1/rank/users", () => HttpResponse.json({ items: [], next_cursor: null })),
-  http.get("/api/v1/rank/teams", () => HttpResponse.json({ items: [], next_cursor: null })),
+  http.get("/api/v1/leaderboard/users", () => HttpResponse.json({ items: [], next_cursor: null })),
+  http.get("/api/v1/leaderboard/teams", () => HttpResponse.json({ items: [], next_cursor: null })),
   http.get("/api/v1/teams", () => HttpResponse.json({ items: [], next_cursor: null })),
 ];

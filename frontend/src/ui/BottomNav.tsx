@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import { fs } from "../utils";
 import type { ReactNode } from "react";
 
-type TabKey = "home" | "tasks" | "rank" | "me";
+type TabKey = "home" | "tasks" | "leaderboard" | "me";
 
 // `as const` gives each entry a literal type ("/home", etc.), which TanStack
 // Router validates at compile time. Typing as `Record<TabKey, string>` would
@@ -10,7 +10,7 @@ type TabKey = "home" | "tasks" | "rank" | "me";
 const TAB_TO_PATH = {
   home: "/home",
   tasks: "/tasks",
-  rank: "/leaderboard",
+  leaderboard: "/leaderboard",
   me: "/me",
 } as const satisfies Record<TabKey, string>;
 
@@ -38,7 +38,7 @@ const TasksIcon = () => (
     <path d="M9 12l2 2 4-4" />
   </svg>
 );
-const RankIcon = () => (
+const LeaderboardIcon = () => (
   <svg {...iconProps}>
     <path d="M7 3h10v4a5 5 0 0 1-10 0V3z" />
     <path d="M7 5H4v2a3 3 0 0 0 3 3" />
@@ -58,18 +58,18 @@ const MeIcon = () => (
 // are, not just that something is selected. Gold is reserved for Home (the
 // primary brand), and the three accent colors map to the role-tagged
 // semantics already declared in GlobalStyles:
-//   tasks → community (green) · rank → milestone (purple) · me → pioneer (peach)
+//   tasks → community (green) · leaderboard → milestone (purple) · me → pioneer (peach)
 const TAB_ACCENT: Record<TabKey, string> = {
   home: "var(--gold)",
   tasks: "var(--green-deep)",
-  rank: "var(--purple-deep)",
+  leaderboard: "var(--purple-deep)",
   me: "var(--peach-deep)",
 };
 
 const ITEMS: { key: TabKey; label: string; icon: ReactNode }[] = [
   { key: "home", label: "首頁", icon: <HomeIcon /> },
   { key: "tasks", label: "任務", icon: <TasksIcon /> },
-  { key: "rank", label: "排行", icon: <RankIcon /> },
+  { key: "leaderboard", label: "排行", icon: <LeaderboardIcon /> },
   { key: "me", label: "我的", icon: <MeIcon /> },
 ];
 

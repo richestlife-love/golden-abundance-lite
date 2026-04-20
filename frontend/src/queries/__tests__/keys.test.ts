@@ -15,8 +15,8 @@ describe("qk", () => {
     expect(qk.team("X").slice(0, 1)).toEqual(["teams"]);
   });
 
-  it("rank keys share the 'rank' prefix for broad invalidation", () => {
-    expect(qk.rankUsers("week").slice(0, 1)).toEqual(["rank"]);
-    expect(qk.rankTeams("week").slice(0, 1)).toEqual(["rank"]);
+  it("leaderboard keys share the 'leaderboard' prefix for broad invalidation", () => {
+    expect(qk.leaderboardUsers("week").slice(0, 1)).toEqual(["leaderboard"]);
+    expect(qk.leaderboardTeams("week").slice(0, 1)).toEqual(["leaderboard"]);
   });
 });
