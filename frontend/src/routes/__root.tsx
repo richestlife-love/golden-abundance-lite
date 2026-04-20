@@ -1,13 +1,11 @@
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
 import GlobalStyles from "../ui/GlobalStyles";
 import FormSuccessOverlay from "../ui/FormSuccessOverlay";
-import { useAppState } from "../state/AppStateContext";
+import { useUIState } from "../ui/useUIState";
 
 export interface RouterContext {
-  auth: {
-    user: { id: string } | null;
-    profileComplete: boolean;
-  };
+  queryClient: QueryClient;
 }
 
 function NotFound() {
@@ -20,7 +18,7 @@ function NotFound() {
 }
 
 function RootLayout() {
-  const { successData, setSuccessData } = useAppState();
+  const { successData, setSuccessData } = useUIState();
   return (
     <div
       style={{

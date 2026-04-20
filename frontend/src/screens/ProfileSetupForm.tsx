@@ -5,16 +5,34 @@ import FieldLabel from "../ui/FieldLabel";
 import TextInput from "../ui/TextInput";
 import ChipGroup from "../ui/ChipGroup";
 import SubmitButton from "../ui/SubmitButton";
-import type { User } from "../types";
+
+// Legacy camelCase shape the form internals still consume. Plan 4c rewrites
+// this component against `ProfileCreate` / `ProfileUpdate` from schema.d.ts
+// and wires `onSubmit` to `useCompleteProfile` / `usePatchMe`; at that point
+// this local alias goes away.
+type ProfileInput = {
+  id?: string;
+  email?: string;
+  name?: string;
+  zhName?: string;
+  enName?: string;
+  nickname?: string;
+  phone?: string;
+  phoneCode?: string;
+  lineId?: string;
+  telegramId?: string;
+  country?: string;
+  location?: string;
+};
 
 type Props = {
-  user: User | null;
-  initial?: User | null;
+  user: ProfileInput | null;
+  initial?: ProfileInput | null;
   title?: string;
   subtitle?: string;
   submitLabel?: string;
   onCancel: () => void;
-  onSubmit: (profile: Partial<User>) => void;
+  onSubmit: (profile: Partial<ProfileInput>) => void;
 };
 
 export default function ProfileSetupForm({

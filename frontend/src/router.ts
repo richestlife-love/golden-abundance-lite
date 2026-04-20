@@ -4,7 +4,8 @@ import {
   type AnyRouter,
   type RouterHistory,
 } from "@tanstack/react-router";
-import { rootRoute, type RouterContext } from "./routes/__root";
+import type { QueryClient } from "@tanstack/react-query";
+import { rootRoute } from "./routes/__root";
 import { indexRoute } from "./routes/index";
 import { authedRoute } from "./routes/_authed";
 import { signInRoute } from "./routes/sign-in";
@@ -36,28 +37,18 @@ const routeTree = rootRoute.addChildren([
   ]),
 ]);
 
-export function createAppRouter(opts?: {
-  history?: RouterHistory;
-  // Test-only: lets tests seed first-render guard state before AppShell
-  // hoists auth via RouterProvider.context. Prod uses the guest default.
-  initialContext?: RouterContext;
-}) {
+export function createAppRouter(opts: { queryClient: QueryClient; history?: RouterHistory }) {
   return createRouter({
     routeTree,
-    history: opts?.history ?? createBrowserHistory(),
+    history: opts.history ?? createBrowserHistory(),
     defaultPreload: "intent",
-    context: opts?.initialContext ?? {
-      auth: { user: null, profileComplete: false },
-    },
+    context: { queryClient: opts.queryClient },
   });
 }
 
-export const router = createAppRouter();
-
-// Typed history state — lets us use `state: { fromDetail: true }` without `as never`.
 declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router;
+    router: ReturnType<typeof createAppRouter>;
   }
   interface HistoryState {
     fromDetail?: boolean;
