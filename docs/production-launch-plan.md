@@ -23,8 +23,8 @@ See the [design spec](superpowers/specs/2026-04-19-api-contract-design.md).
 - [x] Verify bookmarkable URLs and browser back/forward
 
 ## Phase 4 — Wire frontend to backend
-- [ ] Add TanStack Query for data fetching, cache, loading/error states
-- [ ] Replace in-file mock arrays with real fetches
+- [x] Add TanStack Query for data fetching, cache, loading/error states (Phase 4a)
+- [ ] Replace in-file mock arrays with real fetches (Phase 4b read-side, Phase 4c write-side)
 
 ## Phase 5 — Persistence
 - [x] Add Postgres via SQLModel
@@ -137,7 +137,7 @@ Surfaced during Phase 5c (profile completion + teams read/update + full join-req
 - **Reward-cascade N+1 in `approve_join_request`** — [`backend/src/backend/services/team.py`](../backend/src/backend/services/team.py). After approval, the function loops over all members (leader + new + existing) and calls `maybe_grant_challenge_rewards` per user, which itself runs 3-4 SELECTs (challenge defs, led team, led mems, joined link, joined mems, existing reward). For a 6-member team that's roughly 24 queries on a single approval. Acceptable for Phase-5 single-tenant scale; if approval becomes hot, batch the per-user reward check into one query that joins members × challenge defs × existing rewards, or move the cascade to a background job.
 
 ### Architecture
-- **`services/team.py` is approaching god-module size** — ~347 LOC, 9 public functions across 4 conceptual groups (mapper + search, team lifecycle, join-request workflow, reward cascade). Coherent today but a Phase-6 split candidate: `team/queries.py` (`row_to_contract_team`, `search_team_refs`, `user_to_ref`), `team/lifecycle.py` (`create_led_team`), `team/membership.py` (`JoinConflict` + `create/approve/reject_join_request`, `leave_team`, `maybe_grant_challenge_rewards`).
+- **`services/team.py` mapper + lifecycle split is still pending** — the join-request workflow already lives in [`services/team_join.py`](../backend/src/backend/services/team_join.py) (`JoinConflictError`, `create/approve/reject_join_request`, `leave_team`) and the reward cascade sits in [`services/reward.py`](../backend/src/backend/services/reward.py). `services/team.py` is now ~229 LOC but still mixes two groups: mapper + search (`row_to_contract_team`, `search_team_refs`, `user_to_ref`, `caller_team_totals`) and team lifecycle (`create_led_team`). Phase-6 candidate: split into `team/queries.py` + `team/lifecycle.py` if either grows further.
 
 ## Tech debt / review findings (Phase 5d)
 
