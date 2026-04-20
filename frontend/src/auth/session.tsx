@@ -66,7 +66,15 @@ export async function signOut(opts: SignOutOpts = {}): Promise<void> {
   }
 }
 
-setSessionExpiredHandler(({ returnTo }) => {
+setSessionExpiredHandler(({ returnTo: fromClient }) => {
+  // Prefer the router's location (stays accurate when memory history
+  // is in play — e.g. tests); fall back to the client.ts reading of
+  // window.location for the rare case where no router is registered.
+  const router = getRouterRef();
+  const returnTo =
+    router?.state.location.pathname != null
+      ? router.state.location.pathname + (router.state.location.searchStr ?? "")
+      : fromClient;
   void signOut({ reason: "expired", returnTo });
 });
 
