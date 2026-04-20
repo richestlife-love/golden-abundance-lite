@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.db.models import TeamMembershipRow
 from backend.services.team import create_led_team
 from backend.services.team_join import (
-    JoinConflict,
+    JoinConflictError,
     approve_join_request,
     create_join_request,
     leave_team,
@@ -36,7 +36,7 @@ async def test_create_join_request_rejects_self_leader(
     session: AsyncSession,
 ) -> None:
     leader, _, team = await _make_leader_and_outsider(session)
-    with pytest.raises(JoinConflict):
+    with pytest.raises(JoinConflictError):
         await create_join_request(session, team=team, requester=leader)
 
 
@@ -46,7 +46,7 @@ async def test_create_join_request_rejects_duplicate_pending(
     _, outsider, team = await _make_leader_and_outsider(session)
     await create_join_request(session, team=team, requester=outsider)
     await session.commit()
-    with pytest.raises(JoinConflict):
+    with pytest.raises(JoinConflictError):
         await create_join_request(session, team=team, requester=outsider)
 
 
@@ -59,7 +59,7 @@ async def test_create_join_request_rejects_if_already_joined_elsewhere(
     other_team = await create_led_team(session, other_leader)
     session.add(TeamMembershipRow(team_id=other_team.id, user_id=outsider.id))  # ty: ignore[missing-argument]
     await session.commit()
-    with pytest.raises(JoinConflict):
+    with pytest.raises(JoinConflictError):
         await create_join_request(session, team=team, requester=outsider)
 
 

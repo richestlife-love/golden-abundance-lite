@@ -13,7 +13,7 @@ import asyncio
 import os
 import pathlib
 from collections.abc import AsyncIterator, Iterator
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 import pytest_asyncio
@@ -71,8 +71,9 @@ async def engine(
         # alembic.command.upgrade is sync and spins its own event loop via
         # asyncio.run() in env.py — off-thread it so we don't deadlock.
         def _upgrade() -> None:
-            from alembic import command
             from alembic.config import Config
+
+            from alembic import command
 
             cfg = Config(str(_BACKEND_DIR / "alembic.ini"))
             cfg.set_main_option("script_location", str(_BACKEND_DIR / "alembic"))
@@ -177,7 +178,7 @@ async def seeded_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
         est_minutes=60,
         is_challenge=False,
         form_type=None,
-        due_at=datetime(2025, 1, 1, tzinfo=timezone.utc),
+        due_at=datetime(2025, 1, 1, tzinfo=UTC),
     )
     for t in (t1, t2, t3, t4):
         session.add(t)

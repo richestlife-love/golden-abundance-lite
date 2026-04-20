@@ -22,7 +22,7 @@ over ``(points DESC, id ASC)``. That removes the "load every user/team
 into Python" pattern and scales to 10k+ rows.
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import func, select
@@ -44,14 +44,14 @@ from backend.db.models import (
     UserRow,
 )
 from backend.services.pagination import (
-    InvalidCursor,
+    InvalidCursorError,
     decode_cursor,
     encode_cursor,
 )
 
 
 def _since(period: RankPeriod) -> datetime | None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if period == "week":
         return now - timedelta(days=7)
     if period == "month":
@@ -71,7 +71,7 @@ async def _user_points_window_and_week(session: AsyncSession, period: RankPeriod
     window bound applies, so we read ``task_progress`` exactly once
     instead of twice.
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     week_start = now - timedelta(days=7)
     window_start = _since(period)
 
@@ -124,7 +124,7 @@ def _slice_after_cursor(
             cursor_pts = int(payload["pts"])
             cursor_id_str = str(payload["id"])
         except (KeyError, TypeError, ValueError) as exc:
-            raise InvalidCursor(f"rank cursor missing/invalid pts/id: {exc}") from exc
+            raise InvalidCursorError(f"rank cursor missing/invalid pts/id: {exc}") from exc
         for idx, (pts, eid) in enumerate(sorted_entries):
             if pts < cursor_pts or (pts == cursor_pts and str(eid) > cursor_id_str):
                 start_idx = idx

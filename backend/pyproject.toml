@@ -44,6 +44,17 @@ show_missing = true
 [tool.ruff]
 line-length = 120
 
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "N"]
+# B008: FastAPI's `= Depends(...)` / `= Query(...)` defaults are idiomatic,
+#       not the anti-pattern this rule targets.
+# RUF001/002/003: ambiguous-unicode noise from zh-Hant strings in seed data.
+ignore = ["B008", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests intentionally use local imports (to scope heavy fixtures) and assert.
+"tests/**" = ["PLC0415"]
+
 [build-system]
 requires = ["uv_build>=0.11.7,<0.12.0"]
 build-backend = "uv_build"

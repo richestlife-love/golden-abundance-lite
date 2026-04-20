@@ -23,6 +23,7 @@ async def test_get_me_401_without_token(client: AsyncClient) -> None:
 async def test_401_when_user_was_deleted(client: AsyncClient, session: AsyncSession) -> None:
     """Valid JWT whose `sub` points at a deleted user → 401, not 200 with None."""
     from sqlalchemy import delete
+
     from backend.db.models import UserRow
 
     r = await client.post("/api/v1/auth/google", json={"id_token": "jet@example.com"})
@@ -54,8 +55,9 @@ async def test_me_rejects_bad_bearer(client: AsyncClient, header_value: str) -> 
 
 async def test_me_rejects_expired_bearer(client: AsyncClient) -> None:
     from datetime import timedelta
-    from backend.auth.jwt import encode_token
     from uuid import uuid4
+
+    from backend.auth.jwt import encode_token
 
     expired = encode_token(user_id=uuid4(), email="x@e.com", ttl=timedelta(seconds=-3600))
     r = await client.get("/api/v1/me", headers={"Authorization": f"Bearer {expired}"})

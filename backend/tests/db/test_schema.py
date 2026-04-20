@@ -32,9 +32,10 @@ def test_migration_is_downgrade_safe(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     from pathlib import Path
 
-    from alembic import command
     from alembic.config import Config
     from testcontainers.postgres import PostgresContainer
+
+    from alembic import command
 
     alembic_ini = str(Path(__file__).parent.parent.parent / "alembic.ini")
     with PostgresContainer("postgres:17-alpine", driver="psycopg") as pg:

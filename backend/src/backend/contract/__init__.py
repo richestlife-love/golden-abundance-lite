@@ -33,7 +33,7 @@ from backend.contract.team import (
 )
 from backend.contract.user import ProfileCreate, ProfileUpdate, User
 
-__all__ = [
+__all__ = [  # noqa: RUF022 — grouped by source module, not alphabetized
     # auth
     "AuthResponse",
     "GoogleAuthRequest",

@@ -6,9 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.auth.dependencies import current_user
-from backend.contract import SubmitBody
+from backend.contract import SubmitBody, TaskSubmissionResponse
 from backend.contract import Task as ContractTask
-from backend.contract import TaskSubmissionResponse
 from backend.db.models import TaskDefRow, UserRow
 from backend.db.session import get_session
 from backend.services.task import (

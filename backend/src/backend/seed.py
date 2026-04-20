@@ -9,7 +9,7 @@ which is acceptable for a dev seed.
 """
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -100,7 +100,7 @@ async def _upsert_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
             est_minutes=60,
             is_challenge=False,
             form_type=None,
-            due_at=datetime(2026, 3, 1, tzinfo=timezone.utc),
+            due_at=datetime(2026, 3, 1, tzinfo=UTC),
         )
         session.add(t4)
         existing["T4"] = t4
@@ -111,7 +111,7 @@ async def _upsert_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
 
 async def _upsert_news(session: AsyncSession) -> None:
     existing = {n.title for n in (await session.execute(select(NewsItemRow))).scalars().all()}
-    _now = datetime.now(tz=timezone.utc)
+    _now = datetime.now(tz=UTC)
     # News items: (title, body, category, pinned, offset_days)
     seeds = [
         ("夏季盛會志工招募開跑", "5/10 夏季盛會報名中。", "公告", True, 1),

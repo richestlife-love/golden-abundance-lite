@@ -9,10 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.auth.dependencies import current_user
 from backend.contract import (
     JoinRequest as ContractJoinRequest,
+)
+from backend.contract import (
     Paginated,
-    Team as ContractTeam,
     TeamRef,
     TeamUpdate,
+)
+from backend.contract import (
+    Team as ContractTeam,
 )
 from backend.db.models import JoinRequestRow, TeamRow, UserRow
 from backend.db.session import get_session
@@ -22,7 +26,7 @@ from backend.services.team import (
     user_to_ref,
 )
 from backend.services.team_join import (
-    JoinConflict,
+    JoinConflictError,
     approve_join_request,
     create_join_request,
     leave_team,
@@ -102,7 +106,7 @@ async def request_to_join(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found")
     try:
         req = await create_join_request(session, team=team, requester=me)
-    except JoinConflict as exc:
+    except JoinConflictError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     await session.commit()
     await session.refresh(req)

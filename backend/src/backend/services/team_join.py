@@ -19,13 +19,13 @@ from backend.db.models import (
 from backend.services.reward import maybe_grant_challenge_rewards
 
 
-class JoinConflict(Exception):
+class JoinConflictError(Exception):
     """Business-rule violation during join-request creation."""
 
 
 async def create_join_request(session: AsyncSession, *, team: TeamRow, requester: UserRow) -> JoinRequestRow:
     if team.leader_id == requester.id:
-        raise JoinConflict("Leaders cannot request to join their own team")
+        raise JoinConflictError("Leaders cannot request to join their own team")
 
     # Already a member of THIS team?
     existing_membership = (
@@ -37,7 +37,7 @@ async def create_join_request(session: AsyncSession, *, team: TeamRow, requester
         )
     ).scalar_one_or_none()
     if existing_membership is not None:
-        raise JoinConflict("Already a member of this team")
+        raise JoinConflictError("Already a member of this team")
 
     # Any existing team membership at all?
     any_membership = (
@@ -46,7 +46,7 @@ async def create_join_request(session: AsyncSession, *, team: TeamRow, requester
         )
     ).scalar_one_or_none()
     if any_membership is not None:
-        raise JoinConflict("Already a member of a different team")
+        raise JoinConflictError("Already a member of a different team")
 
     # Any existing pending request?
     any_pending = (
@@ -57,7 +57,7 @@ async def create_join_request(session: AsyncSession, *, team: TeamRow, requester
         )
     ).scalar_one_or_none()
     if any_pending is not None:
-        raise JoinConflict("Already has a pending join request")
+        raise JoinConflictError("Already has a pending join request")
 
     req = JoinRequestRow(team_id=team.id, user_id=requester.id, status="pending")  # ty: ignore[missing-argument]
     session.add(req)

@@ -1,3 +1,5 @@
+from datetime import UTC
+
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -79,7 +81,8 @@ async def test_rank_users_week_filters_out_old_completions(
     The plan's `_user_points_map` branches on period via `_since()`. Without this
     test, the period filter could be silently deleted.
     """
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
+
     from backend.db.models import TaskProgressRow
 
     jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
@@ -89,7 +92,7 @@ async def test_rank_users_week_filters_out_old_completions(
             task_def_id=seeded_task_defs["T1"].id,
             status="completed",
             progress=1.0,
-            completed_at=datetime.now(timezone.utc) - timedelta(days=10),
+            completed_at=datetime.now(UTC) - timedelta(days=10),
         )
     )
     await session.commit()

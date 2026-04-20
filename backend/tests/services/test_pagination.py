@@ -1,7 +1,7 @@
 import pytest
 
 from backend.services.pagination import (
-    InvalidCursor,
+    InvalidCursorError,
     decode_cursor,
     encode_cursor,
 )
@@ -25,11 +25,11 @@ def test_cursor_round_trip_list() -> None:
 
 
 def test_decode_rejects_garbage() -> None:
-    with pytest.raises(InvalidCursor):
+    with pytest.raises(InvalidCursorError):
         decode_cursor("not-valid-base64-..-!!!")
 
 
 def test_invalid_cursor_is_value_error_subclass() -> None:
     # Lets callers that only care about "malformed cursor" catch ValueError
-    # without importing InvalidCursor.
-    assert issubclass(InvalidCursor, ValueError)
+    # without importing InvalidCursorError.
+    assert issubclass(InvalidCursorError, ValueError)

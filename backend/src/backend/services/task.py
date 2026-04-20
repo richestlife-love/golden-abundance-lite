@@ -2,16 +2,15 @@
 contract `Task` shape. Enforces the derivation rules from spec §1.3.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.contract import SubmitBody
+from backend.contract import SubmitBody, TaskSubmissionResponse, TeamChallengeProgress
 from backend.contract import Task as ContractTask
 from backend.contract import TaskStep as ContractTaskStep
-from backend.contract import TaskSubmissionResponse, TeamChallengeProgress
 from backend.db.models import (
     TaskDefRequiresRow,
     TaskDefRow,
@@ -126,7 +125,7 @@ async def row_to_contract_task(
         team_progress = None
 
     locked = any(req not in completed_ids for req in requires)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     if locked:
         status = "locked"
@@ -239,7 +238,7 @@ async def submit_task(
     existing.status = "completed"
     existing.progress = 1.0
     existing.form_submission = body.model_dump()
-    existing.completed_at = datetime.now(timezone.utc)
+    existing.completed_at = datetime.now(UTC)
     await session.flush()
 
     reward_row = await create_reward_if_bonus(session, user=caller, task_def=task_def)

@@ -4,12 +4,9 @@
 models. `Paginated[T]` is the cursor-based list envelope.
 """
 
-from typing import Generic, TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
-
-T = TypeVar("T")
 
 
 class UserRef(BaseModel):
@@ -35,7 +32,7 @@ class TeamRef(BaseModel):
     leader: UserRef
 
 
-class Paginated(BaseModel, Generic[T]):
+class Paginated[T](BaseModel):
     """Cursor-paginated list envelope.
 
     `next_cursor` is the cursor to pass on the next call; ``None`` means

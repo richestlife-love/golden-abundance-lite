@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,21 +14,21 @@ async def _seed(session: AsyncSession) -> list[NewsItemRow]:
             body="...",
             category="公告",
             pinned=True,
-            published_at=datetime(2026, 4, 18, tzinfo=timezone.utc),
+            published_at=datetime(2026, 4, 18, tzinfo=UTC),
         ),
         NewsItemRow(
             title="B",
             body="...",
             category="活動",
             pinned=False,
-            published_at=datetime(2026, 4, 17, tzinfo=timezone.utc),
+            published_at=datetime(2026, 4, 17, tzinfo=UTC),
         ),
         NewsItemRow(
             title="C",
             body="...",
             category="通知",
             pinned=False,
-            published_at=datetime(2026, 4, 16, tzinfo=timezone.utc),
+            published_at=datetime(2026, 4, 16, tzinfo=UTC),
         ),
     ]
     for item in items:
@@ -96,7 +96,7 @@ async def test_news_cursor_terminal_page_next_cursor_is_none(client: AsyncClient
                 body=f"body {i}",
                 pinned=False,
                 category="活動",
-                published_at=datetime(2026, 4, 10 + i, tzinfo=timezone.utc),
+                published_at=datetime(2026, 4, 10 + i, tzinfo=UTC),
             )
         )
     await session.commit()

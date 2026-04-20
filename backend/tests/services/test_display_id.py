@@ -55,5 +55,5 @@ async def test_user_display_id_runs_out_after_100_collisions(
         session.add(UserRow(display_id=did, email=f"{did}@example.com"))  # ty: ignore[missing-argument]
     await session.commit()
 
-    with pytest.raises(RuntimeError, match="Could not allocate|display_id"):
+    with pytest.raises(RuntimeError, match=r"Could not allocate|display_id"):
         await generate_user_display_id(session, email="jet@example.com")

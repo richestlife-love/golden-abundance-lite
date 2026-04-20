@@ -58,6 +58,7 @@ def test_decode_rejects_alg_none() -> None:
 def test_decode_requires_sub_claim() -> None:
     """Missing sub should not decode to a usable user."""
     import jwt as pyjwt
+
     from backend.config import get_settings
 
     token = pyjwt.encode(

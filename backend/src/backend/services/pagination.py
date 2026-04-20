@@ -14,7 +14,7 @@ Constraint: every sort column must have the same direction — Phase-5
 paginators are all DESC. Mixed directions need an OR-expansion of the
 cursor predicate which this helper doesn't implement.
 
-Malformed cursors raise `InvalidCursor`; `backend.server.create_app()`
+Malformed cursors raise `InvalidCursorError`; `backend.server.create_app()`
 registers a global handler that turns those into HTTP 400.
 """
 
@@ -28,7 +28,7 @@ from sqlalchemy import ColumnElement, Row, Select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class InvalidCursor(ValueError):
+class InvalidCursorError(ValueError):
     """Malformed or tampered cursor. The global exception handler in
     `backend.server.create_app()` translates this into HTTP 400."""
 
@@ -60,7 +60,7 @@ def decode_cursor(cursor: str) -> Any:
         raw = base64.urlsafe_b64decode(cursor + pad)
         return json.loads(raw)
     except (ValueError, json.JSONDecodeError) as exc:
-        raise InvalidCursor("Invalid cursor") from exc
+        raise InvalidCursorError("Invalid cursor") from exc
 
 
 async def paginate_keyset(
@@ -79,13 +79,13 @@ async def paginate_keyset(
     r[0].id)`` for a two-entity ``select(A, B)`` statement.
 
     Returns ``(page_rows, next_cursor)``. ``next_cursor`` is None on the
-    last page. Raises ``InvalidCursor`` on malformed input or
+    last page. Raises ``InvalidCursorError`` on malformed input or
     cursor-shape mismatch.
     """
     if cursor is not None:
         payload = decode_cursor(cursor)
         if not isinstance(payload, list) or len(payload) != len(sort):
-            raise InvalidCursor("cursor shape does not match sort columns")
+            raise InvalidCursorError("cursor shape does not match sort columns")
         values = [s.from_json(payload[i]) for i, s in enumerate(sort)]
         stmt = stmt.where(tuple_(*(s.col for s in sort)) < tuple_(*values))
     stmt = stmt.order_by(*(s.col.desc() for s in sort)).limit(limit + 1)

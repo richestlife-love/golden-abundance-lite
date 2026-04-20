@@ -14,8 +14,14 @@ from backend.contract import (
     MeTeamsResponse,
     ProfileCreate,
     ProfileUpdate,
+)
+from backend.contract import (
     Reward as ContractReward,
+)
+from backend.contract import (
     Task as ContractTask,
+)
+from backend.contract import (
     User as ContractUser,
 )
 from backend.db.models import TeamMembershipRow, TeamRow, UserRow
