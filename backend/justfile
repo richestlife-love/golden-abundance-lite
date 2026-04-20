@@ -23,6 +23,17 @@ db-up:
 db-down:
     docker compose down
 
+# Drop the Postgres volume and restart + migrate + seed (hard wipe).
+db-reset:
+    docker compose down -v
+    docker compose up -d --wait
+    uv run alembic upgrade head
+    uv run python -m backend.seed
+
+# Open a psql shell inside the running Postgres container.
+db-psql *args:
+    docker compose exec db psql -U app -d app {{args}}
+
 # Run Alembic migrations to head.
 migrate:
     uv run alembic upgrade head
