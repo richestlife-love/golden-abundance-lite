@@ -22,5 +22,6 @@ def get_engine() -> AsyncEngine:
     )
 
 
+@cache
 def get_session_maker() -> async_sessionmaker[AsyncSession]:
     return async_sessionmaker(bind=get_engine(), class_=AsyncSession, expire_on_commit=False)

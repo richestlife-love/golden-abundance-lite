@@ -67,6 +67,7 @@ async def engine(
             mp.setenv("JWT_SECRET", "test-only-secret-32-chars-minimum")
         get_settings.cache_clear()
         get_engine.cache_clear()
+        get_session_maker.cache_clear()
 
         # alembic.command.upgrade is sync and spins its own event loop via
         # asyncio.run() in env.py — off-thread it so we don't deadlock.
@@ -87,6 +88,7 @@ async def engine(
         finally:
             await eng.dispose()
             get_engine.cache_clear()
+            get_session_maker.cache_clear()
 
 
 @pytest.fixture
