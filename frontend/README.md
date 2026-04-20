@@ -7,7 +7,7 @@ React 18 + TypeScript + Vite. See the [root README](../README.md) for prerequisi
 Vite proxies `/api/*` to the backend (default `http://localhost:8000`, overridable via `VITE_API_BASE_URL`), so client code uses relative paths:
 
 ```ts
-fetch('/api/v1/me')
+fetch("/api/v1/me");
 ```
 
 `just dev` (from repo root) boots backend + frontend together. `just frontend dev` boots Vite only — API calls will 404 at the proxy unless a backend is already running. `pnpm build` and `pnpm typecheck` require `src/api/schema.d.ts`; run `just gen-types` from the repo root first.
@@ -16,24 +16,24 @@ fetch('/api/v1/me')
 
 Local overrides live in `frontend/.env.local` (gitignored). Copy `frontend/.env.example` as a starting point. Supported variables:
 
-| Variable | Purpose |
-| --- | --- |
-| `VITE_API_BASE_URL` | Backend origin for the `/api` proxy. Defaults to `http://localhost:8000`. |
-| `VITE_PORT` | Dev server port. Defaults to `5173`. |
+| Variable             | Purpose                                                                                 |
+| -------------------- | --------------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`  | Backend origin for the `/api` proxy. Defaults to `http://localhost:8000`.               |
+| `VITE_PORT`          | Dev server port. Defaults to `5173`.                                                    |
 | `VITE_ALLOWED_HOSTS` | Comma-separated hosts for Vite's `allowedHosts` (needed behind a tunnel such as ngrok). |
-| `NGROK_HOST` | Hostname used by `just frontend tunnel`. |
+| `NGROK_HOST`         | Hostname used by `just frontend tunnel`.                                                |
 
 ## pnpm scripts
 
 `just frontend <recipe>` covers the normal loop. The underlying `pnpm` scripts are also available for direct invocation:
 
-| Script | Does |
-| --- | --- |
-| `pnpm dev` | Vite dev server. |
-| `pnpm test` / `pnpm test:watch` | Vitest run / watch. |
-| `pnpm build` | Production bundle (requires `src/api/schema.d.ts`). |
-| `pnpm typecheck` | `tsc --noEmit` (requires `src/api/schema.d.ts`). |
-| `pnpm lint` / `pnpm format` | ESLint / Prettier. |
+| Script                          | Does                                                |
+| ------------------------------- | --------------------------------------------------- |
+| `pnpm dev`                      | Vite dev server.                                    |
+| `pnpm test` / `pnpm test:watch` | Vitest run / watch.                                 |
+| `pnpm build`                    | Production bundle (requires `src/api/schema.d.ts`). |
+| `pnpm typecheck`                | `tsc --noEmit` (requires `src/api/schema.d.ts`).    |
+| `pnpm lint` / `pnpm format`     | ESLint / Prettier.                                  |
 
 ## Layout
 
