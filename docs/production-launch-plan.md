@@ -209,3 +209,28 @@ Surfaced during Phase 4a (plumbing — TanStack Query v5, MSW v2, generated Open
 - **`frontend/src/types.ts` not touched** — plan 4b owns the snake_case rename + deletion alongside the screen migrations.
 - **`_authed` route still reads `context.auth.user`** — plan 4b switches it to `tokenStore`.
 - **Optimistic mutation patches not wired** — plan 4c layers them on top of the default-invalidate scaffolding in `mutations/*.ts`.
+
+## Tech debt / review findings (Phase 4b)
+
+Surfaced during Phase 4b (auth guards on `tokenStore` + read-side TanStack Query migration + camelCase→snake_case rename + types.ts/data.ts deletion). Most items are workarounds plan 4c removes; a few are deliberate UX changes.
+
+### Router / navigation workarounds (revisit in 4c)
+- **`setRouterRef` still not wired** — [`frontend/src/auth/session.tsx`](../frontend/src/auth/session.tsx)'s session-expired handler and `signOut()` clear token + cache but don't navigate. 4b compensates with explicit `navigate({ to: "/" })` after `signOut()` in `HomeScreen` and `MyScreen`, and `navigate({ to: search.returnTo ?? "/" })` after `signIn()` in [`routes/sign-in.tsx`](../frontend/src/routes/sign-in.tsx). Plan 4c's `_setActiveRouter(router)` + routing 401/logout through `signOut` collapses these call-sites back down.
+- **`routing.test.tsx` skips the sign-out redirect case** — `it.skip("signing out while on /home redirects to /sign-in", ...)` with a `TODO(plan 4c)` note. Un-skip once router.navigate is wired.
+
+### Deliberate scope changes
+- **`fromDetail` guard on `/tasks/$taskId/start` dropped** — the plan's B4 skeleton replaces the old `redirect if !location.state.fromDetail` check with a `notFound()` when `display_id` isn't in `{T1,T2,T3}`. Cold-loading a form URL now renders the form directly; acceptable since `form_type` gates which form we dispatch.
+- **`SUPPORTED_TASK_DISPLAY_IDS` is hardcoded `{T1,T2,T3}`** — [`routes/_authed.tasks.$taskId.start.tsx`](../frontend/src/routes/_authed.tasks.$taskId.start.tsx). Mirrors the current seed. If challenge defs grow past T3, update this set in lockstep (or derive it from `form_type != null || is_challenge`).
+- **"Challenge" rank tab is an empty state** — [`screens/RankScreen.tsx`](../frontend/src/screens/RankScreen.tsx) shows "即將推出" because no `/rank/challenges` endpoint exists. Revisit when that endpoint ships.
+- **`MyRewards` demo `history` array removed** — [`screens/MyRewards.tsx`](../frontend/src/screens/MyRewards.tsx) now renders from `useMyRewards()`. Empty seed yields an empty state. The old hardcoded 7-entry demo list is gone for good.
+
+### Held for plan 4c
+- **`ProfileSetupForm` still uses camelCase internals** — [`screens/ProfileSetupForm.tsx`](../frontend/src/screens/ProfileSetupForm.tsx) keeps `zhName`/`enName`/`phoneCode`/… as local state + a `ProfileInput` shape. [`routes/welcome.tsx`](../frontend/src/routes/welcome.tsx) and [`routes/_authed.me.profile.edit.tsx`](../frontend/src/routes/_authed.me.profile.edit.tsx) adapt `me.zh_name → formUser.zhName` on the way in. Plan 4c rewrites the form against `ProfileCreate` / `ProfileUpdate` from `schema.d.ts` and wires `onSubmit` to `useCompleteProfile` / `usePatchMe`; the adapters and the local `ProfileInput` alias all go away then.
+- **`TeamForm` inline `DEMO_TEAMS`** — [`screens/TeamForm.tsx`](../frontend/src/screens/TeamForm.tsx) replaces the deleted `MOCK_TEAMS` with a local 4-entry demo list; `onSubmit` is now `() => void` (no team payload). Plan 4c swaps for `teamsInfiniteQueryOptions` + `useCreateJoinRequest`.
+- **`simulateJoinApproved` button kept but stubbed** — [`screens/MyScreen.tsx`](../frontend/src/screens/MyScreen.tsx) still renders the "▶ 模擬核准" dev toggle; clicking throws via the `AppStateContext` stub. Plan 4c either rewires it to `useApproveJoinRequest` against a seeded pending request or removes it entirely. The pre-Phase-4 note (§"Mock-data boundaries" line 77) about gating the button behind `import.meta.env.DEV` becomes moot at that point.
+- **`services.user.complete_profile` extraction** — called out in the 4b plan's own "Out of scope" list; needs to land before 4c wires `ProfileSetupForm → useCompleteProfile` so the seed and the production path exercise one `ProfileCreate`-validated code path.
+
+### Cosmetic / process notes
+- **D1+D2+D3 bundled into one commit** (`6370226`) — the `TaskCard` type change (camelCase `task: Task (client)` → snake_case `task: Task (schema)`) cascades to HomeScreen + TasksScreen + TaskDetailScreen. Splitting per the plan's "one screen per commit" would have left a broken intermediate commit. Future migrations with shared-component type changes should expect the same bundling requirement.
+- **camelCase grep guard has local-variable false positives** — `grep -rn 'zhName|weekPoints|ledTotal|joinedTotal|isChallenge|...' frontend/src/` returns 6 hits on local variables (`MyScreen.ledTotal/joinedTotal`, `TeamCard.weekPoints`, `RankScreen.isChallenge`, `ProfileSetupForm.zhName`) that are not server fields. Server-field purge is complete; the heuristic over-matches.
+- **Manual smoke (F2) not performed in the automated run** — requires live backend (`just -f backend/justfile db-up && migrate && seed-reset && just dev`). Implementer should exercise the 7-screen walkthrough in the plan's F2 before closing out 4b.
