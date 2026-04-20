@@ -36,7 +36,7 @@ def test_migration_is_downgrade_safe(monkeypatch: pytest.MonkeyPatch) -> None:
     from alembic.config import Config
     from testcontainers.postgres import PostgresContainer
 
-    alembic_ini = str(Path(__file__).parent.parent / "alembic.ini")
+    alembic_ini = str(Path(__file__).parent.parent.parent / "alembic.ini")
     with PostgresContainer("postgres:17-alpine", driver="psycopg") as pg:
         url = pg.get_connection_url()
         monkeypatch.setenv("DATABASE_URL", url)
