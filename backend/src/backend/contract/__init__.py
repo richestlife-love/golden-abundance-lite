@@ -33,38 +33,30 @@ from backend.contract.team import (
 )
 from backend.contract.user import ProfileCreate, ProfileUpdate, User
 
-__all__ = [  # noqa: RUF022 — grouped by source module, not alphabetized
-    # auth
+__all__ = [
     "AuthResponse",
     "GoogleAuthRequest",
-    # common
-    "Paginated",
-    "TeamRef",
-    "UserRef",
-    # news
-    "NewsItem",
-    # rank
-    "RankPeriod",
-    "TeamRankEntry",
-    "UserRankEntry",
-    # rewards
-    "Reward",
-    # task
     "InterestFormBody",
+    "JoinRequest",
+    "MeProfileCreateResponse",
+    "MeTeamsResponse",
+    "NewsItem",
+    "Paginated",
+    "ProfileCreate",
+    "ProfileUpdate",
+    "RankPeriod",
+    "Reward",
     "SubmitBody",
     "Task",
     "TaskStep",
     "TaskSubmissionResponse",
-    "TeamChallengeProgress",
-    "TicketFormBody",
-    # team
-    "JoinRequest",
-    "MeProfileCreateResponse",
-    "MeTeamsResponse",
     "Team",
+    "TeamChallengeProgress",
+    "TeamRankEntry",
+    "TeamRef",
     "TeamUpdate",
-    # user
-    "ProfileCreate",
-    "ProfileUpdate",
+    "TicketFormBody",
     "User",
+    "UserRankEntry",
+    "UserRef",
 ]
