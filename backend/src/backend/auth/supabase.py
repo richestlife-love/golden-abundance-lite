@@ -22,9 +22,13 @@ _ALGORITHMS = ["RS256"]
 
 @lru_cache(maxsize=1)
 def _jwks_client() -> PyJWKClient:
+    # `lifespan` governs the JWK-set cache so we refetch at most hourly.
+    # `cache_keys` is intentionally left off (default False): it adds an
+    # unbounded-TTL lru_cache on per-kid lookups, which would keep
+    # accepting tokens signed by a revoked kid until the worker restarted.
+    # The JWK-set cache alone makes the per-kid lookup a dict access.
     return PyJWKClient(
         get_settings().supabase_jwks_url,
-        cache_keys=True,
         lifespan=3600,
     )
 
