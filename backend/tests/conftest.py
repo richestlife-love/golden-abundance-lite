@@ -12,11 +12,15 @@ clean.
 import asyncio
 import os
 import pathlib
+import time
 from collections.abc import AsyncIterator, Iterator
 from datetime import UTC, datetime
+from uuid import UUID, uuid4
 
 import pytest
 import pytest_asyncio
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
@@ -35,6 +39,11 @@ _BACKEND_DIR = pathlib.Path(__file__).parent.parent
 
 POSTGRES_IMAGE = "postgres:17-alpine"
 TEST_JWT_SECRET = "test-only-secret-32-chars-minimum"
+
+SUPABASE_TEST_URL = "https://test-ref.supabase.co"
+SUPABASE_TEST_AUD = "authenticated"
+SUPABASE_TEST_ISS = f"{SUPABASE_TEST_URL}/auth/v1"
+SUPABASE_TEST_KID = "test-kid-2026"
 
 
 @pytest.fixture(autouse=True)
@@ -196,3 +205,113 @@ async def seeded_task_defs(session: AsyncSession) -> dict[str, TaskDefRow]:
     await session.commit()
 
     return {"T1": t1, "T2": t2, "T3": t3, "T4": t4}
+
+
+# -------------------------------------------------------------------
+# Phase 6a fixtures: RSA keypair + Supabase-shaped JWT minter
+# -------------------------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def rsa_test_keypair() -> tuple[str, str]:
+    """Generate a fresh 2048-bit RSA keypair for the test session.
+
+    Returns (private_pem, public_pem). 2048 bits is overkill for test
+    signing speed but matches the keyspace Supabase uses in prod.
+    """
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    private_pem = key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    ).decode()
+    public_pem = (
+        key.public_key()
+        .public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        .decode()
+    )
+    return private_pem, public_pem
+
+
+@pytest.fixture
+def mint_access_token(rsa_test_keypair: tuple[str, str]) -> Callable[..., str]:
+    """Mint an RS256-signed JWT mimicking Supabase's claim shape.
+
+    Call as ``mint_access_token(user_id=UUID(...), email="e@x.com")``.
+    Optional keyword overrides (``exp``, ``iat``, ``aud``, ``iss``, ``kid``)
+    let tests forge expired / mis-issued tokens for negative-path coverage.
+    """
+    private_pem, _public_pem = rsa_test_keypair
+
+    def _mint(
+        *,
+        user_id: UUID | None = None,
+        email: str = "test@example.com",
+        exp: int | None = None,
+        iat: int | None = None,
+        aud: str = SUPABASE_TEST_AUD,
+        iss: str = SUPABASE_TEST_ISS,
+        kid: str = SUPABASE_TEST_KID,
+    ) -> str:
+        import jwt as pyjwt
+
+        now = int(time.time())
+        payload = {
+            "sub": str(user_id or uuid4()),
+            "email": email,
+            "aud": aud,
+            "iss": iss,
+            "iat": iat if iat is not None else now,
+            "exp": exp if exp is not None else now + 3600,
+            "role": "authenticated",
+        }
+        return pyjwt.encode(payload, private_pem, algorithm="RS256", headers={"kid": kid})
+
+    return _mint
+
+
+@pytest.fixture(autouse=True)
+def stub_jwks(
+    rsa_test_keypair: tuple[str, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> Iterator[None]:
+    """Route Supabase JWKS lookups to the session's test public key.
+
+    Applied autouse because every integration test that mints a token
+    needs it; opting out is as simple as not minting a token.
+    """
+    _private_pem, public_pem = rsa_test_keypair
+
+    monkeypatch.setenv("SUPABASE_URL", SUPABASE_TEST_URL)
+    # Defensive: `_reset_settings_cache` (autouse, defined earlier in this
+    # file) also clears the cache around every test. Pytest fixture ordering
+    # between sibling autouse fixtures is undefined, so we clear again here
+    # after setenv to guarantee the next `get_settings()` call re-reads env.
+    get_settings.cache_clear()
+
+    # Patch the JWKS client AFTER auth/supabase.py exists (Task B2). Until
+    # then this monkeypatch target doesn't exist yet; guard with a try.
+    try:
+        from backend.auth import supabase as _supabase_mod  # noqa: F401
+
+        pub_key = serialization.load_pem_public_key(public_pem.encode())
+
+        class _StubJWKClient:
+            def get_signing_key_from_jwt(self, _token: str) -> object:
+                class _Key:
+                    key = pub_key
+
+                return _Key()
+
+        monkeypatch.setattr(
+            "backend.auth.supabase._jwks_client",
+            lambda: _StubJWKClient(),
+        )
+    except ImportError:
+        # Module hasn't been written yet; no-op until Task C2.
+        pass
+
+    yield
