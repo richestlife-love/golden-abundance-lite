@@ -102,7 +102,7 @@
 - [ ] **Step 1: Git-rename the contract module**
 
 ```bash
-cd /Users/Jet/Developer/golden-abundance-lite/.claude/worktrees/rename-rank-to-leaderboard
+cd /Users/Jet/Developer/golden-abundance/.claude/worktrees/rename-rank-to-leaderboard
 git mv backend/src/backend/contract/rank.py backend/src/backend/contract/leaderboard.py
 ```
 
@@ -411,7 +411,7 @@ In `backend/src/backend/contract/README.md`:
 - [ ] **Step 1: Run backend CI from the repo root**
 
 ```bash
-cd /Users/Jet/Developer/golden-abundance-lite/.claude/worktrees/rename-rank-to-leaderboard/backend
+cd /Users/Jet/Developer/golden-abundance/.claude/worktrees/rename-rank-to-leaderboard/backend
 just ci
 ```
 
@@ -426,7 +426,7 @@ If pytest reports a 404 on `/api/v1/leaderboard/users`, check server.py's `inclu
 - [ ] **Step 1: Regenerate `frontend/src/api/schema.d.ts`**
 
 ```bash
-cd /Users/Jet/Developer/golden-abundance-lite/.claude/worktrees/rename-rank-to-leaderboard
+cd /Users/Jet/Developer/golden-abundance/.claude/worktrees/rename-rank-to-leaderboard
 just gen-types
 ```
 
@@ -447,7 +447,7 @@ The file is gitignored, so it will not appear in `git status`.
 - [ ] **Step 1: Stage and commit**
 
 ```bash
-cd /Users/Jet/Developer/golden-abundance-lite/.claude/worktrees/rename-rank-to-leaderboard
+cd /Users/Jet/Developer/golden-abundance/.claude/worktrees/rename-rank-to-leaderboard
 git add -A backend/
 git commit -m "refactor(backend): rename rank feature to leaderboard
 
@@ -809,7 +809,7 @@ Replace `["rank"]` → `["leaderboard"]` (three occurrences at lines 97, 125, 14
 - [ ] **Step 1: Run frontend CI**
 
 ```bash
-cd /Users/Jet/Developer/golden-abundance-lite/.claude/worktrees/rename-rank-to-leaderboard/frontend
+cd /Users/Jet/Developer/golden-abundance/.claude/worktrees/rename-rank-to-leaderboard/frontend
 just ci
 ```
 
@@ -828,7 +828,7 @@ If tests fail on MSW "no handler for /api/v1/rank/users" — search for stale re
 - [ ] **Step 1: Stage and commit**
 
 ```bash
-cd /Users/Jet/Developer/golden-abundance-lite/.claude/worktrees/rename-rank-to-leaderboard
+cd /Users/Jet/Developer/golden-abundance/.claude/worktrees/rename-rank-to-leaderboard
 git add -A frontend/
 git commit -m "refactor(frontend): rename rank feature to leaderboard
 
@@ -842,7 +842,7 @@ the Chinese UI label '排行' are unchanged."
 - [ ] **Step 1: Grep for any straggling feature-name references**
 
 ```bash
-cd /Users/Jet/Developer/golden-abundance-lite/.claude/worktrees/rename-rank-to-leaderboard
+cd /Users/Jet/Developer/golden-abundance/.claude/worktrees/rename-rank-to-leaderboard
 grep -rn -E 'RankPeriod|RankEntry|rankUsers|rankTeams|RankScreen|RankIcon|listUserRank|listTeamRank|"/rank/|"rank"\]|queryKey.*\["rank"\]' backend frontend
 ```
 
@@ -859,7 +859,7 @@ Remaining legitimate hits (if grep returns anything, verify each is Bucket B):
 - [ ] **Step 2: Run full CI both layers end-to-end from repo root**
 
 ```bash
-cd /Users/Jet/Developer/golden-abundance-lite/.claude/worktrees/rename-rank-to-leaderboard
+cd /Users/Jet/Developer/golden-abundance/.claude/worktrees/rename-rank-to-leaderboard
 just gen-types
 (cd backend && just ci)
 (cd frontend && just ci)
@@ -890,7 +890,7 @@ Per project CLAUDE.md: merge with `git merge` (not rebase), then tag.
 Do this in the primary working copy (outside the worktree). From the repo root (not the worktree):
 
 ```bash
-cd /Users/Jet/Developer/golden-abundance-lite
+cd /Users/Jet/Developer/golden-abundance
 git merge --no-ff worktree-rename-rank-to-leaderboard -m "Merge branch 'worktree-rename-rank-to-leaderboard'
 
 refactor: rename rank feature to leaderboard across backend and frontend"

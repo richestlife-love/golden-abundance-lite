@@ -1,4 +1,4 @@
-# Golden Abundance Lite 金富有志工
+# Golden Abundance 金富有志工
 
 Monorepo-style layout:
 

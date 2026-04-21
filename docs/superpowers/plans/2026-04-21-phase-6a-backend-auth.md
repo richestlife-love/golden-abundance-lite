@@ -74,7 +74,7 @@ Issues the plan **inherits or introduces** without fixing. Listed here so they a
 
 ## File plan
 
-Files created (C), modified (M), or deleted (D). Paths relative to repo root `/Users/Jet/Developer/golden-abundance-lite`.
+Files created (C), modified (M), or deleted (D). Paths relative to repo root `/Users/Jet/Developer/golden-abundance`.
 
 ### `backend/src/backend/` — source modules
 

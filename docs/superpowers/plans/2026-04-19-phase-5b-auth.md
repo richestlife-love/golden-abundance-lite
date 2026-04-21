@@ -31,7 +31,7 @@
 
 ## File plan
 
-Files created (C) or modified (M) by this plan. Paths are relative to repo root `/Users/Jet/Developer/golden-abundance-lite`.
+Files created (C) or modified (M) by this plan. Paths are relative to repo root `/Users/Jet/Developer/golden-abundance`.
 
 ### `backend/src/backend/` — new modules
 

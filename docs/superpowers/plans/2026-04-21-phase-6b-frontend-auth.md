@@ -42,7 +42,7 @@
 
 ## File plan
 
-Files created (C), modified (M), or deleted (D). Paths relative to repo root `/Users/Jet/Developer/golden-abundance-lite`.
+Files created (C), modified (M), or deleted (D). Paths relative to repo root `/Users/Jet/Developer/golden-abundance`.
 
 ### Frontend source
 

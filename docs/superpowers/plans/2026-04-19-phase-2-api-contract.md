@@ -34,7 +34,7 @@ Files created or modified by this plan:
 | `backend/src/backend/contract/endpoints.md` | create | endpoint catalog |
 | `justfile` | modify | add `contract-validate` recipe |
 
-All commands are run from the repository root (`/Users/Jet/Developer/golden-abundance-lite`) unless stated otherwise.
+All commands are run from the repository root (`/Users/Jet/Developer/golden-abundance`) unless stated otherwise.
 
 ---
 
