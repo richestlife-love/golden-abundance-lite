@@ -76,14 +76,16 @@ Run `uv sync`:
 (cd backend && uv sync --all-extras --dev)
 ```
 
-- [ ] **Step 2: Confirm `Settings` still declares `sentry_dsn: str | None = None` and `app_release: str | None = None`**
+- [ ] **Step 2: Add `sentry_dsn` + `app_release` fields to `Settings`**
 
-These were added in plan 6a Task A1 Step 3. If they're missing (you ran 6a a while ago and the design shifted), add them now:
+Plan 6a's config.py rewrite covers Supabase fields only — these observability-scoped fields are owned by 7b. In `backend/src/backend/config.py`, add inside the `Settings` class body (e.g., right after `app_env`):
 
 ```python
     sentry_dsn: str | None = Field(default=None)
     app_release: str | None = Field(default=None)
 ```
+
+If 6a later evolves to add them first, this becomes a no-op and the next step still passes. Skip only if you can visually confirm both fields are already declared.
 
 - [ ] **Step 3: Commit**
 
@@ -131,10 +133,17 @@ def test_create_app_with_sentry_dsn_installs_hub(monkeypatch) -> None:
     monkeypatch.setenv("APP_RELEASE", "test-release-7b")
     get_settings.cache_clear()
 
-    create_app()
-    client = sentry_sdk.get_client()
-    assert client is not None
-    assert client.dsn == "https://public@o0.ingest.sentry.io/0"
+    try:
+        create_app()
+        client = sentry_sdk.get_client()
+        assert client is not None
+        # Client.dsn's string form has been normalized across sdk versions;
+        # match the prefix rather than the literal DSN string.
+        assert str(client.dsn).startswith("https://public@")
+    finally:
+        # sentry_sdk.init() is process-global; close so subsequent tests
+        # aren't observing leaked state from this one.
+        sentry_sdk.get_client().close()
 ```
 
 Save to `backend/tests/test_sentry_init.py`.
@@ -153,16 +162,16 @@ Top of file, add:
 
 ```python
 import sentry_sdk
-from sentry_sdk.integrations.fastapi import FastApiIntegration
-from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 ```
 
-In `create_app()`, before anything else (the Sentry integration needs to hook FastAPI's middleware stack):
+In `create_app()`, before the `FastAPI(...)` construction:
 
 ```python
 def create_app() -> FastAPI:
     settings = get_settings()
     if settings.sentry_dsn:
+        # sentry-sdk 2.x auto-enables FastApiIntegration + SqlalchemyIntegration
+        # when the respective packages are importable — no explicit integrations list needed.
         sentry_sdk.init(
             dsn=settings.sentry_dsn,
             environment=settings.app_env,
@@ -170,10 +179,6 @@ def create_app() -> FastAPI:
             traces_sample_rate=0.1,
             profiles_sample_rate=0.0,
             send_default_pii=False,
-            integrations=[
-                FastApiIntegration(transaction_style="endpoint"),
-                SqlalchemyIntegration(),
-            ],
         )
 
     app = FastAPI(
@@ -186,15 +191,22 @@ def create_app() -> FastAPI:
 
 - [ ] **Step 4: Attach user-id in the auth dep**
 
-Update `backend/src/backend/auth/dependencies.py` — add the Sentry tag right after `user = await session.get(UserRow, claims.sub)` materializes or is fetched (end of the function, before `return user`):
+Update `backend/src/backend/auth/dependencies.py`:
+
+Hoist the Sentry import to the top of the module alongside the other imports:
 
 ```python
-    import sentry_sdk
+import sentry_sdk
+```
+
+Add the Sentry tag right before `return user` at the end of `current_user`:
+
+```python
     sentry_sdk.set_user({"id": str(user.id)})
     return user
 ```
 
-Keep the import inside the function to avoid loading Sentry in modules that aren't in the request path.
+(`sentry_sdk` is already loaded eagerly by `server.py` at app boot; an in-function import saves nothing and trips Ruff's import-ordering rules.)
 
 - [ ] **Step 5: Run — expect PASS**
 
@@ -429,7 +441,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins,
     build: {
-      sourcemap: true,
+      // "hidden" emits .map files so the Sentry plugin can upload them, but
+      // doesn't add a `//# sourceMappingURL=` comment to the bundle — real
+      // visitors don't fetch source maps; only Sentry resolves stack traces.
+      sourcemap: "hidden",
     },
     server: {
       port,
@@ -454,7 +469,7 @@ export default defineConfig(({ mode }) => {
 ```
 
 Key additions:
-- `build.sourcemap: true` — Vite emits `.map` files alongside each bundle.
+- `build.sourcemap: "hidden"` — Vite emits `.map` files alongside each bundle, but without the `sourceMappingURL` comment that would cause browsers to fetch them publicly. The Sentry plugin picks up the hidden maps from disk at upload time.
 - Sentry plugin registered conditionally — local dev builds without `SENTRY_AUTH_TOKEN` skip the upload.
 
 - [ ] **Step 2: Build locally**
@@ -515,29 +530,50 @@ Uploaded <N> files to <SENTRY_ORG>/<SENTRY_PROJECT>
 
 - [ ] **Step 5: Smoke — deliberate error from the browser**
 
-Temporarily add a dev-only button that throws. Easiest spot: the HomeScreen or MeScreen footer.
+Temporarily add a render-time throw, gated by a query-string flag so real visitors can't trip it during the smoke window. React's `ErrorBoundary` only catches errors thrown during **render** (not in event handlers), so we put the throw inside a child component that renders conditionally on a state flag.
 
-```typescript
-import.meta.env.DEV || import.meta.env.VITE_SENTRY_DSN ? (
-  <button
-    style={{ marginTop: 24, fontSize: 11, color: "#999" }}
-    onClick={() => {
-      throw new Error("sentry smoke test — Phase 7b");
-    }}
-  >
-    (debug: trigger error)
-  </button>
-) : null
+In a visible spot (e.g., the bottom of `HomeScreen` or `MeScreen`), add:
+
+```tsx
+import { useState } from "react";
+
+function Bomb({ explode }: { explode: boolean }) {
+  if (explode) throw new Error("sentry smoke test — Phase 7b");
+  return null;
+}
+
+function SentrySmokeButton() {
+  const [explode, setExplode] = useState(false);
+  const armed =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("debug") === "sentry";
+  if (!armed) return null;
+  return (
+    <>
+      <button
+        style={{ marginTop: 24, fontSize: 11, color: "#999" }}
+        onClick={() => setExplode(true)}
+      >
+        (debug: trigger render-time error)
+      </button>
+      <Bomb explode={explode} />
+    </>
+  );
+}
 ```
 
-Commit, push, wait for Vercel build, visit prod, click the button. The `Sentry.ErrorBoundary` fallback renders "出了點問題" + message. In Sentry → Issues (frontend project), within ~30s a new issue appears with source-mapped line numbers and the `VITE_RELEASE` git SHA as release tag.
+Place `<SentrySmokeButton />` inside the screen's return tree.
 
-- [ ] **Step 6: Revert the smoke button**
+Commit, push, wait for Vercel build. Visit `https://jinfuyou.app/?debug=sentry` and click the button. The next render throws inside `<Bomb>`, `Sentry.ErrorBoundary` catches it and renders the "出了點問題" fallback, and Sentry's global handler reports the crash. Within ~30s, a new issue appears in Sentry → Issues (frontend project) with source-mapped line numbers and the `VITE_RELEASE` git SHA as the release tag.
+
+- [ ] **Step 6: Revert the smoke component**
 
 ```bash
 git revert HEAD
 git push
 ```
+
+After Vercel redeploys, re-visit `?debug=sentry` and confirm the button no longer renders.
 
 ---
 
@@ -565,7 +601,7 @@ Settings → My Settings → Alert Contacts → Add → Email (or Slack webhook 
 
 - [ ] **Step 5: Verify**
 
-Wait 5–10 min. Both monitors show green. Optionally force a synthetic down by briefly pausing the Railway deploy — you should receive an alert within ~10 min.
+Wait 5–10 min. Both monitors show green. To verify the alert contact without taking prod down, use UptimeRobot → Alert Contacts → "Test" (sends a one-shot test notification to the configured email/webhook). Skip the "briefly pause Railway" approach — it's easy to fat-finger and leave prod offline.
 
 - [ ] **Step 6: (Optional) Public status page**
 
@@ -594,9 +630,11 @@ on:
   push:
     branches: [main]
 
+# Cancel superseded runs on PRs; let main-branch runs finish (they produce
+# the deploy signal + branch-protection status we care about).
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   backend:
@@ -612,6 +650,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "0.11.7"
+          python-version: "3.14"
 
       - name: Sync deps
         run: uv sync --all-extras --dev
@@ -629,16 +668,21 @@ jobs:
         run: uv run python -m backend.contract.validate_examples
 
       - name: Test
-        run: uv run pytest -q
+        # pyproject.toml's addopts already sets `-v --cov` and the coverage
+        # report gate (`fail_under = 90`); no flag overrides needed here.
+        run: uv run pytest
 
   frontend:
     name: frontend
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.11.7"
+          python-version: "3.14"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -652,16 +696,32 @@ jobs:
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
 
-      - name: Install
+      # `frontend/src/api/schema.d.ts` is gitignored and regenerated from the
+      # backend's OpenAPI. tsc --noEmit imports from it transitively, so it
+      # MUST exist before the typecheck step.
+      - name: Sync backend deps (for OpenAPI generator)
+        working-directory: backend
+        run: uv sync --all-extras --dev
+
+      - name: Generate frontend OpenAPI types
+        run: |
+          uv run --project backend python -c 'import json; from backend.server import app; print(json.dumps(app.openapi()))' > /tmp/ga-openapi.json
+          pnpm dlx openapi-typescript /tmp/ga-openapi.json -o frontend/src/api/schema.d.ts
+
+      - name: Install frontend deps
+        working-directory: frontend
         run: pnpm install --frozen-lockfile
 
       - name: Lint
+        working-directory: frontend
         run: pnpm lint
 
       - name: Typecheck
+        working-directory: frontend
         run: pnpm exec tsc --noEmit
 
       - name: Test
+        working-directory: frontend
         run: pnpm test
 ```
 
@@ -716,10 +776,11 @@ Run each of these in an incognito browser window, signed into a personal Google 
 - [ ] **Step 8:** Security headers:
 
 ```bash
-curl -sI https://jinfuyou.app | grep -iE 'content-security-policy|x-frame-options|x-content-type-options|referrer-policy|permissions-policy|strict-transport-security'
+curl -sI https://jinfuyou.app \
+  | grep -ciE 'content-security-policy|x-frame-options|x-content-type-options|referrer-policy|permissions-policy|strict-transport-security'
 ```
 
-All five (six with HSTS) should be present. Confirm grade at https://securityheaders.com/?q=https%3A%2F%2Fjinfuyou.app — expect **A** or better.
+Expect `6` — five from `frontend/vercel.json` (CSP + X-Frame-Options + X-Content-Type-Options + Referrer-Policy + Permissions-Policy) plus HSTS auto-added by Vercel. A lower count means one is missing — dig into `frontend/vercel.json`. Then confirm grade at https://securityheaders.com/?q=https%3A%2F%2Fjinfuyou.app — expect **A** or better.
 
 - [ ] **Step 9:** CORS smoke:
 

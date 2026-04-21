@@ -15,8 +15,8 @@
 **Exit criteria:**
 - `just -f backend/justfile ci` green (lint + format + typecheck + contract-validate + pytest with ≥90% coverage).
 - `backend/src/backend/auth/google_stub.py` + `backend/src/backend/auth/jwt.py` + `backend/src/backend/routers/auth.py` deleted.
-- `grep -r 'JWT_SECRET' backend/src/ backend/tests/` returns no matches.
-- `grep -r 'auth/google\|/auth/logout' backend/src/` returns no matches.
+- `rg 'JWT_SECRET' backend/src backend/tests` returns no matches.
+- `rg 'auth/google|/auth/logout' backend/src` returns no matches.
 - Any request to `GET /api/v1/me` with a minted RS256 token (via the new `mint_access_token` fixture) returns 200 + the upserted user.
 - A never-seen-before `sub` claim on first request auto-materializes a fresh `UserRow` with `profile_complete=False`.
 
@@ -57,6 +57,18 @@ These steps happen in the Supabase dashboard; they produce the env var values th
 | Test token minting | Session-scoped RSA keypair + stubbed `_jwks_client()` via monkeypatch | Single truth source for test signing; no real Supabase dependency in CI. |
 | Seed DEMO_USERS UUIDs | Stable `UUID(int=i+1)` per user (1..6) | Deterministic; re-runnable; matches mint helper default. |
 | Backward-compat shims | None | Email-stub callers are all test code; migrate them atomically. |
+
+---
+
+## Known deferrals / cross-plan risks
+
+Issues the plan **inherits or introduces** without fixing. Listed here so they aren't lost to the commit log.
+
+| Issue | Why deferred | Mitigation / follow-up |
+|---|---|---|
+| `generate_user_display_id` SELECT-then-INSERT race (see docstring at `backend/src/backend/services/display_id.py:12-18`) | Pre-existing Phase 5 bug; fixing requires `INSERT ... ON CONFLICT` or a retry-on-IntegrityError wrapper, and is out of scope for the auth swap | Tracked for post-launch hardening. Alpha sign-up volume is low enough that a 500 on collision is tolerable short-term; seeded users use deterministic IDs so seed is safe. |
+| Email collision on user recreate (delete + re-register in Supabase → new `sub`, same email → `IntegrityError` on `UserRow.email` unique constraint) | Not a real user path during alpha — requires manual Supabase admin action to trigger | If it surfaces, resolution is manual: delete the stale `UserRow` by email, or merge by `sub`. Revisit in post-launch hardening. |
+| Frontend broken between 6a merge and 6b merge | Phase 5 frontend calls `POST /auth/google`; deleting that endpoint in 6a returns 404 until 6b rewires auth to the Supabase SDK | Execute 6a and 6b back-to-back in the same PR window. Do **not** merge 6a alone during a demo or live-user window. |
 
 ---
 
@@ -233,7 +245,7 @@ def get_settings() -> Settings:
     return settings
 ```
 
-Note: we leave `JWT_SECRET` *out* entirely. The old dev default gets removed; any test that still reads `JWT_SECRET` via `monkeypatch.setenv` will keep working (pydantic-settings ignores unknown env keys because of `extra="ignore"`), and Task D2 finishes the sweep.
+Note: we leave `JWT_SECRET` *out* entirely. The old dev default gets removed; any test that still reads `JWT_SECRET` via `monkeypatch.setenv` will keep working (pydantic-settings ignores unknown env keys because of `extra="ignore"`), and Task D3 finishes the sweep.
 
 - [ ] **Step 4: Update `backend/.env.example`**
 
@@ -266,7 +278,7 @@ APP_ENV=dev
 (cd backend && uv run pytest tests/test_config.py -v)
 ```
 
-Expected: new tests pass. Existing `test_settings_*` tests that rely on `jwt_secret` will fail — that's expected and fixed in Task D2.
+Expected: new tests pass. Existing `test_settings_*` tests that rely on `jwt_secret` will fail — that's expected and fixed in Task D3.
 
 - [ ] **Step 6: Commit**
 
@@ -450,7 +462,6 @@ Add to `backend/tests/conftest.py` AFTER existing fixtures (do NOT remove anythi
 # Phase 6a fixtures: RSA keypair + Supabase-shaped JWT minter
 # -------------------------------------------------------------------
 
-import json
 import time
 from uuid import UUID, uuid4
 
@@ -530,6 +541,10 @@ def stub_jwks(rsa_test_keypair, monkeypatch):
     _private_pem, public_pem = rsa_test_keypair
 
     monkeypatch.setenv("SUPABASE_URL", SUPABASE_TEST_URL)
+    # Defensive: `_reset_settings_cache` (autouse, defined earlier in this
+    # file) also clears the cache around every test. Pytest fixture ordering
+    # between sibling autouse fixtures is undefined, so we clear again here
+    # after setenv to guarantee the next `get_settings()` call re-reads env.
     get_settings.cache_clear()
 
     # Patch the JWKS client AFTER auth/supabase.py exists (Task B2). Until
@@ -893,10 +908,15 @@ async def upsert_user_by_supabase_identity(
 
     Caller is responsible for committing — this function only ``flush()``es
     so the new row has relationships but sits in the session's identity
-    map. Concurrent first-sign-in requests for the same ``auth_user_id``
-    can still race on the unique ``email`` / ``display_id`` columns; the
-    row-conflict path surfaces as ``IntegrityError`` and is treated as a
-    retry-worthy error by the caller (see §4.5 of the 6+7 design spec).
+    map.
+
+    Two failure modes surface as ``IntegrityError`` from ``flush()`` and
+    are **not** handled here (see the plan's "Known deferrals" section):
+
+    - Concurrent first-sign-in requests for the same ``auth_user_id``
+      racing on unique ``display_id`` generation.
+    - A Supabase user deleted + recreated (same email, new ``sub``)
+      colliding with the existing ``UserRow.email`` unique constraint.
     """
     email = email.lower()
     existing = await session.get(UserRow, auth_user_id)
@@ -1108,6 +1128,9 @@ async def current_user(
             auth_user_id=claims.sub,
             email=str(claims.email),
         )
+        # Commit inside the dep so a freshly-materialized UserRow persists
+        # even if the downstream handler fails. This is the only commit
+        # current_user performs; the cached-user path is read-only.
         await session.commit()
     return user
 ```
@@ -1411,10 +1434,10 @@ async def test_something(client, mint_access_token, ...):
 
 Same pattern for `sign_in_and_complete`: add `mint_access_token` as a fixture parameter and pass it as a keyword.
 
-Run this grep to find every call site:
+Run this search to find every call site:
 
 ```bash
-(cd backend && grep -rn 'await sign_in\|await sign_in_and_complete' tests/)
+rg 'await sign_in|await sign_in_and_complete' backend/tests
 ```
 
 Touch each one. If a single test uses three personas (e.g., leader + joiner + outsider), all three get the same `mint_access_token` fixture once — calling it multiple times with different `email` values yields distinct tokens sharing one keypair.
@@ -1607,7 +1630,7 @@ git commit --amend --no-edit
 - [ ] **Step 3: Verify no stale imports of deleted modules**
 
 ```bash
-grep -rn 'google_stub\|encode_token\|decode_token\|upsert_user_by_email\|auth.jwt\|routers.auth\b' backend/src backend/tests
+rg 'google_stub|encode_token|decode_token|upsert_user_by_email|auth\.jwt|routers\.auth\b' backend/src backend/tests
 ```
 
 Expected: zero matches.
@@ -1615,8 +1638,8 @@ Expected: zero matches.
 - [ ] **Step 4: Verify exit criteria**
 
 ```bash
-grep -rn 'JWT_SECRET' backend/src backend/tests || echo "clean"
-grep -rn '/auth/google\|/auth/logout' backend/src || echo "clean"
+rg 'JWT_SECRET' backend/src backend/tests || echo "clean"
+rg '/auth/google|/auth/logout' backend/src || echo "clean"
 ```
 
 Expected: both print `clean`.

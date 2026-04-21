@@ -6,6 +6,19 @@
 
 **Prereqs:** Plans 6a and 6b merged on `main`. The Supabase project created in plan 6a §0 is ready. A domain registrar account with `jinfuyou.app` purchased (or at minimum unpurchased but available).
 
+**Pre-flight verification** (one minute — confirms 6a + 6b actually landed on `main` before you start clicking in dashboards):
+
+```bash
+# All four paths must exist. If any is missing, 6a/6b is incomplete — stop and go finish it.
+ls backend/src/backend/auth/supabase.py        # from 6a: JWKS verifier
+ls frontend/src/lib/supabase.ts                # from 6b: Supabase client singleton
+ls frontend/src/routes/auth.callback.tsx       # from 6b: OAuth callback handler (exact filename may be auth_.callback.tsx or auth/callback.tsx depending on TanStack Router convention)
+ls frontend/vercel.json                        # from 6b: CSP + SPA rewrite
+
+# Also confirm the legacy stub is gone (belt-and-suspenders against a half-merged 6a).
+! ls backend/src/backend/auth/jwt.py 2>/dev/null && echo '6a cleanup ok'
+```
+
 **Architecture:** No application code changes — this plan is pure infrastructure and config. Outbound Alembic migrations run on backend container startup. DNS records point `jinfuyou.app` → Vercel, `api.jinfuyou.app` → Railway. CORS is locked to the production origin. Secrets live in Railway's + Vercel's UIs; the existing `.env.example` files document the shape.
 
 **Tech Stack:** Vercel, Railway, Supabase (Postgres + Auth), Google Cloud Console (OAuth 2.0 credentials), Docker, Python 3.14-slim base image, uv.
@@ -24,7 +37,7 @@
 
 ## Section 0 — Manual one-time Google Cloud setup
 
-Skip if you already did §0 of plan 6a — this is the same prereq repeated for self-containment.
+Plan 6a §0 covers **Supabase project** setup (project creation, JWT signing keys, URL allowlist). This section covers the **Google Cloud OAuth** credentials that Supabase's Google provider consumes — a different prereq, not covered by 6a. Skip only if you already configured Google Cloud OAuth credentials for this Supabase project.
 
 - [ ] **Step 1: Create or reuse a GCP project**
 
@@ -127,6 +140,8 @@ EXPOSE 8000
 CMD ["sh", "-c", "alembic upgrade head && uvicorn backend.server:app --host 0.0.0.0 --port ${PORT}"]
 ```
 
+Note on the `uv==0.11.7` pin: if that exact patch isn't on PyPI when you build, drop the pin to `uv==0.11.*` or the latest 0.11 patch. Do not leave `uv` unpinned — it silently picks up majors and breaks reproducibility.
+
 - [ ] **Step 2: Create `backend/.dockerignore`**
 
 ```
@@ -174,6 +189,8 @@ docker run --rm -p 8001:8000 \
   -e CORS_ORIGINS="http://localhost:5173" \
   jfy-backend
 ```
+
+`APP_ENV="dev"` is deliberate even though we're running the prod image — 6a adds a prod-env validator that rejects localhost/test Supabase URLs when `APP_ENV=prod`. The smoke test only exercises the container's boot path (alembic + uvicorn), not prod-auth semantics, so `dev` bypasses the validator.
 
 (On Linux, replace `host.docker.internal` with `172.17.0.1` or pass `--network host` + adjust port.)
 
@@ -309,6 +326,8 @@ Project → your new service → Settings:
 - **Healthcheck timeout:** 60s
 - **Restart policy:** On failure
 
+If the first deploy cycles repeatedly with healthcheck failures, Alembic is likely still running when the timeout fires. Temporarily raise **Healthcheck Timeout** to 180s, let the fresh migration finish once, then drop back to 60s for subsequent deploys (where migrations are a no-op).
+
 - [ ] **Step 3: Configure environment variables**
 
 Project → Variables → add each row:
@@ -354,6 +373,47 @@ Settings → Networking → Custom Domains → Add `api.jinfuyou.app`. Railway w
 
 (SSL cert auto-provisions via Let's Encrypt within ~2 minutes after DNS propagates.)
 
+### Task C2: Seed prod reference data (`task_defs` + `news_items`)
+
+**Exit criteria:** `task_defs` has rows for T1–T4 and `news_items` has ≥ 3 rows in the prod Supabase DB. Without this, the smoke test in §G Step 2 (submit T1) will fail with a "task def not found" error.
+
+**Why a separate step:** `alembic upgrade head` creates the schema only — it does not populate rows. `backend/src/backend/seed.py::run()` seeds *everything* including the six `@demo.ga` demo users and their join-requests. In prod we want only `task_defs` + `news_items`; seeding demo users would create six orphan `UserRow`s whose IDs don't correspond to any `auth.users.id` in Supabase (they could never sign in). So we invoke the internal seed helpers directly.
+
+- [ ] **Step 1: From your laptop, run the prod-safe seed**
+
+```bash
+DATABASE_URL='postgresql+psycopg://app_backend:<pw>@db.<ref>.supabase.co:5432/postgres?sslmode=require' \
+APP_ENV=prod \
+SUPABASE_URL='https://<ref>.supabase.co' \
+  uv run --project backend python -c "
+import asyncio
+from backend.db.engine import get_session_maker
+from backend.seed import _upsert_news, _upsert_task_defs
+
+async def main():
+    async with get_session_maker()() as session:
+        await _upsert_task_defs(session)
+        await _upsert_news(session)
+        await session.commit()
+    print('prod seed: task_defs + news_items done')
+
+asyncio.run(main())
+"
+```
+
+Expected stdout: `prod seed: task_defs + news_items done`.
+
+The helpers are idempotent (skip-on-existing by `display_id` / `title`), so re-running is safe — useful if you add a T5 later by editing `seed.py` and re-running this one-liner.
+
+- [ ] **Step 2: Verify row counts in the Supabase SQL editor**
+
+```sql
+SELECT display_id, title FROM task_defs ORDER BY display_id;
+SELECT title, pinned FROM news_items ORDER BY published_at DESC;
+```
+
+Expected: 4 task_def rows (T1, T2, T3, T4) and 3 news_item rows.
+
 ---
 
 ## Section D — Vercel project (frontend)
@@ -372,10 +432,12 @@ https://vercel.com/new → "Import Git Repository" → pick this repo.
 
 - **Framework preset:** Vite
 - **Root directory:** `frontend`
-- **Build command:** `pnpm install --frozen-lockfile && pnpm build`
+- **Build command:** `pnpm install --frozen-lockfile && VITE_RELEASE="$VERCEL_GIT_COMMIT_SHA" pnpm build`
 - **Output directory:** `dist`
 - **Install command:** (leave default — Vercel uses pnpm when it sees pnpm-lock.yaml)
 - **Node version:** 22.x (match `frontend/package.json` engines.node)
+
+The build command injects `VITE_RELEASE` from Vercel's system env var `VERCEL_GIT_COMMIT_SHA` at build time (Vite only reads `VITE_*`-prefixed vars into `import.meta.env`, and Vercel does **not** expand `${…}` or `${{…}}` inside env-var *values*). Do not set `VITE_RELEASE` in the env-var UI — the literal would be baked into the bundle.
 
 - [ ] **Step 3: Configure environment variables**
 
@@ -385,7 +447,8 @@ Vercel → Settings → Environment Variables → add for both Production and Pr
 |---|---|---|
 | `VITE_SUPABASE_URL` | `https://<ref>.supabase.co` | same |
 | `VITE_SUPABASE_ANON_KEY` | (anon JWT from Supabase Settings → API) | same |
-| `VITE_RELEASE` | `${{VERCEL_GIT_COMMIT_SHA}}` (literal) | same |
+
+`VITE_RELEASE` is **not** set here — it's injected via the build command above (see Step 2). `VERCEL_GIT_COMMIT_SHA` is always present as a Vercel system env var, so no user action is required.
 
 Do not set `VITE_SENTRY_DSN` or `SENTRY_AUTH_TOKEN` yet; those come in plan 7b.
 
@@ -493,6 +556,8 @@ Troubleshooting:
 
 Save. Changes propagate instantly.
 
+Note: `https://*.vercel.app/auth/callback` is intentionally broad for MVP so any PR preview works without per-preview allowlist edits. It is also broader than needed — in principle another Vercel project could craft a redirect back through our Supabase. The practical mitigation is Google Cloud's redirect-URI pinning (locked to `https://<ref>.supabase.co/auth/v1/callback` — see §0 Step 2), which is unaffected by this list. Post-launch, tighten to `https://jfy-web-*.vercel.app/auth/callback` (or whatever Vercel prefixes your project's previews with) and re-check that PR preview sign-in still works.
+
 - [ ] **Step 2: Verify from a new incognito window**
 
 1. https://jinfuyou.app
@@ -534,10 +599,12 @@ Expected: `CORS rejected ✓` (no `Access-Control-Allow-Origin` header returned)
 - [ ] **Step 5: Auth smoke**
 
 ```bash
-curl -sI https://api.jinfuyou.app/api/v1/me
+curl -s -o /dev/null -w '%{http_code}\n' https://api.jinfuyou.app/api/v1/me
 ```
 
-Expected: `HTTP/2 401`.
+Expected: `401`.
+
+Do **not** use `curl -I` / `-X HEAD` here — FastAPI's router only registers GET for `/me`, so HEAD would return 405 (misleading) instead of the 401 we're testing for.
 
 - [ ] **Step 6: Security headers smoke**
 
@@ -567,5 +634,6 @@ git commit -m "fix(deploy): <what> (Phase 7a)"
 - [ ] DNS resolves from a fresh external resolver (`dig +nocmd +nocomments +nostats +short jinfuyou.app @1.1.1.1`).
 - [ ] `securityheaders.com` grade ≥ A for `jinfuyou.app`.
 - [ ] Custom-domain SSL certs valid.
+- [ ] Rollback path understood: if any smoke step fails and a fix-forward isn't fast, see spec §10 (`docs/superpowers/specs/2026-04-21-phase-6-7-auth-deploy-design.md`) — Railway "Redeploy prior build" + Vercel "Promote to Production" against an earlier deployment are both one-click; DNS TTL is held at 300s so a DNS swap propagates in < 5 min.
 
 Once this plan is done, the app is live — but blind to errors. Plan 7b wraps Sentry + UptimeRobot + GitHub Actions CI around it.
