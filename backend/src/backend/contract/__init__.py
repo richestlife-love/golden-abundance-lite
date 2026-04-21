@@ -10,7 +10,7 @@ Usage::
 payload shape for documentation only and is not a request/response body.
 """
 
-from backend.contract.auth import AuthResponse, GoogleAuthRequest
+from backend.contract.auth import AuthResponse, GoogleAuthRequest, SupabaseClaims
 from backend.contract.common import Paginated, TeamRef, UserRef
 from backend.contract.leaderboard import (
     LeaderboardPeriod,
@@ -51,6 +51,7 @@ __all__ = [
     "ProfileUpdate",
     "Reward",
     "SubmitBody",
+    "SupabaseClaims",
     "Task",
     "TaskStep",
     "TaskSubmissionResponse",

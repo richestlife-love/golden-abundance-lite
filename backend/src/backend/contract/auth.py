@@ -1,14 +1,19 @@
-"""Auth request/response shapes for the Google OAuth sign-in flow.
+"""Wire-format shapes for auth flow.
 
-TokenClaims is intentionally NOT re-exported from backend.contract; it
-describes the JWT payload the backend should encode for documentation
-only, and is never used as a request or response body.
+The Phase-5 ``GoogleAuthRequest`` / ``AuthResponse`` / ``TokenClaims``
+models still live here during the Phase-6a transition — they are
+removed once ``backend/routers/auth.py`` is deleted in task D3.
+
+``SupabaseClaims`` is the deserialized form of a Supabase-issued JWT's
+payload. Only the fields the backend enforces or reads are declared;
+extra keys (user_metadata, app_metadata, role, session_id, etc.) are
+ignored by pydantic's default.
 """
 
 from typing import Literal
 from uuid import UUID
 
-from pydantic import EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 from backend.contract.common import StrictModel
 from backend.contract.user import User
@@ -45,5 +50,22 @@ class TokenClaims(StrictModel):
 
     sub: UUID
     email: EmailStr
+    exp: int
+    iat: int
+
+
+class SupabaseClaims(BaseModel):
+    """Subset of a Supabase access-token's JWT payload.
+
+    ``email`` is plain ``str`` (not ``EmailStr``) because Supabase has
+    already validated it on issuance; re-validating would only add a
+    runtime dep on ``email-validator`` for zero security win.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    sub: UUID
+    email: str
+    aud: str
     exp: int
     iat: int
