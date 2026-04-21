@@ -46,4 +46,7 @@ EXPOSE 8000
 
 # Alembic runs migrations idempotently on every container start. If the migration
 # fails, the container exits non-zero → Railway keeps the previous deployment live.
-CMD ["sh", "-c", "alembic upgrade head && uvicorn backend.server:app --host 0.0.0.0 --port ${PORT}"]
+# `exec` on the uvicorn step replaces the sh process so SIGTERM from Railway
+# reaches uvicorn directly (rather than relying on dash's implicit-exec
+# optimization for the last command), enabling graceful shutdown on deploys.
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn backend.server:app --host 0.0.0.0 --port ${PORT}"]
