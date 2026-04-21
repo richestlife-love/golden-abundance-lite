@@ -1,7 +1,8 @@
 import "@testing-library/jest-dom/vitest";
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 import { server } from "./msw/server";
 import { setSupabaseClientForTesting } from "../lib/supabase";
+import { makeFakeSupabase, makeSession } from "./supabase-mock";
 
 // Node 22+ ships an experimental `localStorage` global that shadows jsdom's
 // implementation and lacks the standard Storage methods (`getItem`,
@@ -48,6 +49,16 @@ function ensureWorkingLocalStorage(): void {
 beforeAll(() => {
   ensureWorkingLocalStorage();
   server.listen({ onUnhandledRequest: "error" });
+});
+beforeEach(() => {
+  // Default to a signed-in fake Supabase client so unit tests that
+  // indirectly call apiFetch (via query/mutation hooks) get a bearer
+  // token without each test wiring its own Supabase fake. Tests that
+  // care about the signed-out case install their own fake via
+  // setSupabaseClientForTesting + setSession(null).
+  const fake = makeFakeSupabase();
+  fake.setSession(makeSession());
+  setSupabaseClientForTesting(fake.client);
 });
 afterEach(() => {
   server.resetHandlers();
