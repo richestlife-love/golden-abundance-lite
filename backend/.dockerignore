@@ -1,0 +1,18 @@
+# Never copy these into the image
+.git
+.github
+.ruff_cache
+.pytest_cache
+__pycache__
+.venv
+dist
+build
+*.egg-info
+.env
+.env.local
+.env.*.local
+*.log
+tests
+docker-compose.yml
+Dockerfile
+.dockerignore
