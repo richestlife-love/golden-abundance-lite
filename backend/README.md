@@ -6,13 +6,12 @@ FastAPI + SQLModel + Alembic + Postgres 17. See the [root README](../README.md) 
 
 - `src/backend/server.py` — FastAPI factory. Mounts routers at `/api/v1` and `/health`.
 - `src/backend/config.py` — pydantic-settings `Settings`; process-wide cached via `get_settings()`.
-- `src/backend/routers/` — route handlers (`auth`, `health`, `me`, `news`, `rank`, `tasks`, `teams`).
-- `src/backend/services/` — pure business logic (`display_id`, `news`, `pagination`, `rank`, `reward`, `task`, `team`, `team_join`, `user`); routers call services, services call `db`.
+- `src/backend/routers/` — route handlers (`health`, `leaderboard`, `me`, `news`, `tasks`, `teams`). Auth is a FastAPI dependency, not a router — identity is issued by Supabase.
+- `src/backend/services/` — pure business logic (`display_id`, `leaderboard`, `news`, `pagination`, `reward`, `task`, `team`, `team_join`, `user`); routers call services, services call `db`.
 - `src/backend/db/` — `engine.py` (cached async engine + sessionmaker), `session.py` (FastAPI dependency), `models.py` (SQLModel tables).
 - `src/backend/contract/` — Pydantic 2 wire-format models shared with the frontend. See [`contract/README.md`](src/backend/contract/README.md).
-- `src/backend/auth/` — JWT encode/decode, FastAPI auth dependencies, Google OIDC stub.
+- `src/backend/auth/` — Supabase JWKS-based RS256 JWT verifier (`supabase.py`) + `current_user` FastAPI dependency that upserts a `UserRow` on first sight of a `sub`. OAuth flow is owned by the frontend's Supabase SDK; the backend only verifies incoming `Authorization: Bearer` tokens.
 - `src/backend/seed.py` / `seed_reset.py` — idempotent / destructive seed entrypoints behind `just backend seed` and `just backend seed-reset`.
-- `src/backend/scripts/dump_demo_accounts.py` — prints `DEMO_USERS` as JSON; consumed by `just gen-demo-accounts` at the repo root.
 - `alembic/` — Alembic environment (`env.py`) and revision scripts (`versions/`).
 - `tests/` — pytest (async). Mirrors `src/backend/` layout (`routers/`, `services/`, `auth/`, `db/`).
 
@@ -23,8 +22,8 @@ Runtime config is read from the environment (prefer a `.env` file; see `.env.exa
 | Variable | Purpose |
 | --- | --- |
 | `DATABASE_URL` | SQLAlchemy URL with psycopg3 async driver. Defaults to the local `docker compose` Postgres. |
-| `JWT_SECRET` | HMAC secret for access-token signing. Minimum 32 chars. The dev default is **refused at boot when `APP_ENV=prod`** — deploys that forget to set it fail fast. |
-| `JWT_TTL_SECONDS` | Access-token lifetime in seconds. Defaults to `86400`. |
+| `SUPABASE_URL` | Supabase project base URL (e.g. `https://<ref>.supabase.co`). Required when `APP_ENV=prod` — `get_settings()` **refuses to boot a prod app** without it. The JWKS endpoint (`…/auth/v1/.well-known/jwks.json`) and issuer claim are derived from this. Optional in dev/test. |
+| `SUPABASE_JWT_AUD` | Audience claim enforced on incoming JWTs. Defaults to Supabase's `"authenticated"`. |
 | `CORS_ORIGINS` | Comma-separated (or JSON array) list of allowed origins. |
 | `APP_ENV` | One of `dev`, `test`, `prod`. Drives boot-safety checks and guards destructive recipes (e.g. `seed-reset`). |
 
@@ -41,7 +40,7 @@ Runtime config is read from the environment (prefer a `.env` file; see `.env.exa
 
 - `backend.seed` populates task definitions and news items. Idempotent but **skip-on-conflict** — existing rows are not updated, so use `seed-reset` after changing seed content.
 - `backend.seed_reset` truncates seed-owned tables then re-seeds. Refuses `APP_ENV=prod`.
-- Demo users are defined as `DEMO_USERS` in `backend/seed.py`; the frontend account picker is derived from that list via `just gen-demo-accounts` (run from repo root, commit the resulting JSON).
+- Demo users (`DEMO_USERS` in `backend/seed.py`) use stable `UUID(int=i)` identities so the test fixtures' `mint_access_token` helper can mint JWTs that match seeded rows. Dev-only; the prod seed skips `DEMO_USERS`. Real Supabase identities materialize at first sign-in via `upsert_user_by_supabase_identity`.
 
 ## Contract
 
