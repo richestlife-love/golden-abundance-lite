@@ -2,14 +2,12 @@
 
 Full schemas live in `backend/src/backend/contract/*.py`. Endpoint catalog in `backend/src/backend/contract/endpoints.md`. This page captures what a FR reviewer needs: the endpoint × response × error matrix, server-derived fields, and known contract gaps.
 
-All paths under `/api/v1/`. Auth column: `—` public, `B` bearer required. Every model inherits from `StrictModel` (`extra="forbid"` — unknown fields raise on both request and response).
+All paths under `/api/v1/`. Auth column: `—` public, `B` bearer required. Every authed endpoint verifies an RS256 JWT issued by Supabase via the project's JWKS endpoint (`backend/src/backend/auth/supabase.py`); OAuth flow lives entirely on the frontend (Phase 6). Every model inherits from `StrictModel` (`extra="forbid"` — unknown fields raise on both request and response).
 
 ## Endpoint matrix
 
 | Endpoint | Auth | Request | Response (200 unless noted) | Error codes |
 |---|---|---|---|---|
-| `POST /auth/google` | — | `GoogleAuthRequest` | `AuthResponse` | 401 |
-| `POST /auth/logout` | B | — | 204 | — |
 | `GET /me` | B | — | `User` | — |
 | `POST /me/profile` | B | `ProfileCreate` | `MeProfileCreateResponse` | 409 |
 | `PATCH /me` | B | `ProfileUpdate` | `User` | — |
@@ -29,6 +27,10 @@ All paths under `/api/v1/`. Auth column: `—` public, `B` bearer required. Ever
 | `GET /leaderboard/users` | B | `period,cursor,limit` | `Paginated[UserLeaderboardEntry]` | — |
 | `GET /leaderboard/teams` | B | `period,cursor,limit` | `Paginated[TeamLeaderboardEntry]` | — |
 | `GET /news` | B | `cursor,limit` | `Paginated[NewsItem]` | — |
+
+## Auth boundary
+
+`POST /auth/google` and `POST /auth/logout` no longer exist — Phase 6 removed them. Sign-in is driven entirely by the frontend's Supabase SDK (`@supabase/supabase-js`); sign-out is a client-side `supabase.auth.signOut()` call. The backend only verifies incoming `Authorization: Bearer <supabase-jwt>` tokens and upserts a `UserRow` keyed on the Supabase `auth.users.id` UUID the first time it sees a new `sub`.
 
 ## Server-derived fields
 

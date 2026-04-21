@@ -38,7 +38,6 @@ cd frontend && just ci
 | Recipe | Purpose | When to run |
 | --- | --- | --- |
 | `just gen-types` | Regenerate `frontend/src/api/schema.d.ts` from FastAPI OpenAPI (gitignored; loaded in-process, no running server or DB needed). | After backend routes/schemas change. |
-| `just gen-demo-accounts` | Regenerate `frontend/src/dev/demo-accounts.json` from `backend.seed.DEMO_USERS` (checked in — commit the result). | After editing `DEMO_USERS`. |
 
 ### Backend (`backend/justfile`)
 
@@ -71,7 +70,6 @@ cd frontend && just ci
 | After `git pull` | `just backend migrate` → `just backend seed-reset` (if seed content changed) → `just gen-types` (if backend API changed) |
 | Changed models | `just backend makemigration MSG="…"` → `just backend migrate` |
 | Changed routes / schemas | `just gen-types` |
-| Changed `DEMO_USERS` | `just gen-demo-accounts` (and commit the JSON) |
 | Demo data polluted | `just backend seed-reset` |
 | Before pushing | `just backend ci` && `just frontend ci` |
 

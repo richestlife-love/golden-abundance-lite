@@ -5,34 +5,43 @@ Narrative flows that traverse multiple routes / endpoints. Each maps to acceptan
 ## 1. First-time sign-up
 
 ```
-/sign-in (chooser)
-  → POST /auth/google (new email)
-  → tokenStore.set(token)
-  → /welcome
+/sign-in (single "Continue with Google" button)
+  → supabase.auth.signInWithOAuth({ provider: "google",
+      options: { redirectTo: origin + "/auth/callback?returnTo=…" }})
+  → Supabase → Google consent → back to /auth/callback?code=…
+  → supabase.auth.exchangeCodeForSession(window.location.search)
+      (Supabase persists the session in localStorage, auto-refresh on)
+  → navigate to returnTo ?? "/"
+  → /welcome (via _authed guard seeing profile_complete=false)
   → ProfileSetupForm
   → POST /me/profile (atomic: profile + led team)
+      ↳ first authed call materialises the UserRow via current_user's
+        upsert-on-first-sight
   → /home
 ```
 
 ## 2. Returning sign-in
 
 ```
-/sign-in (chooser)
-  → POST /auth/google
-  → tokenStore.set(token)
-  → / (index guard)
+/sign-in
+  → supabase.auth.signInWithOAuth → Google → /auth/callback → exchange
+  → / (index guard checks supabase.auth.getSession)
   → profile_complete? yes → /home ; no → /welcome
 ```
 
 ## 3. Session expiry mid-session
 
 ```
-any request → 401
+any backend request → 401 (Supabase token rejected by JWKS verifier,
+                             most often because it's expired and auto-refresh
+                             hasn't caught up yet)
   → setSessionExpiredHandler fires
-  → pushToast("您的工作階段已過期，請重新登入")
-  → tokenStore.clear()
-  → /sign-in?returnTo=<previous-path>
-  → queryClient.clear()
+  → signOut({ reason: "expired", returnTo: <current path> })
+    ├── supabase.auth.signOut() (clears Supabase's localStorage keys)
+    ├── pushToast("您的工作階段已過期，請重新登入")
+    ├── router.navigate({ to: "/sign-in", search: { returnTo } })
+    └── queryClient.clear() (last, so in-flight queries don't refetch
+                              against the torn-down session)
 ```
 
 ## 4. Task completion with reward

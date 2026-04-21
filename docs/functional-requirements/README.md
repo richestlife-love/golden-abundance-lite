@@ -46,9 +46,8 @@ Each FR doc describes what the code does today. These are the points where the c
 
 ### Launch readiness
 
-- **Google auth is stubbed** — `auth/google_stub.py` treats any valid email as the authenticated user; real JWKS verification is Phase 6. → Hard gate before external exposure, or acceptable for a gated invite launch?
-- **`profile_complete` is frontend-only** — only `_authed.tsx` gates business endpoints; backend `current_user` checks only the bearer token. → Close the gap before launch, or document as a known internal-use gap?
-- **Rate limiting** — none on `POST /auth/google` or anywhere. → When does this land?
+- **`profile_complete` is frontend-only** — only `_authed.tsx` gates business endpoints; backend `current_user` verifies the Supabase JWT but doesn't inspect `profile_complete`. → Close the gap before launch, or document as a known internal-use gap?
+- **Rate limiting** — backend has no per-IP / per-user throttling; Supabase's built-in Auth rate limits are the only backstop. → Does this need app-level throttling before launch?
 - **Account deletion / team disband / leadership transfer** — none exist. → Acceptable for v1, or does at least one need to ship?
 
 ### Rewards & recognition

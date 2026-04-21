@@ -6,8 +6,8 @@ Only three baseline "roles" exist; every endpoint's auth decision reduces to the
 
 | Role | Derivation | Capabilities |
 |---|---|---|
-| Anonymous | no bearer | `POST /auth/google` only |
-| Authenticated, profile incomplete | `user.profile_complete = false` | `GET/PATCH /me`, `POST /me/profile`, `POST /auth/logout` |
+| Anonymous | no bearer | no backend surface — sign-in is owned by Supabase (frontend's `supabase.auth.signInWithOAuth`) |
+| Authenticated, profile incomplete | `user.profile_complete = false` | `GET/PATCH /me`, `POST /me/profile` |
 | Authenticated, profile complete | `profile_complete = true` | full surface |
 | Leader (of team T) | `teams.leader_id == user.id` | `PATCH /teams/T`, approve/reject joins, sees `Team.requests` |
 | Member (of team T) | row in `team_memberships` | `POST /teams/T/leave`; sees `Team` with `role=member` |
@@ -22,8 +22,6 @@ Only three baseline "roles" exist; every endpoint's auth decision reduces to the
 
 | Endpoint | Anon | Auth (incomplete) | Auth (complete) | Leader of team | Member of team | Requester |
 |---|---|---|---|---|---|---|
-| `POST /auth/google` | ✓ | ✓ | ✓ | — | — | — |
-| `POST /auth/logout` | — | ✓ | ✓ | — | — | — |
 | `GET /me` | — | ✓ | ✓ | — | — | — |
 | `POST /me/profile` | — | ✓ | 409 | — | — | — |
 | `PATCH /me` | — | ✓ | ✓ | — | — | — |
@@ -41,6 +39,6 @@ Only three baseline "roles" exist; every endpoint's auth decision reduces to the
 | `GET /leaderboard/*`, `GET /news` | — | — | ✓ | — | — | — |
 
 **Notes:**
-- The "Auth incomplete" vs "Auth complete" split in the matrix above is **enforced on the frontend only**. Backend `current_user` (`backend/src/backend/auth/dependencies.py:22-40`) checks only the bearer token; it does not inspect `profile_complete`. The gating lives in `frontend/src/routes/_authed.tsx` — any client holding a bearer token can call business endpoints directly regardless of `profile_complete`. Treat this as a known gap to close before external exposure.
+- The "Auth incomplete" vs "Auth complete" split in the matrix above is **enforced on the frontend only**. Backend `current_user` (`backend/src/backend/auth/dependencies.py`) verifies the Supabase RS256 JWT and upserts a `UserRow` on first sight of a `sub`, but it does not inspect `profile_complete`. The gating lives in `frontend/src/routes/_authed.tsx` — any client holding a valid Supabase bearer token can call business endpoints directly regardless of `profile_complete`. Treat this as a known gap to close before external exposure.
 - `Team.requests` is populated **only** when caller is the team's leader; members and outsiders see `None`.
 - The leader cannot leave their own team (no disband path exists).

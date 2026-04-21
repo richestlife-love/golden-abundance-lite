@@ -36,6 +36,8 @@ All `@demo.ga`, country TW, `profile_complete=True`, each auto-gets a led team v
 | kai@demo.ga | 黃凱文 | Kai Huang | Kai | +886 912345682 | 高雄 |
 | yu@demo.ga | 張詩宇 | Yu Chang | Yu | +886 912345683 | 台南 |
 
+Each demo user is seeded with a stable `UUID(int=i+1)` identity (1..6) so the backend test fixtures' `mint_access_token` helper can mint Supabase-shaped JWTs that resolve to the seeded rows.
+
 ## γ-fanout pending join requests
 
 Exercises two-leader approval UX.
@@ -45,6 +47,6 @@ Exercises two-leader approval UX.
 - kai → ami's team
 - yu → ami's team
 
-## Frontend mirror
+## Real sign-in (local dev)
 
-`frontend/src/dev/demo-accounts.json` — the 6 demo emails + labels (e.g. `"金杰 (Jet Kan)"`) used by the sign-in chooser. Generated from `DEMO_USERS` via `just gen-demo-accounts`.
+Phase 6 removed the demo-account chooser. Local dev signs in via real Google OAuth against a dev Supabase project (or `supabase start` locally). No frontend-bundled account picker, no generated JSON.

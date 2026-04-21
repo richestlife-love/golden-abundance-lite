@@ -48,9 +48,20 @@ Phase 5 ships the persistence layer + runnable backend via five sub-plans:
 Backend now serves every endpoint listed in `backend/src/backend/contract/endpoints.md`.
 
 ## Phase 6 — Auth
-- [ ] Decide: Clerk / Supabase Auth vs. roll-your-own Google OAuth
-- [ ] Integrate auth provider on frontend
-- [ ] Protect FastAPI routes with session/token verification
+- [x] Decide: Clerk / Supabase Auth vs. roll-your-own Google OAuth → Supabase Auth + Supabase Postgres
+- [x] Integrate auth provider on frontend (`@supabase/supabase-js`, PKCE flow, `/auth/callback` route)
+- [x] Protect FastAPI routes with session/token verification (RS256 JWKS verifier at `backend/src/backend/auth/supabase.py`)
+- [x] Post-phase hardening (see "Phase 6 hardening" tech-debt subsection below)
+
+See Phase 6 sub-plans + spec:
+- [Design spec (6+7)](superpowers/specs/2026-04-21-phase-6-7-auth-deploy-design.md)
+- [6a Backend auth](superpowers/plans/2026-04-21-phase-6a-backend-auth.md)
+- [6b Frontend auth](superpowers/plans/2026-04-21-phase-6b-frontend-auth.md)
+
+Phase 6 replaces the Phase 5b email-stub with real Supabase Auth:
+- **6a Backend:** deletes `auth/google_stub.py`, `auth/jwt.py`, `routers/auth.py`, `POST /auth/google`, `POST /auth/logout`. Adds `auth/supabase.py` (RS256 JWKS verifier with `PyJWKClient`), `contract/auth.py::SupabaseClaims`, and rewires `current_user` to verify Supabase JWTs + upsert a `UserRow` on first sight of a `sub`. `UserRow.id` now holds Supabase's `auth.users.id` UUID. Prod-env guard refuses to boot without `SUPABASE_URL`.
+- **6b Frontend:** adds `@supabase/supabase-js`, a singleton client with test-override at `src/lib/supabase.ts`, and a `/auth/callback` route that calls `exchangeCodeForSession` (PKCE). `AuthProvider` subscribes to `onAuthStateChange`; `apiFetch` reads the token from Supabase's session. Demo-account chooser deleted; sign-in is one Google button. `frontend/vercel.json` ships CSP + security headers.
+- **Hardening (post-6b):** `current_user` retries on `IntegrityError` for the concurrent first-sign-in race; `parseReturnTo` guards route `returnTo` params against open-redirect; `/auth/callback` surfaces exchange errors via toast; `vercel.json` rewrite now includes `/auth/callback` in the SPA fallback; `PyJWKClient` drops `cache_keys=True` so key rotations propagate within the JWKS lifespan.
 
 ## Phase 7 — Deploy
 - [ ] Deploy frontend (Vercel / Netlify)
@@ -113,17 +124,17 @@ Surfaced during Phase 5a (backend foundation — FastAPI + SQLModel + Alembic + 
 
 ## Tech debt / review findings (Phase 5b)
 
-Surfaced during Phase 5b (Google-stub auth + HS256 JWT + `/auth/google`, `/auth/logout`, `/me`). Address when Phase 6 replaces the Google stub with real JWKS verification, unless noted otherwise.
+Surfaced during Phase 5b (Google-stub auth + HS256 JWT + `/auth/google`, `/auth/logout`, `/me`). **Most items below were resolved by Phase 6 when real Supabase Auth replaced the stub**; kept for historical context.
 
 ### Auth / security
-- **`display_id` select-then-insert race** — [`backend/src/backend/services/display_id.py`](../backend/src/backend/services/display_id.py) + [`backend/src/backend/services/user.py`](../backend/src/backend/services/user.py). Two concurrent sign-ups with the same email-derived base can both pick the same candidate; the loser hits a unique-constraint `IntegrityError` and the router returns 500. Wrap candidate generation in a retry-on-`IntegrityError` loop, or switch to `INSERT … ON CONFLICT` with suffix regeneration, before production sign-ups land.
-- **No JWT revocation / denylist** — `POST /auth/logout` is best-effort: tokens remain valid until `exp` regardless. Combine short access-token TTLs + a refresh-token rotation (or a small per-user revoked-jti table) when this starts mattering.
-- **No `iss` / `aud` claims on minted tokens** — [`backend/src/backend/auth/jwt.py`](../backend/src/backend/auth/jwt.py). Single-service HS256 only; revisit if tokens ever cross service boundaries.
-- **No rate limiting on `/auth/google`** — a noisy caller can force an unbounded number of upserts + JWT signatures. Add per-IP / per-email throttling at the ingress or a SlowAPI-style middleware.
-- **`HTTPException(detail=str(exc))` on `/auth/google`** — [`backend/src/backend/routers/auth.py`](../backend/src/backend/routers/auth.py). Passes through the stub's verbose "Phase 5 stub" message, which also echoes the caller-supplied id_token fragment from `email-validator`. When Phase 6 swaps in real Google verification, replace with a constant `"Invalid id_token"` and log the underlying error server-side at WARNING.
+- **`display_id` select-then-insert race** — [`backend/src/backend/services/display_id.py`](../backend/src/backend/services/display_id.py) + [`backend/src/backend/services/user.py`](../backend/src/backend/services/user.py). Two concurrent sign-ups with the same email-derived base can both pick the same candidate; the loser hits a unique-constraint `IntegrityError`. **Partially resolved in Phase 6 hardening**: `current_user` now catches `IntegrityError`, rolls back, and re-fetches — so concurrent first-sign-in requests for the *same* `sub` (hitting the PK collision) recover gracefully. The inner `display_id` collision between *different* `sub`s with the same email base is still a 500. Fix remains: `INSERT … ON CONFLICT` on `display_id` with suffix regeneration, or retry-on-`IntegrityError` inside `generate_user_display_id`.
+- ~~**No JWT revocation / denylist** — `POST /auth/logout` is best-effort: tokens remain valid until `exp` regardless.~~ **Resolved (reassigned) in Phase 6**: Supabase owns access + refresh token lifecycle. Revocation beyond Supabase's signing-key rotation is still deferred — see `docs/functional-requirements/10-deferred-scope.md`.
+- ~~**No `iss` / `aud` claims on minted tokens** — [`backend/src/backend/auth/jwt.py`](../backend/src/backend/auth/jwt.py). Single-service HS256 only; revisit if tokens ever cross service boundaries.~~ **Resolved in Phase 6**: the backend no longer mints tokens. Incoming Supabase JWTs carry `iss` and `aud` claims and `verify_supabase_jwt` enforces both.
+- ~~**No rate limiting on `/auth/google`** — a noisy caller can force an unbounded number of upserts + JWT signatures.~~ **Resolved (reassigned) in Phase 6**: `/auth/google` is gone. Sign-in traffic hits Supabase Auth, which applies its own rate limits. Additional app-level throttling remains deferred.
+- ~~**`HTTPException(detail=str(exc))` on `/auth/google`** — [`backend/src/backend/routers/auth.py`](../backend/src/backend/routers/auth.py).~~ **Resolved in Phase 6**: router deleted. `current_user` returns a constant `"Missing or invalid bearer token"` on any verification failure.
 
 ### Dependencies
-- **`email-validator` is an undeclared direct dependency** — used by [`backend/src/backend/auth/google_stub.py`](../backend/src/backend/auth/google_stub.py) via the `pydantic[email]` transitive. Pin explicitly in `backend/pyproject.toml` (`"email-validator>=2"`) so a future `pydantic` extra change can't silently break the auth stub.
+- ~~**`email-validator` is an undeclared direct dependency** — used by [`backend/src/backend/auth/google_stub.py`](../backend/src/backend/auth/google_stub.py) via the `pydantic[email]` transitive.~~ **Resolved in Phase 6**: `google_stub.py` deleted; `SupabaseClaims.email` uses plain `str` (Supabase has already validated).
 
 ## Tech debt / review findings (Phase 5c)
 
@@ -177,10 +188,10 @@ Surfaced during Phase 4a (plumbing — TanStack Query v5, MSW v2, generated Open
 - **`pnpm -C frontend dlx` writes to the wrong cwd** — [`justfile`](../justfile). `-C frontend` switches pnpm's project context but not the CLI's output-path resolution, so `-o src/api/schema.d.ts` originally landed at repo root instead of `frontend/`. Fixed via `cd frontend && pnpm dlx ...` in commit `fcc9537`. Worth checking future pnpm CLI invocations for the same trap.
 
 ### Auth / 401 wiring
-- **`setSessionExpiredHandler` is registered at module import time in `session.tsx`** — [`../frontend/src/auth/session.tsx`](../frontend/src/auth/session.tsx). Importing the module installs the handler globally; it currently clears token + cache + pushes a toast but **does not navigate**. The handler also bypasses `setSignedIn(false)` and the `inFlightSignOut` dedup, so `useAuth().isSignedIn` stays stale after a 401 and concurrent loader-401s each fire `tokenStore.clear` + `qc.clear` + a toast independently. Plan 4c adds `router.navigate({ to: '/sign-in', search: { returnTo } })` — the cleanest hook is to mirror the existing `_setActiveQueryClient(qc)` pattern with a `_setActiveRouter(router)` holder, set from a top-level component and read by the module-level handler, and route the handler through `signOut({ reason: 'expired', returnTo })` so state + dedup + navigation converge. Don't try to re-register the handler from a hook.
-- **`signOut(opts.returnTo)` is accepted but ignored** — plumbed through for plan 4c's router-navigate work. Callers can start passing it now; it no-ops until 4c wires it. The concurrent-safe `inFlightSignOut` guard is module-level, so 4c's `router.navigate` call must happen *inside* the guard (after `tokenStore.clear()`, before the `finally` releases) to avoid double-navigation on concurrent logouts.
-- **No E2E 401 test yet** — [`../frontend/src/api/__tests__/client.test.ts`](../frontend/src/api/__tests__/client.test.ts) unit-tests the handler-dispatch path; the full loader → 401 → redirect → toast flow lands in plan 4c once the router is wired.
-- **`signIn(email)` passes the email as `id_token`** — demo shortcut; the backend's `/auth/google` stub accepts this shape. When Phase 6 wires real Google auth, `signIn`'s signature changes and `GoogleAuthScreen` (plan 4b) must pass the real credential.
+- ~~**`setSessionExpiredHandler` is registered at module import time in `session.tsx`**~~ **Resolved in Phase 4c + Phase 6**: handler now routes through `signOut({reason: "expired", returnTo})`, which calls `supabase.auth.signOut()`, pushes the toast, navigates via the module-level router ref, and clears the query cache — all inside the `inFlightSignOut` guard.
+- ~~**`signOut(opts.returnTo)` is accepted but ignored**~~ **Resolved in Phase 4c**: router-navigate wired; Phase 6 hardening added `parseReturnTo` scrubbing so the value can't carry an open-redirect payload.
+- ~~**No E2E 401 test yet**~~ **Resolved in Phase 4c**: `api/__tests__/client.test.ts` covers the full loader-401 → signOut → redirect flow.
+- ~~**`signIn(email)` passes the email as `id_token`**~~ **Resolved in Phase 6b**: `signIn` now calls `supabase.auth.signInWithOAuth({ provider: "google" })`; `GoogleAuthScreen` is a single branded button.
 
 ### Frontend API layer
 - **`apiFetch` always sends `Content-Type: application/json`, even on GETs and empty-body POSTs** — [`../frontend/src/api/client.ts`](../frontend/src/api/client.ts). FastAPI tolerates it; semantically wrong and may trip odd CORS preflights or proxies. Gate on `init.body != null` when tightening.
@@ -240,8 +251,8 @@ Surfaced during Phase 4b (auth guards on `tokenStore` + read-side TanStack Query
 Surfaced during Phase 4c (write-side migration + cleanup — every form/button routed through a real mutation; `AppStateContext` deleted; router-aware `signOut`; end-to-end 401 interceptor test). Items below are either out-of-scope for Phase 4 or only become actionable once later phases expose them.
 
 ### Auth / session
-- **Token storage in `localStorage`** — vulnerable to XSS; deliberate Phase-4 choice per spec §4.2. Phase 6 should revisit when real Google OAuth lands (httpOnly cookie storage + refresh-token rotation are the natural pair).
-- **No refresh-token rotation** — access-token TTL is the entire session. Already flagged under Phase 5b auth/security; reiterated here because 4c's `signOut` navigation path assumes single-token sessions.
+- **Token storage in `localStorage`** — still localStorage in Phase 6, now owned by the Supabase SDK (`sb-<ref>-auth-token`). XSS → token theft remains the threat; mitigated by strict CSP (`frontend/vercel.json`) locking `connect-src` to `self + *.supabase.co + *.ingest.sentry.io` and blocking inline scripts. BFF cookie-storage pattern was considered and rejected per the Phase 6-7 design spec §2 (not worth the cost for this threat model).
+- ~~**No refresh-token rotation**~~ **Resolved (reassigned) in Phase 6**: Supabase SDK auto-refreshes near expiry. Server-side revocation of an active refresh token is still deferred (see `docs/functional-requirements/10-deferred-scope.md`).
 
 ### Optimistic-mutation gaps
 - **`qk.team(uuid)` invalidated but never patched optimistically** — [`frontend/src/mutations/teams.ts`](../frontend/src/mutations/teams.ts)'s approve/reject/patch hooks patch only `qk.myTeams.led` because Phase 3/4 has no team-detail route subscriber. When a team-detail deep link ships, extend each `onMutate` to also patch `qk.team(teamId)` when present in the cache.
@@ -264,3 +275,32 @@ Surfaced during Phase 4c (write-side migration + cleanup — every form/button r
 
 ### signOut in test wrapper
 - **`renderRoute` registers the memory router via `setRouterRef` but never unregisters** — [`frontend/src/test/renderRoute.tsx`](../frontend/src/test/renderRoute.tsx). Each test overrides the previous ref; fine because vitest isolates modules per file. If a future test suite needs strict teardown (e.g., asserting no leftover navigation after teardown), add a `setRouterRef(null)` step in setup.ts's `afterEach`.
+
+## Tech debt / review findings (Phase 6 + 6 hardening)
+
+Surfaced during Phase 6 (Supabase auth — 6a backend + 6b frontend) and the subsequent hardening review. Landed fixes are linked to their commits; remaining items feed 7a/7b or are post-launch.
+
+### Landed in 6a/6b
+- **Phase 6a backend** — HS256 + stub auth surface deleted, RS256 JWKS verifier wired, `UserRow.id` tied to Supabase `auth.users.id`, test fixtures mint RS256 JWTs through a stubbed JWKS client. `backend/src/backend/auth/supabase.py`, `dependencies.py`, `services/user.py::upsert_user_by_supabase_identity`.
+- **Phase 6b frontend** — `@supabase/supabase-js` singleton with test override (`src/lib/supabase.ts`), PKCE callback at `/auth/callback`, `apiFetch` reads session token from Supabase, single-button `GoogleAuthScreen`, demo-account chooser deleted, `vercel.json` CSP + security headers.
+
+### Landed in Phase 6 hardening (follow-up review pass)
+
+All fixes against commit `ea61f36` (Phase 6 merge). Branch: `worktree-phase-6-hardening`.
+
+- **`current_user` retries the concurrent first-sign-in race** — `backend/src/backend/auth/dependencies.py` now catches `IntegrityError` from the upsert, rolls back, and re-fetches. A second request that raced against a fresh signup no longer 500s. Tests added under `tests/routers/test_auth_required.py`.
+- **`PyJWKClient` drops `cache_keys=True`** — `backend/src/backend/auth/supabase.py`. Per-kid cache had no TTL, which would have kept accepting tokens signed by a revoked key until worker restart. Removing it routes every lookup through the lifespan-governed JWK-set cache.
+- **`returnTo` validator** — new `frontend/src/lib/returnTo.ts::parseReturnTo` rejects protocol-relative (`//evil.com`), absolute (`https://…`), `javascript:…`, backslash-prefixed, and bare-`/` values. Applied in `/auth/callback` and `/sign-in` `validateSearch`. 22 unit tests.
+- **`/auth/callback` surfaces errors** — `frontend/src/routes/auth.callback.tsx` now pushes an error toast when `exchangeCodeForSession` fails before navigating to `/sign-in`. Prevents silent spinner → blank-sign-in that the pre-hardening code produced on any first-sign-in failure.
+- **`vercel.json` SPA rewrite** — `/auth/callback` folded back into the index.html fallback. The pre-hardening exclusion would have returned 404 on OAuth return in prod.
+- **Expanded `/auth/callback` tests** — `frontend/src/routes/__tests__/auth.callback.test.tsx` covers happy path, returnTo honoring, open-redirect stripping, error-toast path. `renderRoute` gained a `configureFake` hook so tests can arm pre-mount fake state.
+- **`backend/README.md` refreshed** — dropped stale references to `JWT_SECRET`, `google_stub.py`, `dump_demo_accounts.py`, `gen-demo-accounts`, and the pre-rename `rank` router.
+
+### Still deferred
+
+- **`display_id` SELECT-then-INSERT race** — Phase 5b debt. Phase 6 hardening's `IntegrityError` retry covers the PK collision; the inner `display_id` collision between two *different* `sub`s with the same email base still surfaces as 500. Fix: `INSERT … ON CONFLICT` or retry inside `generate_user_display_id`. Acceptable at launch volume; lands in post-launch hardening alongside the rest of Phase 5b's concurrency items.
+- **Stale-email collision** — a Supabase user deleted and recreated gets a new `sub` but might collide on `UserRow.email`'s unique constraint. Not a real user path during alpha — requires manual Supabase admin action. Tracked in `plans/2026-04-21-phase-6a-backend-auth.md` Known Deferrals; current_user's retry does NOT silently swallow this, it re-raises so it's visible.
+- **CSP `style-src 'unsafe-inline'`** — deliberately deferred in the Phase 6-7 design spec §11.9. Codebase-wide inline `style={}` makes nonce migration a separate pass. Attack surface: CSS-selector side channels combined with any future XSS. Post-launch item.
+- **`schema.d.ts` regeneration in CI** — `frontend/src/api/schema.d.ts` is gitignored. `pnpm exec tsc --noEmit` and `pnpm build` require it. 7a's GitHub Actions must run `just gen-types` before any typecheck/build step.
+- **Sentry (backend + frontend)** — scoped for 7b. `auth.callback.tsx`'s error path has a `TODO(phase-7b)` comment flagging the Sentry integration point.
+- **Admin / RLS / account-deletion / custom Supabase domain / staging env / load testing / Playwright** — tracked in the Phase 6-7 design spec §11.

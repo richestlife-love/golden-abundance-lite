@@ -5,8 +5,13 @@ For each entity: state machine first, then rules / invariants. Rules not capture
 ## User
 
 ```
-new
-  │  POST /auth/google
+new (no auth.users row in Supabase)
+  │  supabase.auth.signInWithOAuth({ provider: "google" })
+  │  → Google consent → /auth/callback → exchangeCodeForSession
+  ▼
+authenticated (Supabase auth.users row; no app-side UserRow yet)
+  │  first authed request → current_user upserts UserRow
+  │  (keyed on auth.users.id UUID)
   ▼
 exists(profile_complete=false)
   │  POST /me/profile
@@ -14,6 +19,8 @@ exists(profile_complete=false)
 exists(profile_complete=true, led_team=T)   ← PATCH /me mutates fields; state stays here
 ```
 
+- **Identity namespace**: `UserRow.id` is the Supabase `auth.users.id` UUID. No local UUID → Supabase UUID mapping table; the two namespaces are unified.
+- **Upsert on first sight** (`services/user.py::upsert_user_by_supabase_identity`): the first authed request for a never-seen `sub` materialises the `UserRow` with `profile_complete=false`. Concurrent first-sign-in requests are caught by an `IntegrityError` retry in `current_user`.
 - **Name derivation** (server): `User.name = zh_name ?? nickname ?? email-local-part`.
 - **Display ID**: `U[A-Z0-9]{3,7}`. Generated in `services/display_id.py`.
 - **`POST /me/profile` side-effect**: `create_led_team` runs in the same transaction — enforces the "one led team per profile-complete user" invariant.

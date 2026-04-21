@@ -17,7 +17,6 @@ HTTP errors from the contract (`endpoints.md`) need explicit UX mapping — this
 
 | Endpoint | Code | Condition | Backend detail | User-visible copy |
 |---|---|---|---|---|
-| `POST /auth/google` | 401 | invalid/empty/non-email id_token | `id_token is empty` / `stub id_token must be an email in Phase 5: …` (dynamic, from `auth/google_stub.py`) | (chooser surfaces inline) |
 | `POST /me/profile` | 409 | profile already complete | `Profile already complete` | (shouldn't happen via UI; guard routes) |
 | `GET /tasks/{id}` | 404 | unknown task | `Task not found` | — |
 | `POST /tasks/{id}/submit` | 400 | task has no form, or form_type mismatch | `This task does not accept submissions` / `form_type does not match task's declared form_type` | form stays open; `submit.error` shown inline |
@@ -41,8 +40,15 @@ HTTP errors from the contract (`endpoints.md`) need explicit UX mapping — this
 
 Global registration (`frontend/src/api/client.ts:setSessionExpiredHandler`) catches 401 and calls `signOut({reason: "expired", returnTo})`:
 
-1. Fire best-effort `POST /auth/logout` (ignore failure).
+1. `supabase.auth.signOut()` — clears Supabase's localStorage session keys.
 2. Toast `您的工作階段已過期，請重新登入`.
-3. `tokenStore.clear()`.
-4. Navigate to `/sign-in?returnTo=<current>`.
-5. `queryClient.clear()` — last, so in-flight queries don't refetch with the cleared token.
+3. Navigate to `/sign-in?returnTo=<current>` (router-owned; `returnTo` is scrubbed through `parseReturnTo` to reject any non-same-origin path).
+4. `queryClient.clear()` — last, so in-flight queries don't refetch with the cleared session.
+
+## /auth/callback failures
+
+When `supabase.auth.exchangeCodeForSession` returns an error (expired PKCE code, cleared `code_verifier` in localStorage, stolen-and-replayed code, Supabase Auth downtime), the callback route:
+
+1. `pushToast({ kind: "error", message: "登入失敗：<reason>" })` — surfaces the Supabase error message so a dev-side config issue doesn't look like a user-side failure.
+2. Navigates to `/sign-in`. The returnTo is deliberately dropped so the user can retry sign-in cleanly.
+3. (Phase 7b) Reports the error to Sentry for observability.

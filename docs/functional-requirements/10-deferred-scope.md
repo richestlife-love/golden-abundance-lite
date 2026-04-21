@@ -4,9 +4,9 @@ Intentional gaps in the current codebase. Listing them explicitly so reviewers k
 
 ## Auth
 
-- **Real Google JWKS verification** (Phase 6) — stubbed in `backend/src/backend/auth/google_stub.py`: the `id_token` field of `POST /auth/google` is treated as the user's email verbatim, with no signature check. **Any valid email authenticates as that user.** Do not assume real Google verification is in place before Phase 6.
-- **Server-side token revocation** — tokens expire naturally; `/auth/logout` is a best-effort no-op.
-- **Refresh tokens** — access token only.
+- **Server-side token revocation / denylist** — Supabase manages access + refresh tokens; our backend verifies signatures + expiry but does not maintain a per-user revoke list. A compromised token is valid until its natural expiry or until a Supabase-side signing-key rotation propagates (`PyJWKClient.lifespan=3600`). Acceptable at launch; revisit if abuse or credential-compromise becomes a real concern.
+- **Rate limiting on Supabase Auth endpoints** — Supabase enforces its own defaults (60 sign-ups/hour on the free plan). No additional ingress throttling on `api.jinfuyou.app`.
+- **Row-Level Security** — deliberately off. FastAPI is the sole DB client via the `app_backend` Postgres role (`BYPASSRLS`). Revisit if Supabase Realtime or non-FastAPI direct-DB access is ever added.
 
 ## Rewards
 
@@ -36,8 +36,8 @@ Intentional gaps in the current codebase. Listing them explicitly so reviewers k
 - **Feature flags / A/B** — none.
 - **Push notifications** — none.
 - **Offline / service worker** — none.
-- **Monitoring / metrics / error reporting** — none set up in code.
-- **Rate limiting** — none on `POST /auth/google` or any other endpoint.
+- **Monitoring / metrics / error reporting** — Sentry is scoped for Phase 7b (backend + frontend). No tracing, no structured logs beyond platform stdout.
+- **Rate limiting** — none on backend endpoints beyond Supabase Auth's built-in throttles.
 
 ## Localization
 
