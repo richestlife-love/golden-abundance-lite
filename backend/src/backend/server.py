@@ -5,6 +5,7 @@ A module-level `app` is exported for `fastapi-cli` (see
 `[tool.fastapi] entrypoint` in pyproject.toml).
 """
 
+import sentry_sdk
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -18,6 +19,16 @@ API_V1 = "/api/v1"
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    if settings.sentry_dsn:
+        sentry_sdk.init(
+            dsn=settings.sentry_dsn,
+            environment=settings.app_env,
+            release=settings.app_release,
+            traces_sample_rate=0.1,
+            profiles_sample_rate=0.0,
+            send_default_pii=False,
+        )
+
     app = FastAPI(
         title="Golden Abundance API",
         version="0.1.0",
