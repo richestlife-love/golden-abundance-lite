@@ -1,6 +1,7 @@
 /// <reference types="vitest" />
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, type PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 const DEFAULT_PORT = 5173;
 const DEFAULT_API_BASE_URL = "http://localhost:8000";
@@ -13,8 +14,28 @@ export default defineConfig(({ mode }) => {
         .map((h) => h.trim())
         .filter(Boolean)
     : [];
+
+  const plugins: PluginOption[] = [react()];
+  if (env.SENTRY_AUTH_TOKEN && env.VITE_RELEASE) {
+    plugins.push(
+      sentryVitePlugin({
+        authToken: env.SENTRY_AUTH_TOKEN,
+        org: env.SENTRY_ORG ?? "jinfuyou",
+        project: env.SENTRY_PROJECT ?? "jinfuyou-frontend",
+        release: { name: env.VITE_RELEASE },
+        sourcemaps: { assets: "./dist/**" },
+      }),
+    );
+  }
+
   return {
-    plugins: [react()],
+    plugins,
+    build: {
+      // "hidden" emits .map files so the Sentry plugin can upload them, but
+      // doesn't add a `//# sourceMappingURL=` comment to the bundle — real
+      // visitors don't fetch source maps; only Sentry resolves stack traces.
+      sourcemap: "hidden",
+    },
     server: {
       port,
       host: true,
