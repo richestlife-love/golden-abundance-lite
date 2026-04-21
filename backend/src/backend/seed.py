@@ -1,7 +1,9 @@
-"""Idempotent dev seed. Creates task definitions (T1-T4), a few
-news items, and the six @demo.ga demo users (Phase 4a). Users that
-sign in via /auth/google complete their own profile + team via the
-same code path.
+"""Idempotent dev seed. Creates task definitions (T1-T4), a few news
+items, and the six @demo.ga demo users. Each demo user is keyed by a
+stable ``UUID(int=N)`` so re-running this script after a migration
+preserves row identity. Real users flow through ``current_user`` and
+upsert themselves on first authed request; the dev seed only bootstraps
+fixtures.
 
 Run with: `just -f backend/justfile seed` (after `just db-up` + `just migrate`).
 Running sequentially twice is safe — existing rows (by display_id / title /
@@ -28,10 +30,11 @@ from backend.db.models import (
 )
 from backend.services.team import create_led_team
 from backend.services.team_join import JoinConflictError, create_join_request
-from backend.services.user import upsert_user_by_email
+from backend.services.user import upsert_user_by_supabase_identity
 
-DEMO_USERS: list[dict[str, str]] = [
+DEMO_USERS: list[dict[str, str | UUID]] = [
     {
+        "user_id": UUID(int=1),
         "email": "jet@demo.ga",
         "zh_name": "金杰",
         "en_name": "Jet Kan",
@@ -42,6 +45,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "台北",
     },
     {
+        "user_id": UUID(int=2),
         "email": "ami@demo.ga",
         "zh_name": "林詠瑜",
         "en_name": "Ami Lin",
@@ -52,6 +56,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "台北",
     },
     {
+        "user_id": UUID(int=3),
         "email": "alex@demo.ga",
         "zh_name": "陳志豪",
         "en_name": "Alex Chen",
@@ -62,6 +67,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "新北",
     },
     {
+        "user_id": UUID(int=4),
         "email": "mei@demo.ga",
         "zh_name": "王美玲",
         "en_name": "Mei Wang",
@@ -72,6 +78,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "台中",
     },
     {
+        "user_id": UUID(int=5),
         "email": "kai@demo.ga",
         "zh_name": "黃凱文",
         "en_name": "Kai Huang",
@@ -82,6 +89,7 @@ DEMO_USERS: list[dict[str, str]] = [
         "location": "高雄",
     },
     {
+        "user_id": UUID(int=6),
         "email": "yu@demo.ga",
         "zh_name": "張詩宇",
         "en_name": "Yu Chang",
@@ -230,7 +238,11 @@ async def _upsert_demo_users(session: AsyncSession) -> dict[str, UserRow]:
     for spec in DEMO_USERS:
         if spec["email"] in existing:
             continue
-        user = await upsert_user_by_email(session, email=spec["email"])
+        user = await upsert_user_by_supabase_identity(
+            session,
+            auth_user_id=spec["user_id"],
+            email=spec["email"],
+        )
         user.zh_name = spec["zh_name"]
         user.en_name = spec.get("en_name")
         user.nickname = spec.get("nickname")
