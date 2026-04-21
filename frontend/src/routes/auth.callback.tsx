@@ -2,6 +2,7 @@ import { createRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { rootRoute } from "./__root";
 import { getSupabaseClient } from "../lib/supabase";
+import { parseReturnTo } from "../lib/returnTo";
 
 interface CallbackSearch {
   returnTo?: string;
@@ -40,7 +41,7 @@ export const authCallbackRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/auth/callback",
   validateSearch: (raw: Record<string, unknown>): CallbackSearch => ({
-    returnTo: typeof raw.returnTo === "string" ? raw.returnTo : undefined,
+    returnTo: parseReturnTo(raw.returnTo),
   }),
   component: AuthCallbackRoute,
 });

@@ -2,6 +2,7 @@ import { createRoute, redirect, useNavigate, useSearch } from "@tanstack/react-r
 import GoogleAuthScreen from "../screens/GoogleAuthScreen";
 import { useAuth } from "../auth/session";
 import { getSupabaseClient } from "../lib/supabase";
+import { parseReturnTo } from "../lib/returnTo";
 import { meQueryOptions } from "../queries/me";
 import { rootRoute } from "./__root";
 
@@ -30,7 +31,7 @@ export const signInRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/sign-in",
   validateSearch: (raw: Record<string, unknown>): SignInSearch => ({
-    returnTo: typeof raw.returnTo === "string" ? raw.returnTo : undefined,
+    returnTo: parseReturnTo(raw.returnTo),
   }),
   beforeLoad: async ({ context }) => {
     const { data } = await getSupabaseClient().auth.getSession();
