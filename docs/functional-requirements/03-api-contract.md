@@ -2,7 +2,7 @@
 
 Full schemas live in `backend/src/backend/contract/*.py`. Endpoint catalog in `backend/src/backend/contract/endpoints.md`. This page captures what a FR reviewer needs: the endpoint × response × error matrix, server-derived fields, and known contract gaps.
 
-All paths under `/api/v1/`. Auth column: `—` public, `B` bearer required. Every authed endpoint verifies an RS256 JWT issued by Supabase via the project's JWKS endpoint (`backend/src/backend/auth/supabase.py`); OAuth flow lives entirely on the frontend (Phase 6). Every model inherits from `StrictModel` (`extra="forbid"` — unknown fields raise on both request and response).
+All paths under `/api/v1/`. Auth column: `—` public, `B` bearer required. Every authed endpoint verifies an RS256 JWT issued by Supabase via the project's JWKS endpoint (`backend/src/backend/auth/supabase.py`); OAuth flow is driven entirely by the frontend's Supabase SDK. Every model inherits from `StrictModel` (`extra="forbid"` — unknown fields raise on both request and response).
 
 ## Endpoint matrix
 

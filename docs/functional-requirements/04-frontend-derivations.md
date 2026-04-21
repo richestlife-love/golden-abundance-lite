@@ -6,7 +6,7 @@ Values and logic the client computes on top of the API contract. Every item here
 
 Defined in `frontend/src/utils.ts`. Computes `completedIds` from `allTasks`, then returns `locked` + `unmet` list if any id in `task.requires` is missing; otherwise returns the server's status unchanged.
 
-> ⚠️ **Duplicates server logic.** `contract/task.py` says the backend derives `locked`/`expired` server-side, yet `getEffectiveStatus` re-derives `locked` locally. Either the backend doesn't emit `locked` yet (Phase-5 gap) or there's redundant logic.
+> ⚠️ **Duplicates server logic.** `services/task.py:125-135` derives `locked`/`expired` and emits it as `Task.status`. `getEffectiveStatus` re-derives `locked` locally anyway — redundant. Cleanup candidate: drop the client derivation and trust the server's `Task.status`.
 
 ## `daysUntil(dueAt)` — ceil-days client-side
 
