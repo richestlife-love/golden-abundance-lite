@@ -150,9 +150,9 @@ export default function TeamCard({
   const requests = team.role === "leader" ? (team.requests ?? []) : [];
 
   const isLeader = team.role === "leader";
-  const teamPoints = team.points != null ? team.points : total * 180 + 240;
+  const teamPoints = total * 180 + 240;
   const teamRank = team.rank ?? 3;
-  const weekPoints = team.week_points != null ? team.week_points : Math.round(teamPoints * 0.18);
+  const weekPoints = Math.round(teamPoints * 0.18);
 
   return (
     <>
