@@ -12,6 +12,35 @@ High-level phase tracker for the move from single-file prototype to production a
 - [x] **Phase 6 — Auth:** Supabase Auth + RS256 JWKS verifier; replaces 5b stub. ([spec](superpowers/specs/2026-04-21-phase-6-7-auth-deploy-design.md), [6a](superpowers/plans/2026-04-21-phase-6a-backend-auth.md), [6b](superpowers/plans/2026-04-21-phase-6b-frontend-auth.md))
 - [x] **Phase 7 — Deploy:** Vercel (frontend), Railway (backend), managed Postgres, Sentry, GitHub Actions. Dashboard/infra steps in [`phase-7-launch-runbook.md`](phase-7-launch-runbook.md).
 
+## Launch-readiness picklist
+
+Cross-cutting view of items most worth fixing before broader user exposure. Each links to the topical detail in this file or the FR docs — this section is curation, not new findings.
+
+### Correctness & security
+
+- **`profile_complete` enforced frontend-only** — `current_user` doesn't inspect it, so any holder of a valid Supabase JWT can call business endpoints regardless. Fix: one dependency layered on `current_user` that 403s when `profile_complete=False` (excluding `/me/profile`). See [FR `05-roles-permissions.md`](functional-requirements/05-roles-permissions.md).
+- **`week_points` semantics drift** — leaderboard `period ∈ {week, month, all_time}` widens the `points` window but `week_points` is always trailing-7d, so `period=month` returns rows where the two numbers measure different windows. Pick one of: rename to `recent_points_7d`, omit outside week view, or make it track `period`. See [FR README → Leaderboard](functional-requirements/README.md).
+- **`submit_task` race surfaces 500 instead of 409** — see "Concurrency / races" below.
+
+### User-visible gaps
+
+- **T3 / TeamForm dead-end** — backend ready (`GET /teams`, join-request POST), no `/teams` routes exist; `/tasks/T3/start` 404s and the MyScreen CTA toasts "coming soon". Restores a third of seeded challenge content. See "Frontend feature gaps" below + [FR `10-deferred-scope.md`](functional-requirements/10-deferred-scope.md).
+- **`TeamCard` shows fabricated numbers** — synthetic-hash member points + formula-derived team points/rank. Hydrate from `GET /leaderboard/teams`. See "Frontend API layer" below.
+- **`totalPoints` re-derived in 4 screens** — no backend `user.points`; tier thresholds also live only in frontend. Promote both to backend so scoring rule changes don't require a 4-screen sweep. See [FR `04-frontend-derivations.md`](functional-requirements/04-frontend-derivations.md).
+- **Admin path for tasks + news** — every content edit requires a redeploy + `seed.py` change. Minimal `POST /news` + `PATCH /tasks/{id}` behind an `is_admin` flag unblocks ops. See "Backend feature gaps" below.
+
+### Operational
+
+- **Audit trail missing** — `task_progress` has no `created_at`, T3 completion isn't even persisted (derived in responses only). For a points + rewards system, "when did user X complete task Y?" cannot be answered without Sentry breadcrumbs. Add `created_at`/`completed_at` columns + persist T3 transitions. See "Schema" below.
+- **Leaderboard scaling ceiling** — loads every user/team into Python and sorts there. Fine at 6 seeded users; degrades linearly with signups. Explicit `TODO(phase-6)` for SQL `ROW_NUMBER() OVER (...)` rewrite. See "Performance / N+1" below.
+- **No E2E coverage on critical paths** — sign-in → profile completion → task submit → reward is the entire user value, covered only by unit tests against MSW. One Playwright spec against a real local backend would catch a class of integration bugs (Supabase callback, JWKS verify, query invalidation race) that unit tests structurally cannot.
+
+### Hardening
+
+- **Token in `localStorage` + CSP `style-src 'unsafe-inline'`** — XSS = token theft is the threat; CSP currently allows inline styles, which weakens the mitigation. See "Auth / session (deferred from Phase 6)" below.
+- **`schema.d.ts` gitignored** — fresh checkout fails typecheck until `just gen-types` runs. Either commit it, generate in `postinstall`, or fail loudly when missing. See [Phase 6 hardening "Still deferred"](#auth--session-deferred-from-phase-6).
+- **Mixed Traditional / Simplified Chinese** — 社区 in DB/contract, 社區 in UI rewrite; makes error-message-based test grepping fragile and is a visible inconsistency to zh-TW users. See [FR `09-localization.md`](functional-requirements/09-localization.md).
+
 ## Open tech debt
 
 Items still actionable. Resolved items have been removed; see git history if archaeology is needed.
@@ -35,6 +64,7 @@ Items still actionable. Resolved items have been removed; see git history if arc
 - **`TaskProgressRow.form_submission` is `sa.JSON`, not `JSONB`** — [`backend/src/backend/db/models.py`](../backend/src/backend/db/models.py). JSON-path queries and GIN indexing don't work. `ALTER COLUMN … TYPE JSONB USING form_submission::jsonb` when first needed.
 - **Python-side `uuid4` + `_utcnow` defaults** — every table in `db/models.py`. Wallclock skew across replicas can produce non-monotonic `created_at`. Fix: `server_default=sa.func.gen_random_uuid()` / `sa.func.now()`.
 - **`TaskProgressRow` has no `created_at`** — once any update fires, original enrollment time is lost. Add if a service ever needs to query "when did the user start this task".
+- **No event/audit trail for task progression** — combined with T3 completion being derived only (not persisted, no `completed_at`), there is no way to reconstruct "when did user X complete task Y" for support, dispute resolution, or analytics. Either persist T3 transitions + add `completed_at` columns, or add an append-only `task_events` table.
 - **`Task.display_id` has no contract regex** — [`backend/src/backend/contract/task.py`](../backend/src/backend/contract/task.py). `User` and `Team` have one. Add `Field(pattern=r"^T[0-9A-Z]+$")` to round-trip with the seed drift guard.
 
 ### Backend infra / tooling
