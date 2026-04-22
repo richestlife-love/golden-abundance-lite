@@ -15,10 +15,7 @@ from backend.db.models import (
     TeamRow,
     UserRow,
 )
-from backend.services.reward import (
-    grant_rewards_for_user,
-    load_bonused_challenge_defs,
-)
+from backend.services.reward import maybe_grant_challenge_rewards
 
 
 class JoinConflictError(Exception):
@@ -71,23 +68,15 @@ async def approve_join_request(session: AsyncSession, *, team: TeamRow, req: Joi
     session.add(TeamMembershipRow(team_id=team.id, user_id=req.user_id))
     await session.flush()
 
-    # Skip the reward cascade when no bonused challenges exist — the default
-    # seed has no bonuses, so this short-circuits every approval in dev/test.
-    challenge_defs = await load_bonused_challenge_defs(session)
-    if not challenge_defs:
-        return
-
-    # Batch-load the full post-approval membership list + all their UserRows
-    # in two queries (instead of per-member N+1). Then pass the same
-    # challenge_defs list to each user — ``grant_rewards_for_user`` does
-    # not re-query them (M3).
+    # Batch-load the post-approval membership + their UserRows in two
+    # queries, then grant rewards for the whole set in a single call
+    # (one bonused-defs fetch regardless of team size).
     memberships = (
         (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id))).scalars().all()
     )
     member_ids = [team.leader_id, *(m.user_id for m in memberships)]
     user_rows = (await session.execute(select(UserRow).where(UserRow.id.in_(member_ids)))).scalars().all()
-    for user_row in user_rows:
-        await grant_rewards_for_user(session, user=user_row, challenge_defs=challenge_defs)
+    await maybe_grant_challenge_rewards(session, users=user_rows)
 
 
 async def reject_join_request(session: AsyncSession, *, req: JoinRequestRow) -> None:

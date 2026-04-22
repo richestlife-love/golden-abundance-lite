@@ -23,7 +23,7 @@ async def test_maybe_grant_noop_when_no_bonused_challenges(session: AsyncSession
     user = await upsert_user_by_supabase_identity(session, auth_user_id=uuid4(), email="nochal@example.com")
     await session.flush()
 
-    await maybe_grant_challenge_rewards(session, user=user)
+    await maybe_grant_challenge_rewards(session, users=[user])
 
     rewards = (await session.execute(select(RewardRow))).scalars().all()
     assert rewards == []
@@ -52,7 +52,7 @@ async def test_maybe_grant_skips_challenge_when_team_under_cap(session: AsyncSes
     user = await upsert_user_by_supabase_identity(session, auth_user_id=uuid4(), email="lone@example.com")
     await session.flush()
 
-    await maybe_grant_challenge_rewards(session, user=user)
+    await maybe_grant_challenge_rewards(session, users=[user])
 
     rewards = (await session.execute(select(RewardRow).where(RewardRow.user_id == user.id))).scalars().all()
     assert rewards == []
