@@ -12,13 +12,12 @@ row's ``(points, id, rank)`` tuple — cheaper than a ``ROW_NUMBER()``
 full-scan.
 """
 
-from __future__ import annotations
-
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import Select, and_, func, or_, select
+from sqlalchemy import ColumnElement, Select, and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.contract import (
@@ -102,17 +101,14 @@ def _apply_keyset_filter(
     )
 
 
-async def leaderboard_users(
-    session: AsyncSession,
-    *,
-    period: LeaderboardPeriod,
-    cursor: str | None,
-    limit: int,
-) -> Paginated[UserLeaderboardEntry]:
-    window_start = _since(period)
-    week_start = datetime.now(UTC) - timedelta(days=7)
-    decoded = _decode_leaderboard_cursor(cursor)
-
+def _points_windows(
+    window_start: datetime,
+    week_start: datetime,
+) -> tuple[ColumnElement[int], ColumnElement[int]]:
+    """``(points_expr, week_points_expr)`` — aggregate ``TaskDefRow.points``
+    via ``SUM(...) FILTER (WHERE ...)`` over the period and weekly windows.
+    Shared between the user and team boards.
+    """
     points_expr = func.coalesce(
         func.sum(TaskDefRow.points).filter(
             TaskProgressRow.status == "completed",
@@ -127,6 +123,96 @@ async def leaderboard_users(
         ),
         0,
     )
+    return points_expr, week_points_expr
+
+
+async def _ranked_page[T](
+    session: AsyncSession,
+    sub: Any,
+    *,
+    limit: int,
+    decoded: tuple[int, UUID, int] | None,
+    build_entry: Callable[[Any, int], T],
+) -> tuple[list[T], str | None]:
+    """Order ``sub`` by ``(points DESC, id ASC)``, apply the cursor
+    filter, fetch ``limit + 1`` rows, and assign ranks off the cursor's
+    rank offset. Returns ``(items, next_cursor)``.
+    """
+    stmt = select(sub).order_by(sub.c.points.desc(), sub.c.id.asc())
+    stmt = _apply_keyset_filter(stmt, sub.c.points, sub.c.id, decoded)
+    stmt = stmt.limit(limit + 1)
+
+    rows = (await session.execute(stmt)).all()
+    page = list(rows[:limit])
+
+    start_rank = decoded[2] + 1 if decoded else 1
+    items = [build_entry(row, start_rank + offset) for offset, row in enumerate(page)]
+
+    next_cursor: str | None = None
+    if len(rows) > limit and page:
+        last = page[-1]
+        next_cursor = _encode_leaderboard_cursor(
+            pts=int(last.points),
+            eid=last.id,
+            rank=start_rank + len(page) - 1,
+        )
+    return items, next_cursor
+
+
+def _build_user_entry(row: Any, rank: int) -> UserLeaderboardEntry:
+    return UserLeaderboardEntry(
+        user=UserRef(
+            id=row.id,
+            display_id=row.display_id,
+            name=derive_user_name_parts(
+                zh_name=row.zh_name,
+                nickname=row.nickname,
+                display_id=row.display_id,
+            ),
+            avatar_url=row.avatar_url,
+        ),
+        rank=rank,
+        points=int(row.points),
+        week_points=int(row.week_points),
+    )
+
+
+def _build_team_entry(row: Any, rank: int) -> TeamLeaderboardEntry:
+    return TeamLeaderboardEntry(
+        team=TeamRef(
+            id=row.id,
+            display_id=row.display_id,
+            name=row.name,
+            topic=row.topic,
+            leader=UserRef(
+                id=row.leader_id,
+                display_id=row.leader_display_id,
+                name=derive_user_name_parts(
+                    zh_name=row.leader_zh_name,
+                    nickname=row.leader_nickname,
+                    display_id=row.leader_display_id,
+                ),
+                avatar_url=row.leader_avatar_url,
+            ),
+        ),
+        rank=rank,
+        points=int(row.points),
+        week_points=int(row.week_points),
+    )
+
+
+async def leaderboard_users(
+    session: AsyncSession,
+    *,
+    period: LeaderboardPeriod,
+    cursor: str | None,
+    limit: int,
+) -> Paginated[UserLeaderboardEntry]:
+    window_start = _since(period)
+    week_start = datetime.now(UTC) - timedelta(days=7)
+    decoded = _decode_leaderboard_cursor(cursor)
+
+    points_expr, week_points_expr = _points_windows(window_start, week_start)
     sub = (
         select(
             UserRow.id.label("id"),
@@ -146,42 +232,13 @@ async def leaderboard_users(
         .subquery()
     )
 
-    stmt = select(sub).order_by(sub.c.points.desc(), sub.c.id.asc())
-    stmt = _apply_keyset_filter(stmt, sub.c.points, sub.c.id, decoded)
-    stmt = stmt.limit(limit + 1)
-
-    rows = (await session.execute(stmt)).all()
-    page = list(rows[:limit])
-
-    start_rank = decoded[2] + 1 if decoded else 1
-    items: list[UserLeaderboardEntry] = []
-    for offset, row in enumerate(page):
-        items.append(
-            UserLeaderboardEntry(
-                user=UserRef(
-                    id=row.id,
-                    display_id=row.display_id,
-                    name=derive_user_name_parts(
-                        zh_name=row.zh_name,
-                        nickname=row.nickname,
-                        display_id=row.display_id,
-                    ),
-                    avatar_url=row.avatar_url,
-                ),
-                rank=start_rank + offset,
-                points=int(row.points),
-                week_points=int(row.week_points),
-            ),
-        )
-
-    next_cursor: str | None = None
-    if len(rows) > limit and page:
-        last = page[-1]
-        next_cursor = _encode_leaderboard_cursor(
-            pts=int(last.points),
-            eid=last.id,
-            rank=start_rank + len(page) - 1,
-        )
+    items, next_cursor = await _ranked_page(
+        session,
+        sub,
+        limit=limit,
+        decoded=decoded,
+        build_entry=_build_user_entry,
+    )
     return Paginated[UserLeaderboardEntry](items=items, next_cursor=next_cursor)
 
 
@@ -210,20 +267,7 @@ async def leaderboard_teams(
     )
     team_members = member_leader.union_all(member_memberships).subquery("team_members")
 
-    points_expr = func.coalesce(
-        func.sum(TaskDefRow.points).filter(
-            TaskProgressRow.status == "completed",
-            TaskProgressRow.completed_at >= window_start,
-        ),
-        0,
-    )
-    week_points_expr = func.coalesce(
-        func.sum(TaskDefRow.points).filter(
-            TaskProgressRow.status == "completed",
-            TaskProgressRow.completed_at >= week_start,
-        ),
-        0,
-    )
+    points_expr, week_points_expr = _points_windows(window_start, week_start)
 
     leader = UserRow.__table__.alias("leader")
     sub = (
@@ -254,46 +298,11 @@ async def leaderboard_teams(
         .subquery()
     )
 
-    stmt = select(sub).order_by(sub.c.points.desc(), sub.c.id.asc())
-    stmt = _apply_keyset_filter(stmt, sub.c.points, sub.c.id, decoded)
-    stmt = stmt.limit(limit + 1)
-
-    rows = (await session.execute(stmt)).all()
-    page = list(rows[:limit])
-
-    start_rank = decoded[2] + 1 if decoded else 1
-    items: list[TeamLeaderboardEntry] = []
-    for offset, row in enumerate(page):
-        items.append(
-            TeamLeaderboardEntry(
-                team=TeamRef(
-                    id=row.id,
-                    display_id=row.display_id,
-                    name=row.name,
-                    topic=row.topic,
-                    leader=UserRef(
-                        id=row.leader_id,
-                        display_id=row.leader_display_id,
-                        name=derive_user_name_parts(
-                            zh_name=row.leader_zh_name,
-                            nickname=row.leader_nickname,
-                            display_id=row.leader_display_id,
-                        ),
-                        avatar_url=row.leader_avatar_url,
-                    ),
-                ),
-                rank=start_rank + offset,
-                points=int(row.points),
-                week_points=int(row.week_points),
-            ),
-        )
-
-    next_cursor: str | None = None
-    if len(rows) > limit and page:
-        last = page[-1]
-        next_cursor = _encode_leaderboard_cursor(
-            pts=int(last.points),
-            eid=last.id,
-            rank=start_rank + len(page) - 1,
-        )
+    items, next_cursor = await _ranked_page(
+        session,
+        sub,
+        limit=limit,
+        decoded=decoded,
+        build_entry=_build_team_entry,
+    )
     return Paginated[TeamLeaderboardEntry](items=items, next_cursor=next_cursor)
