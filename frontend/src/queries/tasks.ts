@@ -6,6 +6,6 @@ import { qk } from "./keys";
 export const taskQueryOptions = (uuid: string) =>
   queryOptions({
     queryKey: qk.task(uuid),
-    queryFn: () => api.getTask(uuid),
+    queryFn: ({ signal }) => api.getTask(uuid, { signal }),
     staleTime: 60_000,
   });

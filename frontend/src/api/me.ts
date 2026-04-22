@@ -10,10 +10,18 @@ type MeProfileCreateResponse = components["schemas"]["MeProfileCreateResponse"];
 type ProfileCreate = components["schemas"]["ProfileCreate"];
 type ProfileUpdate = components["schemas"]["ProfileUpdate"];
 
-export const getMe = (): Promise<User> => apiFetch<User>("/me");
-export const getMyTasks = (): Promise<Task[]> => apiFetch<Task[]>("/me/tasks");
-export const getMyTeams = (): Promise<MeTeamsResponse> => apiFetch<MeTeamsResponse>("/me/teams");
-export const getMyRewards = (): Promise<Reward[]> => apiFetch<Reward[]>("/me/rewards");
+interface FetchOpts {
+  signal?: AbortSignal;
+}
+
+export const getMe = (opts: FetchOpts = {}): Promise<User> =>
+  apiFetch<User>("/me", { signal: opts.signal });
+export const getMyTasks = (opts: FetchOpts = {}): Promise<Task[]> =>
+  apiFetch<Task[]>("/me/tasks", { signal: opts.signal });
+export const getMyTeams = (opts: FetchOpts = {}): Promise<MeTeamsResponse> =>
+  apiFetch<MeTeamsResponse>("/me/teams", { signal: opts.signal });
+export const getMyRewards = (opts: FetchOpts = {}): Promise<Reward[]> =>
+  apiFetch<Reward[]>("/me/rewards", { signal: opts.signal });
 
 export const postProfile = (body: ProfileCreate): Promise<MeProfileCreateResponse> =>
   apiFetch<MeProfileCreateResponse>("/me/profile", {

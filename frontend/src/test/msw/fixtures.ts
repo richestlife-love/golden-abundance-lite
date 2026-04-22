@@ -4,7 +4,6 @@ type User = components["schemas"]["User"];
 type Team = components["schemas"]["Team"];
 type Task = components["schemas"]["Task"];
 type Reward = components["schemas"]["Reward"];
-type NewsItem = components["schemas"]["NewsItem"];
 type MeTeamsResponse = components["schemas"]["MeTeamsResponse"];
 
 export const userJet: User = {
@@ -160,4 +159,3 @@ export const taskT4: Task = {
 export const tasksList: Task[] = [taskT1, taskT2, taskT3, taskT4];
 
 export const rewardsList: Reward[] = [];
-export const newsList: NewsItem[] = [];

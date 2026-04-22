@@ -69,14 +69,18 @@ const cases: Case[] = [
       country: "TW",
       location: "台北",
     },
-    expectedKeys: [qk.me, qk.myTeams, qk.myTasks],
+    // qk.me prefix (["me"]) already matches qk.myTasks / qk.myTeams /
+    // qk.myRewards, so invalidating qk.me alone covers them.
+    expectedKeys: [qk.me],
   },
   {
     name: "usePatchMe",
     useHook: usePatchMe,
     handler: http.patch("/api/v1/me", () => HttpResponse.json(f.userJet)),
     args: { zh_name: "金杰 v2" },
-    expectedKeys: [qk.me, qk.myTeams, ["teams"]],
+    // qk.me covers myTeams via prefix; qk.teamsAll is a separate namespace
+    // (team search cache) that a profile edit may invalidate (e.g. alias).
+    expectedKeys: [qk.me, qk.teamsAll],
   },
   {
     name: "useSubmitTask",
@@ -94,7 +98,7 @@ const cases: Case[] = [
         availability: ["weekend"],
       },
     },
-    expectedKeys: [qk.task(taskId), qk.myTasks, qk.myRewards, qk.me, ["leaderboard"]],
+    expectedKeys: [qk.task(taskId), qk.myTasks, qk.myRewards, qk.me, qk.leaderboardAll],
   },
   {
     name: "useCreateJoinRequest",
@@ -122,7 +126,7 @@ const cases: Case[] = [
       HttpResponse.json(f.teamJetLed),
     ),
     args: { teamId, reqId },
-    expectedKeys: [qk.myTeams, qk.team(teamId), qk.myTasks, qk.myRewards, qk.me, ["leaderboard"]],
+    expectedKeys: [qk.myTeams, qk.team(teamId), qk.myTasks, qk.myRewards, qk.me, qk.leaderboardAll],
   },
   {
     name: "useRejectJoinRequest",
@@ -142,14 +146,14 @@ const cases: Case[] = [
       () => new HttpResponse(null, { status: 204 }),
     ),
     args: teamId,
-    expectedKeys: [qk.team(teamId), qk.myTeams, qk.myTasks, qk.myRewards, qk.me, ["leaderboard"]],
+    expectedKeys: [qk.team(teamId), qk.myTeams, qk.myTasks, qk.myRewards, qk.me, qk.leaderboardAll],
   },
   {
     name: "usePatchTeam",
     useHook: usePatchTeam,
     handler: http.patch(`/api/v1/teams/${teamId}`, () => HttpResponse.json(f.teamJetLed)),
     args: { teamId, body: { alias: "new alias" } },
-    expectedKeys: [qk.team(teamId), qk.myTeams, ["teams"]],
+    expectedKeys: [qk.team(teamId), qk.myTeams, qk.teamsAll],
   },
 ];
 /* eslint-enable @typescript-eslint/no-explicit-any */

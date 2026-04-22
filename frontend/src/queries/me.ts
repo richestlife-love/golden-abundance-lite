@@ -6,27 +6,27 @@ import { qk } from "./keys";
 export const meQueryOptions = () =>
   queryOptions({
     queryKey: qk.me,
-    queryFn: () => api.getMe(),
+    queryFn: ({ signal }) => api.getMe({ signal }),
     staleTime: 60_000,
   });
 
 export const myTasksQueryOptions = () =>
   queryOptions({
     queryKey: qk.myTasks,
-    queryFn: () => api.getMyTasks(),
+    queryFn: ({ signal }) => api.getMyTasks({ signal }),
     staleTime: 30_000,
   });
 
 export const myTeamsQueryOptions = () =>
   queryOptions({
     queryKey: qk.myTeams,
-    queryFn: () => api.getMyTeams(),
+    queryFn: ({ signal }) => api.getMyTeams({ signal }),
     staleTime: 60_000,
   });
 
 export const myRewardsQueryOptions = () =>
   queryOptions({
     queryKey: qk.myRewards,
-    queryFn: () => api.getMyRewards(),
+    queryFn: ({ signal }) => api.getMyRewards({ signal }),
     staleTime: 30_000,
   });

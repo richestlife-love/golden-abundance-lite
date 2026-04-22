@@ -15,6 +15,7 @@ import {
 import BottomNav from "../ui/BottomNav";
 import { ChevronRightIcon, FlagIcon, SearchIcon, SparkleIcon, StarIcon } from "../ui/Icon";
 import TeamCard from "./TeamCard";
+import { pushToast } from "../ui/toasts";
 
 export default function MyScreen() {
   const navigate = useNavigate();
@@ -61,12 +62,12 @@ export default function MyScreen() {
     }
   };
 
-  const onBuildTeam = () =>
-    navigate({
-      to: "/tasks/$taskId/start",
-      params: { taskId: "T3" },
-      state: { fromDetail: true },
-    });
+  // Teams search UI is unwired pending spec §5.3 (real teams search).
+  // Keep the affordance but toast instead of navigating — the start
+  // route for T3 currently 404s (see _authed.tasks.$taskId.start.tsx).
+  const onBuildTeam = () => {
+    pushToast({ kind: "info", message: "團隊搜尋功能開發中，敬請期待" });
+  };
 
   return (
     <div

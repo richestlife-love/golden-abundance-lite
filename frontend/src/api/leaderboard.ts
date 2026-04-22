@@ -21,6 +21,10 @@ interface LeaderboardParams {
   limit?: number;
 }
 
+interface FetchOpts {
+  signal?: AbortSignal;
+}
+
 function qs(p: LeaderboardParams): string {
   const usp = new URLSearchParams({ period: p.period });
   if (p.cursor) usp.set("cursor", p.cursor);
@@ -30,10 +34,12 @@ function qs(p: LeaderboardParams): string {
 
 export const listUserLeaderboard = (
   p: LeaderboardParams,
+  opts: FetchOpts = {},
 ): Promise<Paginated<UserLeaderboardEntry>> =>
-  apiFetch<Paginated<UserLeaderboardEntry>>(`/leaderboard/users${qs(p)}`);
+  apiFetch<Paginated<UserLeaderboardEntry>>(`/leaderboard/users${qs(p)}`, { signal: opts.signal });
 
 export const listTeamLeaderboard = (
   p: LeaderboardParams,
+  opts: FetchOpts = {},
 ): Promise<Paginated<TeamLeaderboardEntry>> =>
-  apiFetch<Paginated<TeamLeaderboardEntry>>(`/leaderboard/teams${qs(p)}`);
+  apiFetch<Paginated<TeamLeaderboardEntry>>(`/leaderboard/teams${qs(p)}`, { signal: opts.signal });

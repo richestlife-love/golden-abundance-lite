@@ -7,7 +7,8 @@ import { qk } from "./keys";
 export const leaderboardUsersInfiniteQueryOptions = (period: LeaderboardPeriod) =>
   infiniteQueryOptions({
     queryKey: qk.leaderboardUsers(period),
-    queryFn: ({ pageParam }) => api.listUserLeaderboard({ period, cursor: pageParam }),
+    queryFn: ({ pageParam, signal }) =>
+      api.listUserLeaderboard({ period, cursor: pageParam }, { signal }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.next_cursor ?? undefined,
     staleTime: 5 * 60_000,
@@ -16,7 +17,8 @@ export const leaderboardUsersInfiniteQueryOptions = (period: LeaderboardPeriod) 
 export const leaderboardTeamsInfiniteQueryOptions = (period: LeaderboardPeriod) =>
   infiniteQueryOptions({
     queryKey: qk.leaderboardTeams(period),
-    queryFn: ({ pageParam }) => api.listTeamLeaderboard({ period, cursor: pageParam }),
+    queryFn: ({ pageParam, signal }) =>
+      api.listTeamLeaderboard({ period, cursor: pageParam }, { signal }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.next_cursor ?? undefined,
     staleTime: 5 * 60_000,

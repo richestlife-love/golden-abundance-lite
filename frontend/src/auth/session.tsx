@@ -18,7 +18,11 @@ export interface SignOutOpts {
 }
 
 interface AuthCtx {
-  isSignedIn: boolean;
+  /** `undefined` until the first Supabase session check resolves. Consumers
+   *  that need a three-way check (signed-in / signed-out / unknown) can
+   *  branch on `undefined`; `if (isSignedIn)` still works for the common
+   *  "treat unknown as signed-out" case. */
+  isSignedIn: boolean | undefined;
   signIn: (returnTo?: string) => Promise<void>;
   signOut: (opts?: SignOutOpts) => Promise<void>;
 }
@@ -72,11 +76,11 @@ setSessionExpiredHandler(({ returnTo: fromClient }) => {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
-  // Initial state is async — `signedIn` is false for one render cycle even
-  // when Supabase has a persisted session. Routes don't depend on this
-  // (they call getSession() directly in beforeLoad), so the brief mismatch
-  // is invisible to users.
-  const [signedIn, setSignedIn] = useState<boolean>(false);
+  // `undefined` until the first getSession() resolves. Routes don't depend
+  // on this value (they call getSession() directly in beforeLoad); this
+  // just gives in-tree consumers an honest three-state signal instead of
+  // a spurious "signed-out" flicker for a persisted session.
+  const [signedIn, setSignedIn] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     _setActiveQueryClient(qc);

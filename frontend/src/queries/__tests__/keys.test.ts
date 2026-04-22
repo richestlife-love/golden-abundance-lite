@@ -7,7 +7,8 @@ describe("qk", () => {
     expect(qk.myTasks).toEqual(["me", "tasks"]);
     expect(qk.myTeams).toEqual(["me", "teams"]);
     expect(qk.myRewards).toEqual(["me", "rewards"]);
-    expect(qk.news).toEqual(["news"]);
+    expect(qk.teamsAll).toEqual(["teams"]);
+    expect(qk.leaderboardAll).toEqual(["leaderboard"]);
   });
 
   it("task(id) shares the 'tasks' prefix with team()", () => {

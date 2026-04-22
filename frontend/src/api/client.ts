@@ -28,7 +28,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   if (init.body != null) headers["Content-Type"] = "application/json";
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE}${path}`, { ...init, headers });
+  const res = await fetch(`${BASE}${path}`, { ...init, headers, signal: init.signal });
 
   if (res.status === 401) {
     onSessionExpired?.({

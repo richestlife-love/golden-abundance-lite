@@ -85,7 +85,7 @@ export function useApproveJoinRequest() {
       qc.invalidateQueries({ queryKey: qk.myTasks });
       qc.invalidateQueries({ queryKey: qk.myRewards });
       qc.invalidateQueries({ queryKey: qk.me });
-      qc.invalidateQueries({ queryKey: ["leaderboard"] });
+      qc.invalidateQueries({ queryKey: qk.leaderboardAll });
     },
   });
 }
@@ -128,7 +128,7 @@ export function useLeaveTeam() {
       qc.invalidateQueries({ queryKey: qk.myTasks });
       qc.invalidateQueries({ queryKey: qk.myRewards });
       qc.invalidateQueries({ queryKey: qk.me });
-      qc.invalidateQueries({ queryKey: ["leaderboard"] });
+      qc.invalidateQueries({ queryKey: qk.leaderboardAll });
     },
   });
 }
@@ -162,7 +162,7 @@ export function usePatchTeam() {
     onSettled: (_data, _err, { teamId }) => {
       qc.invalidateQueries({ queryKey: qk.myTeams });
       qc.invalidateQueries({ queryKey: qk.team(teamId) });
-      qc.invalidateQueries({ queryKey: ["teams"] });
+      qc.invalidateQueries({ queryKey: qk.teamsAll });
     },
   });
 }

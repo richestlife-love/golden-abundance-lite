@@ -2,16 +2,19 @@ import { createRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import InterestForm from "../screens/InterestForm";
 import TicketForm from "../screens/TicketForm";
-import TeamForm from "../screens/TeamForm";
 import { useSubmitTask } from "../mutations/tasks";
-import { useCreateJoinRequest } from "../mutations/teams";
 import { authedRoute } from "./_authed";
 import { myTasksQueryOptions } from "../queries/me";
 import type { components } from "../api/schema";
 
 type Task = components["schemas"]["Task"];
 
-const SUPPORTED_TASK_DISPLAY_IDS = new Set(["T1", "T2", "T3"]);
+// T3 intentionally excluded: its start flow renders TeamForm, which
+// currently ships with synthetic `T-*` display_ids. Posting those to
+// `/teams/{uuid}/join-requests` is a path-param type mismatch against
+// the real backend. Restore T3 here once TeamForm is wired to real
+// teams search (spec §5.3 / teamsInfiniteQueryOptions).
+const SUPPORTED_TASK_DISPLAY_IDS = new Set(["T1", "T2"]);
 
 function StartRoute() {
   const navigate = useNavigate();
@@ -20,9 +23,7 @@ function StartRoute() {
   const task = tasks.find((t: Task) => t.display_id === taskId);
   if (!task) throw notFound();
   const goDetail = () => navigate({ to: "/tasks/$taskId", params: { taskId: task.display_id } });
-  const goMe = () => navigate({ to: "/me" });
   const submit = useSubmitTask();
-  const join = useCreateJoinRequest();
 
   if (task.form_type === "interest") {
     return (
@@ -51,22 +52,6 @@ function StartRoute() {
             goDetail();
           } catch {
             // error remains on submit.error; form stays open so user can retry
-          }
-        }}
-      />
-    );
-  }
-  if (task.is_challenge) {
-    return (
-      <TeamForm
-        onCancel={goMe}
-        isSubmitting={join.isPending}
-        onSubmit={async (teamId) => {
-          try {
-            await join.mutateAsync(teamId);
-            goMe();
-          } catch {
-            // error remains on join.error; form stays open so user can retry
           }
         }}
       />

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { expect } from "vitest";
 import { createMemoryHistory, RouterProvider } from "@tanstack/react-router";
@@ -43,7 +44,9 @@ export function renderRoute(path: string, opts: RenderRouteOpts = {}): RenderRou
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <UIStateProvider>
-          <RouterProvider router={router} />
+          <Suspense fallback={null}>
+            <RouterProvider router={router} />
+          </Suspense>
         </UIStateProvider>
       </AuthProvider>
     </QueryClientProvider>,

@@ -16,6 +16,10 @@ export interface TeamSearchParams {
   limit?: number;
 }
 
+interface FetchOpts {
+  signal?: AbortSignal;
+}
+
 function qs(params: TeamSearchParams): string {
   const usp = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -25,10 +29,14 @@ function qs(params: TeamSearchParams): string {
   return s ? `?${s}` : "";
 }
 
-export const listTeams = (params: TeamSearchParams = {}): Promise<Paginated<TeamRef>> =>
-  apiFetch<Paginated<TeamRef>>(`/teams${qs(params)}`);
+export const listTeams = (
+  params: TeamSearchParams = {},
+  opts: FetchOpts = {},
+): Promise<Paginated<TeamRef>> =>
+  apiFetch<Paginated<TeamRef>>(`/teams${qs(params)}`, { signal: opts.signal });
 
-export const getTeam = (id: string): Promise<Team> => apiFetch<Team>(`/teams/${id}`);
+export const getTeam = (id: string, opts: FetchOpts = {}): Promise<Team> =>
+  apiFetch<Team>(`/teams/${id}`, { signal: opts.signal });
 
 export const patchTeam = (id: string, body: TeamUpdate): Promise<Team> =>
   apiFetch<Team>(`/teams/${id}`, {

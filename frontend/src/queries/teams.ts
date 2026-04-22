@@ -7,14 +7,15 @@ import { qk } from "./keys";
 export const teamQueryOptions = (uuid: string) =>
   queryOptions({
     queryKey: qk.team(uuid),
-    queryFn: () => api.getTeam(uuid),
+    queryFn: ({ signal }) => api.getTeam(uuid, { signal }),
     staleTime: 60_000,
   });
 
 export const teamsInfiniteQueryOptions = (params: TeamSearchParams = {}) =>
   infiniteQueryOptions({
     queryKey: qk.teams(params),
-    queryFn: ({ pageParam }) => api.listTeams({ ...params, cursor: pageParam }),
+    queryFn: ({ pageParam, signal }) =>
+      api.listTeams({ ...params, cursor: pageParam }, { signal }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.next_cursor ?? undefined,
     staleTime: 10_000,

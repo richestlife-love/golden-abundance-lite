@@ -7,14 +7,15 @@ import type { components } from "../api/schema";
 type ProfileCreate = components["schemas"]["ProfileCreate"];
 type ProfileUpdate = components["schemas"]["ProfileUpdate"];
 
+// Note: qk.me is ["me"], which prefix-matches qk.myTasks / qk.myTeams /
+// qk.myRewards — invalidating qk.me alone covers all of them.
+
 export function useCompleteProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: ProfileCreate) => api.postProfile(body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.me });
-      qc.invalidateQueries({ queryKey: qk.myTeams });
-      qc.invalidateQueries({ queryKey: qk.myTasks });
     },
   });
 }
@@ -25,8 +26,9 @@ export function usePatchMe() {
     mutationFn: (body: ProfileUpdate) => api.patchMe(body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.me });
-      qc.invalidateQueries({ queryKey: qk.myTeams });
-      qc.invalidateQueries({ queryKey: ["teams"] });
+      // Not covered by qk.me prefix — the teams list cache lives under
+      // ["teams", …] and a profile change may affect leader/alias there.
+      qc.invalidateQueries({ queryKey: qk.teamsAll });
     },
   });
 }
