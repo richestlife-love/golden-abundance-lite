@@ -8,7 +8,7 @@ app-side row to work against.
 from typing import Annotated
 
 import sentry_sdk
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, Request, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,6 +25,7 @@ _UNAUTHORIZED = HTTPException(
 
 
 async def current_user(
+    request: Request,
     authorization: Annotated[str | None, Header()] = None,
     session: AsyncSession = Depends(get_session),
 ) -> UserRow:
@@ -62,4 +63,7 @@ async def current_user(
                 raise
 
     sentry_sdk.set_user({"id": str(user.id)})
+    # Stash on request.state so RequestLogMiddleware can include it in
+    # the structured log line for this request (H5).
+    request.state.user_id = user.id
     return user

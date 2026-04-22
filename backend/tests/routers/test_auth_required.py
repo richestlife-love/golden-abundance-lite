@@ -138,6 +138,8 @@ async def test_current_user_reraises_when_retry_still_finds_no_row(
     than the PK — the stale-email case from 6a's Known Deferrals),
     current_user must not silently swallow the error.
     """
+    from types import SimpleNamespace
+
     from backend.auth import dependencies as deps
 
     async def always_fail(_session: Any, *, auth_user_id: UUID, email: str) -> Any:
@@ -147,8 +149,14 @@ async def test_current_user_reraises_when_retry_still_finds_no_row(
 
     token = mint_access_token(user_id=UUID(int=7778), email="ghost@example.com")
 
+    # current_user now takes a Request so the middleware can read user_id
+    # off request.state. A SimpleNamespace satisfies both the type and
+    # the attribute set the dep touches.
+    fake_request = SimpleNamespace(state=SimpleNamespace())
+
     with pytest.raises(IntegrityError):
         await deps.current_user(
+            request=fake_request,  # type: ignore[arg-type]
             authorization=f"Bearer {token}",
             session=session,
         )

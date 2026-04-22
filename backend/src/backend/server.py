@@ -11,7 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend.config import get_settings
-from backend.observability import scrub_sensitive_bodies
+from backend.observability import (
+    RequestLogMiddleware,
+    configure_logging,
+    scrub_sensitive_bodies,
+)
 from backend.rate_limit import (
     RateLimitExceeded,
     rate_limit_exceeded_handler,
@@ -25,6 +29,7 @@ API_V1 = "/api/v1"
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    configure_logging()
     if settings.sentry_dsn:
         sentry_sdk.init(
             dsn=settings.sentry_dsn,
@@ -43,6 +48,7 @@ def create_app() -> FastAPI:
     )
     app.state.limiter = refresh_limiter_from_settings()
     app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+    app.add_middleware(RequestLogMiddleware)
     # Auth is `Authorization: Bearer` only — no cookies — so
     # allow_credentials stays False. Methods and headers are enumerated
     # rather than wildcarded so a misconfigured frontend fails loudly
