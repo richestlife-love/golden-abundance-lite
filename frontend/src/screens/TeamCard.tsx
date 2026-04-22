@@ -1020,89 +1020,89 @@ export default function TeamCard({
             animation: "scaleIn 0.2s ease-out",
           }}
         >
-            <div
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: 999,
+              margin: "0 auto 14px",
+              background: "rgba(217,83,79,0.12)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#b03e3e",
+            }}
+          >
+            <DoorIcon size={26} />
+          </div>
+          <div
+            style={{
+              fontSize: fs(17),
+              fontWeight: 800,
+              color: fg,
+              textAlign: "center",
+              marginBottom: 6,
+              fontFamily: "var(--font-serif)",
+            }}
+          >
+            確定要退出團隊？
+          </div>
+          <div
+            style={{
+              fontSize: fs(13),
+              color: muted,
+              textAlign: "center",
+              marginBottom: 18,
+              lineHeight: 1.5,
+            }}
+          >
+            退出「{team.name}」後，組員身份將會解除。
+            <br />
+            若之後想重新加入，需再次送出申請。
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              type="button"
+              autoFocus
+              onClick={() => setLeaveConfirmOpen(false)}
               style={{
-                width: 52,
-                height: 52,
-                borderRadius: 999,
-                margin: "0 auto 14px",
-                background: "rgba(217,83,79,0.12)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#b03e3e",
-              }}
-            >
-              <DoorIcon size={26} />
-            </div>
-            <div
-              style={{
-                fontSize: fs(17),
-                fontWeight: 800,
+                flex: 1,
+                padding: "12px 14px",
+                borderRadius: 12,
+                border: "1px solid rgba(120,90,0,0.18)",
+                background: "transparent",
                 color: fg,
-                textAlign: "center",
-                marginBottom: 6,
-                fontFamily: "var(--font-serif)",
+                fontSize: fs(14),
+                fontWeight: 700,
+                fontFamily: "inherit",
+                cursor: "pointer",
               }}
             >
-              確定要退出團隊？
-            </div>
-            <div
+              取消
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setLeaveConfirmOpen(false);
+                onLeaveTeam?.();
+              }}
               style={{
-                fontSize: fs(13),
-                color: muted,
-                textAlign: "center",
-                marginBottom: 18,
-                lineHeight: 1.5,
+                flex: 1,
+                padding: "12px 14px",
+                borderRadius: 12,
+                border: "none",
+                background: "linear-gradient(135deg, #d66060, #b03e3e)",
+                color: "#fff",
+                fontSize: fs(14),
+                fontWeight: 800,
+                fontFamily: "inherit",
+                cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(180,60,60,0.35)",
               }}
             >
-              退出「{team.name}」後，組員身份將會解除。
-              <br />
-              若之後想重新加入，需再次送出申請。
-            </div>
-            <div style={{ display: "flex", gap: 10 }}>
-              <button
-                type="button"
-                autoFocus
-                onClick={() => setLeaveConfirmOpen(false)}
-                style={{
-                  flex: 1,
-                  padding: "12px 14px",
-                  borderRadius: 12,
-                  border: "1px solid rgba(120,90,0,0.18)",
-                  background: "transparent",
-                  color: fg,
-                  fontSize: fs(14),
-                  fontWeight: 700,
-                  fontFamily: "inherit",
-                  cursor: "pointer",
-                }}
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setLeaveConfirmOpen(false);
-                  onLeaveTeam?.();
-                }}
-                style={{
-                  flex: 1,
-                  padding: "12px 14px",
-                  borderRadius: 12,
-                  border: "none",
-                  background: "linear-gradient(135deg, #d66060, #b03e3e)",
-                  color: "#fff",
-                  fontSize: fs(14),
-                  fontWeight: 800,
-                  fontFamily: "inherit",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(180,60,60,0.35)",
-                }}
-              >
-                確定退出
-              </button>
-            </div>
+              確定退出
+            </button>
+          </div>
         </Modal>
       )}
     </>

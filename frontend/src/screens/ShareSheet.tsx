@@ -73,158 +73,158 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose }: P
         animation: "slideUp 0.28s ease-out",
       }}
     >
-        {/* Grab handle */}
+      {/* Grab handle */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          paddingBottom: 8,
+        }}
+      >
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            paddingBottom: 8,
+            width: 36,
+            height: 4,
+            borderRadius: 999,
+            background: "rgba(40,30,70,0.2)",
           }}
-        >
-          <div
-            style={{
-              width: 36,
-              height: 4,
-              borderRadius: 999,
-              background: "rgba(40,30,70,0.2)",
-            }}
-          />
-        </div>
+        />
+      </div>
 
-        <div style={{ fontSize: fs(16), fontWeight: 800, color: fg, marginBottom: 2 }}>
-          分享團隊邀請
-        </div>
-        <div style={{ fontSize: fs(12), color: muted, marginBottom: 14 }}>
-          編號 {team.id}·將下列訊息分享到聊天
-        </div>
+      <div style={{ fontSize: fs(16), fontWeight: 800, color: fg, marginBottom: 2 }}>
+        分享團隊邀請
+      </div>
+      <div style={{ fontSize: fs(12), color: muted, marginBottom: 14 }}>
+        編號 {team.id}·將下列訊息分享到聊天
+      </div>
 
-        {/* Message preview */}
-        <div
-          style={{
-            padding: "12px 14px",
-            borderRadius: 14,
-            background: previewBg,
-            border: "1px solid rgba(254,210,52,0.25)",
-            fontSize: fs(12.5),
-            lineHeight: 1.6,
-            color: fg,
-            whiteSpace: "pre-wrap",
-            maxHeight: 160,
-            overflowY: "auto",
-            marginBottom: 16,
-          }}
-        >
-          {message}
-        </div>
+      {/* Message preview */}
+      <div
+        style={{
+          padding: "12px 14px",
+          borderRadius: 14,
+          background: previewBg,
+          border: "1px solid rgba(254,210,52,0.25)",
+          fontSize: fs(12.5),
+          lineHeight: 1.6,
+          color: fg,
+          whiteSpace: "pre-wrap",
+          maxHeight: 160,
+          overflowY: "auto",
+          marginBottom: 16,
+        }}
+      >
+        {message}
+      </div>
 
-        {/* Messenger apps */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(6, 1fr)",
-            gap: 8,
-            marginBottom: 14,
-          }}
-        >
-          {apps.map((a) => {
-            const Logo = a.Logo;
-            return (
-              <button
-                key={a.key}
-                type="button"
-                aria-label={`分享到 ${a.label}`}
-                onClick={onCopy}
-                title={`分享到 ${a.label}`}
+      {/* Messenger apps */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(6, 1fr)",
+          gap: 8,
+          marginBottom: 14,
+        }}
+      >
+        {apps.map((a) => {
+          const Logo = a.Logo;
+          return (
+            <button
+              key={a.key}
+              type="button"
+              aria-label={`分享到 ${a.label}`}
+              onClick={onCopy}
+              title={`分享到 ${a.label}`}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 6,
+                padding: "4px 2px",
+                borderRadius: 12,
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "4px 2px",
+                  width: 44,
+                  height: 44,
                   borderRadius: 12,
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                  fontFamily: "inherit",
+                  background: a.bg,
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 3px 8px rgba(0,0,0,0.12)",
                 }}
               >
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 12,
-                    background: a.bg,
-                    color: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: "0 3px 8px rgba(0,0,0,0.12)",
-                  }}
-                >
-                  <Logo size={24} />
-                </div>
-                <div
-                  style={{
-                    fontSize: fs(10.5),
-                    color: fg,
-                    fontWeight: 600,
-                    textAlign: "center",
-                  }}
-                >
-                  {a.label}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                <Logo size={24} />
+              </div>
+              <div
+                style={{
+                  fontSize: fs(10.5),
+                  color: fg,
+                  fontWeight: 600,
+                  textAlign: "center",
+                }}
+              >
+                {a.label}
+              </div>
+            </button>
+          );
+        })}
+      </div>
 
-        {/* Copy + close row */}
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            ref={copyButtonRef}
-            type="button"
-            onClick={onCopy}
-            style={{
-              flex: 1,
-              padding: "12px 14px",
-              borderRadius: 12,
-              border: "none",
-              cursor: "pointer",
-              background: copied
-                ? "linear-gradient(135deg, #7FCFA3, #5BAE85)"
-                : "linear-gradient(135deg, var(--gold-light), var(--gold))",
-              color: "#fff",
-              fontSize: fs(13),
-              fontWeight: 800,
-              fontFamily: "inherit",
-              transition: "background 0.25s",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 6,
-            }}
-          >
-            {copied ? <CheckIcon size={14} /> : <ClipboardIcon size={14} />}
-            {copied ? "已複製到剪貼簿" : "複製訊息"}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              padding: "12px 18px",
-              borderRadius: 12,
-              border: "1px solid rgba(254,210,52,0.35)",
-              background: "transparent",
-              cursor: "pointer",
-              color: muted,
-              fontSize: fs(13),
-              fontWeight: 700,
-              fontFamily: "inherit",
-            }}
-          >
-            關閉
-          </button>
-        </div>
+      {/* Copy + close row */}
+      <div style={{ display: "flex", gap: 8 }}>
+        <button
+          ref={copyButtonRef}
+          type="button"
+          onClick={onCopy}
+          style={{
+            flex: 1,
+            padding: "12px 14px",
+            borderRadius: 12,
+            border: "none",
+            cursor: "pointer",
+            background: copied
+              ? "linear-gradient(135deg, #7FCFA3, #5BAE85)"
+              : "linear-gradient(135deg, var(--gold-light), var(--gold))",
+            color: "#fff",
+            fontSize: fs(13),
+            fontWeight: 800,
+            fontFamily: "inherit",
+            transition: "background 0.25s",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+          }}
+        >
+          {copied ? <CheckIcon size={14} /> : <ClipboardIcon size={14} />}
+          {copied ? "已複製到剪貼簿" : "複製訊息"}
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            padding: "12px 18px",
+            borderRadius: 12,
+            border: "1px solid rgba(254,210,52,0.35)",
+            background: "transparent",
+            cursor: "pointer",
+            color: muted,
+            fontSize: fs(13),
+            fontWeight: 700,
+            fontFamily: "inherit",
+          }}
+        >
+          關閉
+        </button>
+      </div>
     </Modal>
   );
 }

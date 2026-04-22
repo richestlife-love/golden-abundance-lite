@@ -22,8 +22,7 @@ export function TaskTagIcon({ tag, size }: TagIconProps): ReactElement {
 }
 
 export function TaskTagWatermark({ tag, size }: TagIconProps): ReactElement {
-  const Icon =
-    tag === EXPLORE ? SparkleGlyphXL : tag === COMMUNITY ? CircleGlyphXL : FlowerGlyphXL;
+  const Icon = tag === EXPLORE ? SparkleGlyphXL : tag === COMMUNITY ? CircleGlyphXL : FlowerGlyphXL;
   return createElement(Icon, { size });
 }
 

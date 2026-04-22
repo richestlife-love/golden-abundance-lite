@@ -106,9 +106,7 @@ export function useRejectJoinRequest() {
       api.rejectJoinRequest(teamId, reqId),
     onMutate: ({ teamId, reqId }) =>
       patchLedTeam(qc, teamId, (team) =>
-        team.requests
-          ? { ...team, requests: team.requests.filter((r) => r.id !== reqId) }
-          : team,
+        team.requests ? { ...team, requests: team.requests.filter((r) => r.id !== reqId) } : team,
       ),
     onError: (_err, _vars, ctx) => {
       rollbackLedTeam(qc, ctx);

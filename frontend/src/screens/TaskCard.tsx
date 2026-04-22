@@ -2,14 +2,7 @@ import type { components } from "../api/schema";
 import { daysUntil, fs, type EffectiveStatus } from "../utils";
 import { useTheme } from "../ui/theme";
 import { TaskTagIcon } from "../ui/taskTag";
-import {
-  CheckIcon,
-  ClockIcon,
-  CrossIcon,
-  GiftIcon,
-  LockIcon,
-  StarIcon,
-} from "../ui/Icon";
+import { CheckIcon, ClockIcon, CrossIcon, GiftIcon, LockIcon, StarIcon } from "../ui/Icon";
 
 type Task = components["schemas"]["Task"];
 
