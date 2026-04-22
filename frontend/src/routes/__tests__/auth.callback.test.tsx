@@ -33,9 +33,7 @@ describe("/auth/callback", () => {
   });
 
   it("strips a protocol-relative returnTo and falls back to /", async () => {
-    const { router } = renderRoute(
-      "/auth/callback?code=abc&returnTo=%2F%2Fevil.com",
-    );
+    const { router } = renderRoute("/auth/callback?code=abc&returnTo=%2F%2Fevil.com");
     // parseReturnTo strips //evil.com to undefined → falls back to / →
     // index bounces to /home. Verify we land there and nothing in the
     // router's URL mentions evil.com.

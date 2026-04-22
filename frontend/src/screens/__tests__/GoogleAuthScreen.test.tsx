@@ -14,8 +14,6 @@ describe("GoogleAuthScreen via /sign-in", () => {
     expect(fake.signInCalls[0].redirectTo).toMatch(/\/auth\/callback$/);
 
     // And the UI flips to the pending state.
-    expect(
-      screen.queryByRole("button", { name: /繼續使用 Google 登入/ }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /繼續使用 Google 登入/ })).not.toBeInTheDocument();
   });
 });

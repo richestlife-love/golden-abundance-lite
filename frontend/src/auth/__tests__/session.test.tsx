@@ -2,11 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "../session";
-import {
-  makeFakeSupabase,
-  makeSession,
-  type FakeSupabaseHandle,
-} from "../../test/supabase-mock";
+import { makeFakeSupabase, makeSession, type FakeSupabaseHandle } from "../../test/supabase-mock";
 import { setSupabaseClientForTesting } from "../../lib/supabase";
 import { qk } from "../../queries/keys";
 

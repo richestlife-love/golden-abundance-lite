@@ -20,9 +20,7 @@ function AuthCallbackRoute() {
       // PKCE: Supabase redirected here with `?code=<pkce-code>`.
       // Exchange it for a session (and trigger onAuthStateChange).
       // Pass window.location.search so the SDK parses the code + state.
-      const { error } = await supabase.auth.exchangeCodeForSession(
-        window.location.search,
-      );
+      const { error } = await supabase.auth.exchangeCodeForSession(window.location.search);
       if (cancelled) return;
       if (error) {
         // Surface the failure so the user isn't left staring at a spinner
@@ -42,11 +40,7 @@ function AuthCallbackRoute() {
     };
   }, [navigate, search.returnTo]);
 
-  return (
-    <div style={{ padding: 32, textAlign: "center", color: "var(--fg)" }}>
-      正在完成登入⋯
-    </div>
-  );
+  return <div style={{ padding: 32, textAlign: "center", color: "var(--fg)" }}>正在完成登入⋯</div>;
 }
 
 export const authCallbackRoute = createRoute({

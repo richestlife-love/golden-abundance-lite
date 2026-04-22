@@ -3,11 +3,7 @@ import { http, HttpResponse } from "msw";
 import { server } from "../../test/msw/server";
 import { apiFetch, setSessionExpiredHandler } from "../client";
 import { ApiError } from "../errors";
-import {
-  makeFakeSupabase,
-  makeSession,
-  type FakeSupabaseHandle,
-} from "../../test/supabase-mock";
+import { makeFakeSupabase, makeSession, type FakeSupabaseHandle } from "../../test/supabase-mock";
 import { setSupabaseClientForTesting } from "../../lib/supabase";
 
 let fake: FakeSupabaseHandle;

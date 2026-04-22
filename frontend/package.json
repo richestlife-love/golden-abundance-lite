@@ -30,6 +30,7 @@
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
+      "@sentry/cli",
       "msw"
     ]
   },

@@ -297,5 +297,3 @@ async def leaderboard_teams(
             rank=start_rank + len(page) - 1,
         )
     return Paginated[TeamLeaderboardEntry](items=items, next_cursor=next_cursor)
-
-

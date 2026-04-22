@@ -14,8 +14,7 @@ export const teamQueryOptions = (uuid: string) =>
 export const teamsInfiniteQueryOptions = (params: TeamSearchParams = {}) =>
   infiniteQueryOptions({
     queryKey: qk.teams(params),
-    queryFn: ({ pageParam, signal }) =>
-      api.listTeams({ ...params, cursor: pageParam }, { signal }),
+    queryFn: ({ pageParam, signal }) => api.listTeams({ ...params, cursor: pageParam }, { signal }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.next_cursor ?? undefined,
     staleTime: 10_000,

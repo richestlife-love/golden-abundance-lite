@@ -20,7 +20,9 @@ describe("getSupabaseClient", () => {
   });
 
   it("returns the test override when set", () => {
-    const fake = { auth: { getSession: () => Promise.resolve({ data: { session: null }, error: null }) } };
+    const fake = {
+      auth: { getSession: () => Promise.resolve({ data: { session: null }, error: null }) },
+    };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setSupabaseClientForTesting(fake as any);
     expect(getSupabaseClient()).toBe(fake);
