@@ -17,21 +17,21 @@ from backend.services.user import upsert_user_by_supabase_identity
 
 
 async def test_maybe_grant_noop_when_no_bonused_challenges(session: AsyncSession) -> None:
-    """Empty challenge catalog must short-circuit before the team-total
-    query — no rewards created, no exception.
+    """Empty challenge catalog must short-circuit — no rewards created,
+    no exception. ``team_total=1`` so the no-team guard doesn't fire first.
     """
     user = await upsert_user_by_supabase_identity(session, auth_user_id=uuid4(), email="nochal@example.com")
     await session.flush()
 
-    await maybe_grant_challenge_rewards(session, users=[user])
+    await maybe_grant_challenge_rewards(session, users=[user], team_total=1)
 
     rewards = (await session.execute(select(RewardRow))).scalars().all()
     assert rewards == []
 
 
 async def test_maybe_grant_skips_challenge_when_team_under_cap(session: AsyncSession) -> None:
-    """A bonused challenge whose cap the user's team does not meet must
-    not issue a reward. The user here has no team at all — total=0 < cap.
+    """A bonused challenge whose cap the team does not meet must not
+    issue a reward.
     """
     session.add(
         TaskDefRow(
@@ -52,7 +52,7 @@ async def test_maybe_grant_skips_challenge_when_team_under_cap(session: AsyncSes
     user = await upsert_user_by_supabase_identity(session, auth_user_id=uuid4(), email="lone@example.com")
     await session.flush()
 
-    await maybe_grant_challenge_rewards(session, users=[user])
+    await maybe_grant_challenge_rewards(session, users=[user], team_total=1)
 
     rewards = (await session.execute(select(RewardRow).where(RewardRow.user_id == user.id))).scalars().all()
     assert rewards == []

@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.contract import Reward as ContractReward
 from backend.db.models import RewardRow, TaskDefRow, UserRow
-from backend.services.team import caller_team_totals
 
 
 async def create_reward_if_bonus(session: AsyncSession, *, user: UserRow, task_def: TaskDefRow) -> RewardRow | None:
@@ -43,20 +42,22 @@ async def maybe_grant_challenge_rewards(
     session: AsyncSession,
     *,
     users: Sequence[UserRow],
+    team_total: int,
 ) -> None:
     """Create ``RewardRow``s for any bonused challenge ``TaskDef`` each
-    user in ``users`` now meets cap for. Idempotent. No-op when no
-    bonused challenges exist or a user has no team (total == 0).
+    user in ``users`` now meets cap for. Idempotent. No-op when
+    ``team_total == 0`` or no bonused challenges exist.
 
-    Takes a sequence so the bonused-challenge set is fetched once per
-    call regardless of how many users are evaluated — the
-    approve-join-request flow grants for leader + every member after
-    one approval, and this avoids re-querying the defs per user.
+    ``team_total`` is the shared head count across ``users`` — callers
+    within a single team context (approve_join_request) pass the team
+    size once instead of re-deriving it per user.
 
     Concurrency: ``ON CONFLICT DO NOTHING`` against
     ``uq_reward_user_task`` keeps this safe under two simultaneous
     approve calls that both cross the cap.
     """
+    if team_total == 0:
+        return
     challenge_defs = (
         (
             await session.execute(
@@ -70,16 +71,12 @@ async def maybe_grant_challenge_rewards(
         return
 
     for user in users:
-        led_total, joined_total = await caller_team_totals(session, user)
-        total = max(led_total, joined_total)
         for td in challenge_defs:
-            cap, bonus = td.cap, td.bonus
-            # bonus is non-None by the query filter; cap is non-None for
-            # any bonused challenge by convention (see row_to_contract_task).
-            # Re-checked so this is safe if those invariants ever slip.
-            if cap is None or bonus is None or total < cap:
+            cap = td.cap
+            bonus = td.bonus
+            if cap is None or bonus is None or team_total < cap:
                 continue
-            stmt = (
+            await session.execute(
                 pg_insert(RewardRow)
                 .values(
                     user_id=user.id,
@@ -88,9 +85,8 @@ async def maybe_grant_challenge_rewards(
                     bonus=bonus,
                     status="earned",
                 )
-                .on_conflict_do_nothing(constraint="uq_reward_user_task")
+                .on_conflict_do_nothing(constraint="uq_reward_user_task"),
             )
-            await session.execute(stmt)
     await session.flush()
 
 

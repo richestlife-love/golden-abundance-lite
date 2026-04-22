@@ -70,13 +70,14 @@ async def approve_join_request(session: AsyncSession, *, team: TeamRow, req: Joi
 
     # Batch-load the post-approval membership + their UserRows in two
     # queries, then grant rewards for the whole set in a single call
-    # (one bonused-defs fetch regardless of team size).
+    # (one bonused-defs fetch regardless of team size). Team total is
+    # the same for every user here, so it's computed once and passed in.
     memberships = (
         (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id))).scalars().all()
     )
     member_ids = [team.leader_id, *(m.user_id for m in memberships)]
     user_rows = (await session.execute(select(UserRow).where(UserRow.id.in_(member_ids)))).scalars().all()
-    await maybe_grant_challenge_rewards(session, users=user_rows)
+    await maybe_grant_challenge_rewards(session, users=user_rows, team_total=1 + len(memberships))
 
 
 async def reject_join_request(session: AsyncSession, *, req: JoinRequestRow) -> None:
