@@ -4,7 +4,7 @@ FastAPI + SQLModel + Alembic + Postgres 17. See the [root README](../README.md) 
 
 ## Layout
 
-- `src/backend/server.py` — FastAPI factory. Mounts routers at `/api/v1` and `/health`.
+- `src/backend/server.py` — FastAPI factory. Mounts routers at `/api/v1`, plus `/health` (liveness) and `/readyz` (readiness — pings the DB pool).
 - `src/backend/config.py` — pydantic-settings `Settings`; process-wide cached via `get_settings()`.
 - `src/backend/routers/` — route handlers (`health`, `leaderboard`, `me`, `news`, `tasks`, `teams`). Auth is a FastAPI dependency, not a router — identity is issued by Supabase.
 - `src/backend/services/` — pure business logic (`display_id`, `leaderboard`, `news`, `pagination`, `reward`, `task`, `team`, `team_join`, `user`); routers call services, services call `db`.

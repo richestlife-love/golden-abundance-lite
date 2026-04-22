@@ -34,12 +34,17 @@ def create_app() -> FastAPI:
         version="0.1.0",
         description="Phase 7 backend — see backend/src/backend/contract/endpoints.md",
     )
+    # Auth is `Authorization: Bearer` only — no cookies — so
+    # allow_credentials stays False. Methods and headers are enumerated
+    # rather than wildcarded so a misconfigured frontend fails loudly
+    # instead of silently gaining extra surface.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type"],
+        max_age=600,
     )
     app.include_router(health.router)
     app.include_router(me.router, prefix=API_V1)

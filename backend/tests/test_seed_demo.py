@@ -103,3 +103,24 @@ async def test_demo_join_requests_idempotent(engine: AsyncEngine) -> None:
     async with get_session_maker()() as s:
         second = len(await _pending_requests(s))
     assert first == second == 4, f"expected 4 pending rows, got first={first} second={second}"
+
+
+async def test_seed_skips_demo_users_when_app_env_is_prod(
+    engine: AsyncEngine,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Guard L11 — `just seed` against a prod DB must not land @demo.ga accounts."""
+    await _truncate_all(engine)
+    monkeypatch.setenv("APP_ENV", "prod")
+
+    await run_seed()
+
+    async with get_session_maker()() as s:
+        rows = (await s.execute(select(UserRow))).scalars().all()
+        teams = (await s.execute(select(TeamRow))).scalars().all()
+        reqs = await _pending_requests(s)
+
+    demo_emails = {u["email"] for u in DEMO_USERS}
+    assert not any(u.email in demo_emails for u in rows), "demo users leaked into prod seed"
+    assert not teams, "no demo teams should be created in prod"
+    assert not reqs, "no demo join requests in prod"

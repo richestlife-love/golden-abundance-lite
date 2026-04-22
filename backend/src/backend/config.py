@@ -35,10 +35,7 @@ class Settings(BaseSettings):
     )
     supabase_jwt_aud: str = Field(default="authenticated")
     cors_origins: list[str] = Field(
-        default_factory=lambda: [
-            "http://localhost:5173",
-            "http://localhost:8000",
-        ],
+        default_factory=lambda: ["http://localhost:5173"],
     )
     app_env: Literal["dev", "test", "prod"] = "dev"
     sentry_dsn: str | None = Field(default=None)

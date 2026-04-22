@@ -19,6 +19,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.config import get_settings
 from backend.db.engine import get_session_maker
 from backend.db.models import (
     JoinRequestRow,
@@ -317,11 +318,17 @@ async def run() -> None:
     # backend.db.engine is currently bound to (production by default;
     # the pytest harness rebinds via DATABASE_URL env + cache-clear
     # before calling this).
+    #
+    # Task defs and news are real content and seed in any env. Demo
+    # users (@demo.ga) and their pre-canned join requests only belong
+    # in dev/test — a `just seed` against prod must never create them.
+    is_prod = get_settings().app_env == "prod"
     async with get_session_maker()() as session:
         await _upsert_task_defs(session)
         await _upsert_news(session)
-        users = await _upsert_demo_users(session)
-        await _upsert_demo_join_requests(session, users)
+        if not is_prod:
+            users = await _upsert_demo_users(session)
+            await _upsert_demo_join_requests(session, users)
         await session.commit()
     print("seed: done")
 
