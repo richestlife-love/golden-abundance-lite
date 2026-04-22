@@ -94,18 +94,28 @@ async def create_led_team(session: AsyncSession, user: UserRow) -> TeamRow:
 
 
 async def row_to_contract_team(session: AsyncSession, team: TeamRow, *, caller_id: UUID) -> ContractTeam:
-    leader = await session.get(UserRow, team.leader_id)
+    member_user_ids = list(
+        (
+            await session.execute(
+                select(TeamMembershipRow.user_id).where(TeamMembershipRow.team_id == team.id),
+            )
+        )
+        .scalars()
+        .all(),
+    )
+    # One SELECT covers leader + members — dispatch by id below.
+    user_rows = (
+        (await session.execute(select(UserRow).where(UserRow.id.in_([team.leader_id, *member_user_ids]))))
+        .scalars()
+        .all()
+    )
+    users_by_id = {u.id: u for u in user_rows}
+
+    leader = users_by_id.get(team.leader_id)
     if leader is None:
         raise RuntimeError(f"FK violation: TeamRow(id={team.id}).leader_id={team.leader_id} has no matching UserRow")
 
-    memberships = (
-        (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == team.id))).scalars().all()
-    )
-    member_user_ids = [m.user_id for m in memberships]
-    members: list[ContractUserRef] = []
-    if member_user_ids:
-        member_rows = (await session.execute(select(UserRow).where(UserRow.id.in_(member_user_ids)))).scalars().all()
-        members = [user_to_ref(u) for u in member_rows]
+    members: list[ContractUserRef] = [user_to_ref(users_by_id[uid]) for uid in member_user_ids if uid in users_by_id]
 
     role: Literal["leader", "member"] | None
     if caller_id == team.leader_id:
