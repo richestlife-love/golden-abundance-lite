@@ -58,6 +58,9 @@ jobs:
         with:
           version: "0.11.7"
           python-version: "3.14"
+          # Backend job owns the uv cache save; frontend only restores to
+          # avoid the two jobs racing on an identical key.
+          save-cache: false
 
       - name: Install pnpm
         uses: pnpm/action-setup@v5
