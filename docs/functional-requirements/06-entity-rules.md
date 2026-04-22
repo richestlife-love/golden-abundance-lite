@@ -50,7 +50,7 @@ expired  = derived (due_at < now AND not completed by caller)
 - **Prereq check**: submit → **412** if any id in `requires` is not completed by caller.
 - **Form match**: submit → **400** if body `form_type` doesn't match task's declared `form_type`, or task has no form.
 - **`in_progress`** is set by the backend only for challenge tasks; non-challenge tasks jump `todo → completed` in one submit.
-- **T3 auto-completion**: `services/task.py` flips T3 to `completed` when `TeamChallengeProgress.total = max(led_total, joined_total) >= cap`. No explicit submit call.
+- **T3 auto-completion (derived only)**: `services/task.py` returns `Task.status = "completed"` for T3 when `TeamChallengeProgress.total = max(led_total, joined_total) >= cap`. This is a read-side derivation — `task_progress` rows are not updated and there is no persisted `completed_at`. No explicit submit call.
 - **Reward earning**: server side-effect on task completion **only when `task.bonus` is non-null**. Backstopped by `uq_reward_user_task`.
 
 ## Join request

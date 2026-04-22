@@ -20,7 +20,7 @@ Defined in `frontend/src/utils.ts`. Computes `completedIds` from `allTasks`, the
 totalPoints = sum(t.points for t in tasks if t.status === "completed")
 ```
 
-Computed independently in `HomeScreen.tsx:34` (`totalPoints`), `MyScreen.tsx:38` (`totalPoints`), `RewardsScreen.tsx:21` (`totalPoints`), and `LeaderboardScreen.tsx:45` (named `myPoints`, same formula).
+Computed independently in `HomeScreen.tsx:34` (`totalPoints`), `MyScreen.tsx:39` (`totalPoints`), `RewardsScreen.tsx:21` (`totalPoints`), and `LeaderboardScreen.tsx:45` (named `myPoints`, same formula).
 
 > ⚠️ No backend `user.points` field. Duplicated across 4 screens.
 

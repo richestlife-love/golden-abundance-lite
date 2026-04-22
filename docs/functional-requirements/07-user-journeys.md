@@ -41,7 +41,7 @@ Any 401 → `setSessionExpiredHandler` → `signOut({reason:"expired", returnTo}
   → POST /tasks/{id}/submit
   → TaskSubmissionResponse {task, reward?}
   → pushSuccess({color, points, bonus, title})  ← celebration overlay
-  → invalidate: myTasks, task(id), myRewards, leaderboard*
+  → invalidate: task(id), myTasks, myRewards, me, leaderboard*
   → navigate to /tasks/:taskId (detail)
 ```
 
@@ -81,7 +81,8 @@ Any 401 → `setSessionExpiredHandler` → `signOut({reason:"expired", returnTo}
 Leader: auto-created team at profile completion
   → members join (journeys 5+6)
   → total = max(led_total, joined_total) reaches cap=6
-  → services/task.py flips T3 status → "completed" for every team member
+  → services/task.py derives Task.status = "completed" for every team member
+    (read-side only; task_progress rows are not updated)
   → no Reward row created (T3 has bonus=None in seed)
 ```
 
