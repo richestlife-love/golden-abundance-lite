@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import SparkleGlyph from "./SparkleGlyph";
-import mascotHalfbodyUrl from "../assets/mascot-halfbody.png";
+import mascotHalfbodyUrl from "../assets/mascot-halfbody.webp";
 
 type Props = {
   /** Any valid CSS length; typically a clamp()/cqi expression from the parent. */
