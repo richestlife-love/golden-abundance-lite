@@ -3,6 +3,7 @@ contract `Task` shape. Enforces the derivation rules from spec §1.3.
 """
 
 from datetime import UTC, datetime
+from typing import Literal
 from uuid import UUID
 
 from sqlalchemy import select
@@ -27,23 +28,19 @@ from backend.services.team import caller_team_totals
 
 
 async def _completed_task_def_ids(session: AsyncSession, user_id: UUID) -> set[UUID]:
-    rows = (
-        await session.execute(
-            select(TaskProgressRow.task_def_id)
-            .where(TaskProgressRow.user_id == user_id)
-            .where(TaskProgressRow.status == "completed"),
-        )
-    ).all()
-    return {row[0] for row in rows}
+    result = await session.execute(
+        select(TaskProgressRow.task_def_id)
+        .where(TaskProgressRow.user_id == user_id)
+        .where(TaskProgressRow.status == "completed"),
+    )
+    return set(result.scalars().all())
 
 
 async def _required_ids(session: AsyncSession, task_def_id: UUID) -> list[UUID]:
-    rows = (
-        await session.execute(
-            select(TaskDefRequiresRow.requires_id).where(TaskDefRequiresRow.task_def_id == task_def_id),
-        )
-    ).all()
-    return [row[0] for row in rows]
+    result = await session.execute(
+        select(TaskDefRequiresRow.requires_id).where(TaskDefRequiresRow.task_def_id == task_def_id),
+    )
+    return list(result.scalars().all())
 
 
 async def _team_totals(session: AsyncSession, caller: UserRow, *, cap: int) -> TeamChallengeProgress:
@@ -119,12 +116,15 @@ async def row_to_contract_task(
                 f"Challenge task {task_def.display_id} is missing cap — is_challenge=True requires a non-null cap.",
             )
         team_progress = await _team_totals(session, caller, cap=task_def.cap)
+        progress_value: float | None = min(team_progress.total / team_progress.cap, 1.0)
     else:
         team_progress = None
+        progress_value = progress_row.progress if progress_row else None
 
     locked = any(req not in completed_ids for req in requires)
     now = datetime.now(UTC)
 
+    status: Literal["todo", "in_progress", "completed", "expired", "locked"]
     if locked:
         status = "locked"
     elif (
@@ -133,9 +133,7 @@ async def row_to_contract_task(
         and (progress_row is None or progress_row.status != "completed")
     ):
         status = "expired"
-    elif task_def.is_challenge:
-        if team_progress is None:
-            raise RuntimeError("unreachable: is_challenge branch requires team_progress")
+    elif team_progress is not None:
         if team_progress.total >= team_progress.cap:
             status = "completed"
         elif team_progress.total > 0:
@@ -144,13 +142,6 @@ async def row_to_contract_task(
             status = "todo"
     else:
         status = progress_row.status if progress_row else "todo"
-
-    if task_def.is_challenge:
-        if team_progress is None:
-            raise RuntimeError("unreachable: is_challenge branch requires team_progress")
-        progress_value: float | None = min(team_progress.total / team_progress.cap, 1.0)
-    else:
-        progress_value = progress_row.progress if progress_row else None
 
     steps = await _steps_for(session, task_def.id, caller.id)
 
