@@ -105,3 +105,99 @@ def test_row_to_contract_user_maps_every_contract_field() -> None:
     row_fields = set(UserRow.model_fields)
     missing = contract_fields - row_fields
     assert not missing, f"Contract fields not in UserRow: {missing}"
+
+
+@pytest.mark.asyncio
+async def test_upsert_retries_on_display_id_collision(
+    session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Two concurrent first-sign-ins can pick the same display_id.
+
+    If the loser hits the unique constraint, ``upsert_user_by_supabase_identity``
+    rolls the savepoint back, re-generates a fresh candidate, and retries
+    instead of propagating the IntegrityError (M2).
+    """
+    # Pre-seed a user holding "UJET" so the first candidate our mock
+    # returns will collide on the display_id unique constraint.
+    session.add(UserRow(id=UUID(int=9001), display_id="UJET", email="already@taken.com"))
+    await session.commit()
+
+    from backend.services import user as user_mod
+
+    attempts: list[str] = []
+
+    async def _mock_generate(_session: AsyncSession, *, email: str) -> str:
+        attempts.append(email)
+        # First call picks the already-taken id; retry picks a fresh one.
+        return "UJET" if len(attempts) == 1 else "UJET42"
+
+    monkeypatch.setattr(user_mod, "generate_user_display_id", _mock_generate)
+
+    new_user = await user_mod.upsert_user_by_supabase_identity(
+        session,
+        auth_user_id=UUID(int=9002),
+        email="jet@newhost.com",
+    )
+    await session.commit()
+
+    assert new_user.display_id == "UJET42"
+    assert len(attempts) == 2, "must retry exactly once"
+
+
+@pytest.mark.asyncio
+async def test_upsert_returns_existing_row_on_pk_race(
+    session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """If the savepoint fails because another session committed the same
+    ``sub`` first, the upsert re-fetches that row instead of retrying.
+    """
+    auth_id = UUID(int=9100)
+
+    # Pre-seed the "winner" — simulates another request having committed first.
+    winning_row = UserRow(id=auth_id, display_id="UWINNER", email="winner@x.com")
+    session.add(winning_row)
+    await session.commit()
+
+    from backend.services import user as user_mod
+
+    async def _mock_generate(_session: AsyncSession, *, email: str) -> str:
+        return "UMINE"  # will trigger PK collision because `id=auth_id` already exists
+
+    monkeypatch.setattr(user_mod, "generate_user_display_id", _mock_generate)
+
+    result = await user_mod.upsert_user_by_supabase_identity(
+        session,
+        auth_user_id=auth_id,
+        email="winner@x.com",
+    )
+    assert result.display_id == "UWINNER", "must return winner's row without retrying"
+
+
+@pytest.mark.asyncio
+async def test_upsert_gives_up_after_repeated_failures(
+    session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A persistent unique-constraint failure (e.g., stale-email/new-sub)
+    must propagate as IntegrityError after the retry budget is exhausted.
+    """
+    session.add(UserRow(id=UUID(int=9200), display_id="UTAKEN", email="taken@x.com"))
+    await session.commit()
+
+    from backend.services import user as user_mod
+
+    async def _always_collide(_session: AsyncSession, *, email: str) -> str:
+        return "UTAKEN"  # always picks the already-taken id
+
+    monkeypatch.setattr(user_mod, "generate_user_display_id", _always_collide)
+
+    from sqlalchemy.exc import IntegrityError
+
+    with pytest.raises(IntegrityError):
+        await user_mod.upsert_user_by_supabase_identity(
+            session,
+            auth_user_id=UUID(int=9201),
+            email="newbie@x.com",
+        )

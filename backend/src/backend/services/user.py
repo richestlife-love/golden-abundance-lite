@@ -8,11 +8,21 @@ they hit any authed endpoint.
 
 from uuid import UUID
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.contract import User as ContractUser
 from backend.db.models import UserRow
 from backend.services.display_id import generate_user_display_id
+
+# Max retries for the display_id collision race (M2). Two concurrent
+# first-sign-ins with colliding email local-parts can both pick the
+# same candidate; the loser rolls back the savepoint and picks again
+# from a now-stale set. Three attempts is enough in practice — after
+# the first retry the winner's row is visible, so the candidate search
+# skips it. Any further collision is an actual email duplicate, which
+# retrying won't fix.
+_UPSERT_MAX_ATTEMPTS = 3
 
 
 async def upsert_user_by_supabase_identity(
@@ -23,32 +33,58 @@ async def upsert_user_by_supabase_identity(
 ) -> UserRow:
     """Return the existing ``UserRow`` for ``auth_user_id`` or create one.
 
-    Caller is responsible for committing — this function only ``flush()``es
-    so the new row has relationships but sits in the session's identity
-    map.
+    Caller is responsible for committing — this function only
+    ``flush()``es (inside a savepoint) so the new row has relationships
+    but sits in the session's identity map.
 
-    Two failure modes surface as ``IntegrityError`` from ``flush()`` and
-    are **not** handled here (see the plan's "Known deferrals" section):
+    Concurrent first-sign-ins are handled internally:
 
-    - Concurrent first-sign-in requests for the same ``auth_user_id``
-      racing on unique ``display_id`` generation.
-    - A Supabase user deleted + recreated (same email, new ``sub``)
-      colliding with the existing ``UserRow.email`` unique constraint.
+    - **PK collision** (two requests for the same ``sub``): the loser's
+      savepoint rolls back, a re-fetch by PK finds the winner's row, and
+      that row is returned.
+    - **display_id collision** (two different ``sub``s whose emails
+      resolve to the same candidate): the loser's savepoint rolls back
+      and the retry re-generates a candidate against the now-committed
+      winner, picking a fresh suffix.
+
+    Still not handled: a Supabase user deleted + recreated (same email,
+    new ``sub``) colliding with the existing ``UserRow.email`` unique
+    constraint. That one propagates as ``IntegrityError`` after
+    ``_UPSERT_MAX_ATTEMPTS`` — retry can't help because the email is
+    the same each time.
     """
     email = email.lower()
     existing = await session.get(UserRow, auth_user_id)
     if existing is not None:
         return existing
-    display_id = await generate_user_display_id(session, email=email)
-    row = UserRow(
-        id=auth_user_id,
-        display_id=display_id,
-        email=email,
-        profile_complete=False,
-    )
-    session.add(row)
-    await session.flush()
-    return row
+
+    last_exc: IntegrityError | None = None
+    for _attempt in range(_UPSERT_MAX_ATTEMPTS):
+        display_id = await generate_user_display_id(session, email=email)
+        row = UserRow(
+            id=auth_user_id,
+            display_id=display_id,
+            email=email,
+            profile_complete=False,
+        )
+        try:
+            async with session.begin_nested():
+                session.add(row)
+                await session.flush()
+        except IntegrityError as exc:
+            last_exc = exc
+            # Was this the concurrent-same-sub race? If so return the
+            # winner's row. Otherwise (display_id or email clash) loop
+            # and generate a fresh candidate.
+            winner = await session.get(UserRow, auth_user_id)
+            if winner is not None:
+                return winner
+            continue
+        else:
+            return row
+
+    assert last_exc is not None  # unreachable — loop body either returns or raises
+    raise last_exc
 
 
 def derive_user_name(row: UserRow) -> str:
