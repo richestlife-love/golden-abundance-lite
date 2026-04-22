@@ -2,6 +2,8 @@ import { fs } from "../utils";
 import { useEffect, useRef } from "react";
 import type { components } from "../api/schema";
 import type { ComponentType, SVGProps } from "react";
+import Modal from "../ui/Modal";
+import { useTheme } from "../ui/theme";
 import { CheckIcon, ClipboardIcon } from "../ui/Icon";
 import {
   InstagramLogo,
@@ -20,8 +22,6 @@ type Props = {
   copied: boolean;
   onCopy: () => void;
   onClose: () => void;
-  fg: string;
-  muted: string;
 };
 
 type LogoProps = Omit<SVGProps<SVGSVGElement>, "width" | "height" | "viewBox"> & {
@@ -29,7 +29,8 @@ type LogoProps = Omit<SVGProps<SVGSVGElement>, "width" | "height" | "viewBox"> &
 };
 type LogoComponent = ComponentType<LogoProps>;
 
-export default function ShareSheet({ team, message, copied, onCopy, onClose, fg, muted }: Props) {
+export default function ShareSheet({ team, message, copied, onCopy, onClose }: Props) {
+  const { fg, muted } = useTheme();
   const apps: { key: string; label: string; bg: string; Logo: LogoComponent }[] = [
     { key: "line", label: "LINE", bg: "#06C755", Logo: LineLogo },
     { key: "whatsapp", label: "WhatsApp", bg: "#25D366", Logo: WhatsappLogo },
@@ -55,43 +56,23 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
   const copyButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleKey);
     copyButtonRef.current?.focus();
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [onClose]);
+  }, []);
 
   return (
-    <div
-      onClick={onClose}
+    <Modal
+      onClose={onClose}
+      ariaLabel="分享團隊邀請"
+      align="bottom"
       style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 200,
-        background: "rgba(20,10,40,0.55)",
-        backdropFilter: "blur(6px)",
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "center",
+        maxWidth: 440,
+        background: sheetBg,
+        borderRadius: "22px 22px 0 0",
+        padding: "12px 18px 22px",
+        boxShadow: "0 -12px 40px rgba(0,0,0,0.25)",
+        animation: "slideUp 0.28s ease-out",
       }}
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="分享團隊邀請"
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          width: "100%",
-          maxWidth: 440,
-          background: sheetBg,
-          borderRadius: "22px 22px 0 0",
-          padding: "12px 18px 22px",
-          boxShadow: "0 -12px 40px rgba(0,0,0,0.25)",
-          animation: "slideUp 0.28s ease-out",
-        }}
-      >
         {/* Grab handle */}
         <div
           style={{
@@ -244,7 +225,6 @@ export default function ShareSheet({ team, message, copied, onCopy, onClose, fg,
             關閉
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

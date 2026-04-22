@@ -1,14 +1,13 @@
 import type { components } from "../api/schema";
 import { daysUntil, fs, type EffectiveStatus } from "../utils";
+import { useTheme } from "../ui/theme";
+import { TaskTagIcon } from "../ui/taskTag";
 import {
   CheckIcon,
-  CircleIcon,
   ClockIcon,
   CrossIcon,
-  FlowerIcon,
   GiftIcon,
   LockIcon,
-  SparkleIcon,
   StarIcon,
 } from "../ui/Icon";
 
@@ -17,29 +16,16 @@ type Task = components["schemas"]["Task"];
 type Props = {
   t: Task;
   effective: EffectiveStatus;
-  cardBg: string;
-  cardBorder: string;
-  muted: string;
-  fg: string;
   index?: number; // default 0
   onOpen: (displayId: string) => void;
 };
 
-export default function TaskCard({
-  t,
-  effective,
-  cardBg,
-  cardBorder,
-  muted,
-  fg,
-  index = 0,
-  onOpen,
-}: Props) {
+export default function TaskCard({ t, effective, index = 0, onOpen }: Props) {
+  const { cardBg, cardBorder, muted, fg } = useTheme();
   const { status, unmet } = effective;
   const daysLeft = daysUntil(t.due_at);
   const dueDisplay = t.due_at ? t.due_at.slice(0, 10) : null;
   const urgent = status === "todo" && daysLeft != null && daysLeft > 0 && daysLeft <= 7;
-  const TagIcon = t.tag === "探索" ? SparkleIcon : t.tag === "社区" ? CircleIcon : FlowerIcon;
 
   const statusChip =
     status === "completed"
@@ -75,15 +61,17 @@ export default function TaskCard({
         ? "rgba(120,110,150,0.2)"
         : `linear-gradient(135deg, ${t.color}, ${t.color}BB)`;
 
-  const LogoIcon =
-    status === "completed"
-      ? CheckIcon
-      : status === "expired"
-        ? CrossIcon
-        : status === "locked"
-          ? LockIcon
-          : TagIcon;
   const logoColor = status === "expired" ? "#8a82a8" : "#fff";
+  const logoIcon =
+    status === "completed" ? (
+      <CheckIcon size={22} />
+    ) : status === "expired" ? (
+      <CrossIcon size={22} />
+    ) : status === "locked" ? (
+      <LockIcon size={22} />
+    ) : (
+      <TaskTagIcon tag={t.tag} size={22} />
+    );
 
   return (
     <button
@@ -126,7 +114,7 @@ export default function TaskCard({
           boxShadow: `0 4px 12px ${t.color}55`,
         }}
       >
-        <LogoIcon size={22} />
+        {logoIcon}
       </div>
 
       <div

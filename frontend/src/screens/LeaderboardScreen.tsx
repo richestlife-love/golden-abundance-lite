@@ -10,6 +10,7 @@ import type { LeaderboardPeriod } from "../api/leaderboard";
 import { avatarBg, fs } from "../utils";
 import BottomNav from "../ui/BottomNav";
 import { PartyPopperIcon, StarIcon, UsersIcon } from "../ui/Icon";
+import { useTheme } from "../ui/theme";
 
 type Tab = "personal" | "team" | "challenge";
 
@@ -33,11 +34,7 @@ const PERIODS: Array<{ key: LeaderboardPeriod; label: string }> = [
 export default function LeaderboardScreen() {
   const { data: user } = useMe();
   const { data: tasks } = useMyTasks();
-  const bg = "var(--bg)";
-  const fg = "var(--fg)";
-  const muted = "var(--muted)";
-  const cardBg = "var(--card)";
-  const cardBorder = "1px solid var(--card-strong)";
+  const { bg, fg, muted, cardBg, cardBorder } = useTheme();
 
   const [tab, setTab] = useState<Tab>("personal");
   const [period, setPeriod] = useState<LeaderboardPeriod>("month");
@@ -774,7 +771,7 @@ export default function LeaderboardScreen() {
         )}
       </div>
 
-      <BottomNav muted={muted} />
+      <BottomNav />
     </div>
   );
 }

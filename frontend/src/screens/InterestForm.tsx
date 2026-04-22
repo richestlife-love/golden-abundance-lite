@@ -5,6 +5,7 @@ import FieldLabel from "../ui/FieldLabel";
 import TextInput from "../ui/TextInput";
 import ChipGroup from "../ui/ChipGroup";
 import SubmitButton from "../ui/SubmitButton";
+import { useTheme } from "../ui/theme";
 
 export interface InterestFormBody {
   name: string;
@@ -21,10 +22,8 @@ type Props = {
 };
 
 export default function InterestForm({ onCancel, onSubmit, isSubmitting = false }: Props) {
-  const bg = "var(--bg)";
-  const muted = "var(--muted)";
+  const { muted, cardBorder } = useTheme();
   const cardBg = "rgba(255,255,255,0.6)";
-  const cardBorder = "1px solid var(--card-strong)";
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -43,7 +42,6 @@ export default function InterestForm({ onCancel, onSubmit, isSubmitting = false 
 
   return (
     <FormShell
-      bg={bg}
       title="填寫志工表單"
       subtitle="填寫個人資訊、興趣與可投入時段"
       onCancel={onCancel}

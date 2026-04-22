@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useMyTasks } from "../hooks/useMyTasks";
 import BottomNav from "../ui/BottomNav";
+import { useTheme } from "../ui/theme";
 import TaskCard from "./TaskCard";
 import { getEffectiveStatuses, fs } from "../utils";
 import type { components } from "../api/schema";
@@ -14,11 +15,7 @@ export default function TasksScreen() {
   const onOpenTask = (displayId: string) =>
     navigate({ to: "/tasks/$taskId", params: { taskId: displayId } });
 
-  const bg = "var(--bg)";
-  const cardBg = "var(--card)";
-  const cardBorder = "1px solid var(--card-strong)";
-  const muted = "var(--muted)";
-  const fg = "var(--fg)";
+  const { bg, fg, muted, cardBg, cardBorder } = useTheme();
 
   const [filter, setFilter] = useState("active");
 
@@ -251,10 +248,6 @@ export default function TasksScreen() {
                           key={t.id}
                           t={t}
                           effective={statuses.get(t.id)!}
-                          cardBg={cardBg}
-                          cardBorder={cardBorder}
-                          muted={muted}
-                          fg={fg}
                           index={i}
                           onOpen={onOpenTask}
                         />
@@ -270,10 +263,6 @@ export default function TasksScreen() {
                 key={t.id}
                 t={t}
                 effective={statuses.get(t.id)!}
-                cardBg={cardBg}
-                cardBorder={cardBorder}
-                muted={muted}
-                fg={fg}
                 index={i}
                 onOpen={onOpenTask}
               />
@@ -282,7 +271,7 @@ export default function TasksScreen() {
         </div>
       </div>
 
-      <BottomNav muted={muted} />
+      <BottomNav />
     </div>
   );
 }

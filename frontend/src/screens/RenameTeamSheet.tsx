@@ -1,6 +1,8 @@
 import { fs } from "../utils";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { components } from "../api/schema";
+import Modal from "../ui/Modal";
+import { useTheme } from "../ui/theme";
 
 type Team = components["schemas"]["Team"];
 
@@ -8,52 +10,29 @@ type Props = {
   team: Team;
   onClose: () => void;
   onSave: (alias: string) => void;
-  fg: string;
-  muted: string;
 };
 
-export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Props) {
+export default function RenameTeamSheet({ team, onClose, onSave }: Props) {
+  const { fg, muted } = useTheme();
   const [value, setValue] = useState(team.alias || "");
   const sheetBg = "#FFFFFF";
   const inputBg = "rgba(254,210,52,0.15)";
 
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [onClose]);
-
   return (
-    <div
-      onClick={onClose}
+    <Modal
+      onClose={onClose}
+      ariaLabel="設定團隊組名"
+      align="bottom"
+      zIndex={220}
       style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 220,
-        background: "rgba(20,10,40,0.55)",
-        backdropFilter: "blur(6px)",
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "center",
+        maxWidth: 440,
+        background: sheetBg,
+        borderRadius: "22px 22px 0 0",
+        padding: "12px 18px 22px",
+        boxShadow: "0 -12px 40px rgba(0,0,0,0.25)",
+        animation: "slideUp 0.28s ease-out",
       }}
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="設定團隊組名"
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          width: "100%",
-          maxWidth: 440,
-          background: sheetBg,
-          borderRadius: "22px 22px 0 0",
-          padding: "12px 18px 22px",
-          boxShadow: "0 -12px 40px rgba(0,0,0,0.25)",
-          animation: "slideUp 0.28s ease-out",
-        }}
-      >
         <div
           style={{
             display: "flex",
@@ -163,7 +142,6 @@ export default function RenameTeamSheet({ team, onClose, onSave, fg, muted }: Pr
             儲存
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

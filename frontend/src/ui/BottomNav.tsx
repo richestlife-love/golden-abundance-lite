@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { fs } from "../utils";
+import { useTheme } from "./theme";
 import type { ReactNode } from "react";
 
 type TabKey = "home" | "tasks" | "leaderboard" | "me";
@@ -73,7 +74,8 @@ const ITEMS: { key: TabKey; label: string; icon: ReactNode }[] = [
   { key: "me", label: "我的", icon: <MeIcon /> },
 ];
 
-export default function BottomNav({ muted }: { muted: string }) {
+export default function BottomNav() {
+  const { muted } = useTheme();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   return (

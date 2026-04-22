@@ -1,6 +1,8 @@
 import { avatarBg, fs, hashString } from "../utils";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
+import Modal from "../ui/Modal";
+import { useTheme } from "../ui/theme";
 import RenameTeamSheet from "./RenameTeamSheet";
 import ShareSheet from "./ShareSheet";
 import type { components } from "../api/schema";
@@ -24,8 +26,6 @@ type Props = {
   team: Team;
   total: number;
   cap: number;
-  fg: string;
-  muted: string;
   variant: "joined" | "led";
   onApproveRequest?: (requestId: string) => void;
   onRejectRequest?: (requestId: string) => void;
@@ -38,14 +38,13 @@ export default function TeamCard({
   team,
   total,
   cap,
-  fg,
-  muted,
   variant,
   onApproveRequest,
   onRejectRequest,
   onLeaveTeam,
   onRenameTeam,
 }: Props) {
+  const { fg, muted } = useTheme();
   const isMemberCard = variant === "joined";
   // Role-specific color palette threaded through the card
   const rc = isMemberCard
@@ -90,14 +89,6 @@ export default function TeamCard({
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const { copied: shareCopied, copy: copyShareClipboard } = useCopyToClipboard();
   const { copied: idCopied, copy: copyIdClipboard } = useCopyToClipboard();
-  useEffect(() => {
-    if (!leaveConfirmOpen) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLeaveConfirmOpen(false);
-    };
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [leaveConfirmOpen]);
   // Use display_id for shareable team codes (team.id is a UUID that's neither
   // typeable nor memorable).
   const shareCode = team.display_id;
@@ -1003,8 +994,6 @@ export default function TeamCard({
           copied={shareCopied}
           onCopy={copyShare}
           onClose={() => setShareOpen(false)}
-          fg={fg}
-          muted={muted}
         />
       )}
       {renameOpen && onRenameTeam && (
@@ -1015,40 +1004,22 @@ export default function TeamCard({
             onRenameTeam(alias);
             setRenameOpen(false);
           }}
-          fg={fg}
-          muted={muted}
         />
       )}
       {leaveConfirmOpen && (
-        <div
-          onClick={() => setLeaveConfirmOpen(false)}
+        <Modal
+          onClose={() => setLeaveConfirmOpen(false)}
+          ariaLabel="確認退出團隊"
+          zIndex={220}
           style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 220,
-            background: "rgba(20,10,40,0.55)",
-            backdropFilter: "blur(6px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 20,
+            maxWidth: 380,
+            background: "#fff",
+            borderRadius: 20,
+            padding: "22px 22px 18px",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+            animation: "scaleIn 0.2s ease-out",
           }}
         >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="確認退出團隊"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: "100%",
-              maxWidth: 380,
-              background: "#fff",
-              borderRadius: 20,
-              padding: "22px 22px 18px",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
-              animation: "scaleIn 0.2s ease-out",
-            }}
-          >
             <div
               style={{
                 width: 52,
@@ -1132,8 +1103,7 @@ export default function TeamCard({
                 確定退出
               </button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
     </>
   );

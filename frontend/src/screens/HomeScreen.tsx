@@ -4,6 +4,7 @@ import { useMe } from "../hooks/useMe";
 import { useMyTasks } from "../hooks/useMyTasks";
 import { useAuth } from "../auth/session";
 import { getEffectiveStatuses, fs } from "../utils";
+import { useTheme } from "../ui/theme";
 import BottomNav from "../ui/BottomNav";
 import { BabyIcon, CrownIcon, MedalIcon, StarIcon } from "../ui/Icon";
 import { useCountUp } from "../ui/useCountUp";
@@ -20,17 +21,12 @@ export default function HomeScreen() {
   const onOpenTask = (displayId: string) =>
     navigate({ to: "/tasks/$taskId", params: { taskId: displayId } });
 
-  const bg = "var(--bg)";
+  const { bg, fg, muted, cardBg, cardBorder } = useTheme();
   const statuses = useMemo(() => getEffectiveStatuses(tasks), [tasks]);
   const activeTasks = tasks.filter((t) => {
     const status = statuses.get(t.id)!.status;
     return status === "todo" || status === "in_progress" || status === "locked";
   });
-
-  const cardBg = "var(--card)";
-  const cardBorder = "1px solid var(--card-strong)";
-  const muted = "var(--muted)";
-  const fg = "var(--fg)";
 
   // Star points + tier progress (mirrors MyRewards tier thresholds)
   const totalPoints = tasks
@@ -534,10 +530,6 @@ export default function HomeScreen() {
                 key={t.id}
                 t={t}
                 effective={statuses.get(t.id)!}
-                cardBg={cardBg}
-                cardBorder={cardBorder}
-                muted={muted}
-                fg={fg}
                 index={i}
                 onOpen={onOpenTask}
               />
@@ -549,7 +541,7 @@ export default function HomeScreen() {
       </div>
 
       {/* Bottom nav */}
-      <BottomNav muted={muted} />
+      <BottomNav />
     </div>
   );
 }

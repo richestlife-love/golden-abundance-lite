@@ -1,5 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { getEffectiveStatus, daysUntil, fs } from "../utils";
+import { useTheme } from "../ui/theme";
+import { TaskTagIcon, TaskTagWatermark, taskTagLabel } from "../ui/taskTag";
 import type { components } from "../api/schema";
 import {
   ChevronLeftIcon,
@@ -13,11 +15,6 @@ import {
   LockIcon,
   ShareIcon,
   SparkleIcon,
-  CircleIcon,
-  FlowerIcon,
-  SparkleGlyphXL,
-  CircleGlyphXL,
-  FlowerGlyphXL,
   StarIcon,
   TrophyIcon,
 } from "../ui/Icon";
@@ -42,22 +39,12 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
     });
   const onGoMe = () => navigate({ to: "/me" });
 
-  const bg = "var(--bg)";
-  const cardBg = "var(--card)";
-  const cardBorder = "1px solid var(--card-strong)";
-  const muted = "var(--muted)";
-  const fg = "var(--fg)";
+  const { bg, fg, muted, cardBg, cardBorder } = useTheme();
 
   const { status, unmet } = getEffectiveStatus(t, tasks);
   const daysLeft = daysUntil(t.due_at);
   const dueDisplay = t.due_at ? t.due_at.slice(0, 10) : null;
-  const TagInlineIcon = t.tag === "探索" ? SparkleIcon : t.tag === "社区" ? CircleIcon : FlowerIcon;
-  const TagWatermarkIcon =
-    t.tag === "探索" ? SparkleGlyphXL : t.tag === "社区" ? CircleGlyphXL : FlowerGlyphXL;
-  // API tag enum uses Simplified "社区"; display as Traditional "社區" to stay
-  // consistent with the rest of the zh-Hant UI without requiring a backend
-  // schema change.
-  const tagLabel = t.tag === "社区" ? "社區" : t.tag;
+  const tagLabel = taskTagLabel(t.tag);
   const urgent = status === "todo" && daysLeft != null && daysLeft > 0 && daysLeft <= 7;
 
   const statusChip =
@@ -212,7 +199,11 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
               userSelect: "none",
             }}
           >
-            {status === "locked" ? <LockIcon size={240} /> : <TagWatermarkIcon size={240} />}
+            {status === "locked" ? (
+              <LockIcon size={240} />
+            ) : (
+              <TaskTagWatermark tag={t.tag} size={240} />
+            )}
           </div>
 
           <div
@@ -230,7 +221,7 @@ export default function TaskDetailScreen({ task: t, myTasks: tasks }: Props) {
               letterSpacing: 0.5,
             }}
           >
-            <TagInlineIcon size={12} /> {tagLabel}
+            <TaskTagIcon tag={t.tag} size={12} /> {tagLabel}
           </div>
 
           <div

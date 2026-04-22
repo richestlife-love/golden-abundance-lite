@@ -1,8 +1,8 @@
 import { fs } from "../utils";
+import { useTheme } from "./theme";
 import type { ReactNode } from "react";
 
 type Props = {
-  bg: string;
   title: string;
   subtitle?: string;
   onCancel: () => void;
@@ -10,9 +10,8 @@ type Props = {
   footer?: ReactNode;
 };
 
-export default function FormShell({ bg, title, subtitle, onCancel, children, footer }: Props) {
-  const fg = "var(--fg)";
-  const muted = "var(--muted)";
+export default function FormShell({ title, subtitle, onCancel, children, footer }: Props) {
+  const { bg, fg, muted } = useTheme();
   return (
     <div
       style={{

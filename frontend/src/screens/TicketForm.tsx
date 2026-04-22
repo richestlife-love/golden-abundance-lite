@@ -5,6 +5,7 @@ import FieldLabel from "../ui/FieldLabel";
 import TextInput from "../ui/TextInput";
 import Textarea from "../ui/Textarea";
 import SubmitButton from "../ui/SubmitButton";
+import { useTheme } from "../ui/theme";
 
 export interface TicketFormBody {
   name: string;
@@ -20,10 +21,8 @@ type Props = {
 };
 
 export default function TicketForm({ onCancel, onSubmit, isSubmitting = false }: Props) {
-  const bg = "var(--bg)";
+  const { muted, cardBorder } = useTheme();
   const cardBg = "rgba(255,255,255,0.6)";
-  const cardBorder = "1px solid var(--card-strong)";
-  const muted = "var(--muted)";
 
   const [name, setName] = useState("");
   const [ticket725, setTicket725] = useState("");
@@ -41,7 +40,6 @@ export default function TicketForm({ onCancel, onSubmit, isSubmitting = false }:
 
   return (
     <FormShell
-      bg={bg}
       title="夏季盛會報名"
       subtitle="請輸入 7/25 與 7/26 場次票券編號"
       onCancel={onCancel}

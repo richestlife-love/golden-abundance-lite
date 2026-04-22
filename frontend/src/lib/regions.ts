@@ -1,0 +1,116 @@
+// Country/region picklists used by the profile setup form. Kept in /lib so
+// the form component stays focused on layout, and so swapping to a
+// backend-sourced list later is one export away.
+
+export const REGIONS: Record<string, string[]> = {
+  台灣: [
+    "台北",
+    "新北",
+    "基隆",
+    "桃園",
+    "新竹",
+    "苗栗",
+    "台中",
+    "彰化",
+    "南投",
+    "雲林",
+    "嘉義",
+    "台南",
+    "高雄",
+    "屏東",
+    "宜蘭",
+    "花蓮",
+    "台東",
+    "澎湖",
+    "金門",
+    "馬祖",
+  ],
+  馬來西亞: [
+    "吉隆坡",
+    "雪蘭莪",
+    "檳城",
+    "柔佛",
+    "霹靂",
+    "森美蘭",
+    "馬六甲",
+    "吉打",
+    "登嘉樓",
+    "彭亨",
+    "吉蘭丹",
+    "沙巴",
+    "砂拉越",
+    "玻璃市",
+    "納閩",
+    "布城",
+  ],
+  新加坡: ["中區", "東區", "北區", "東北區", "西區"],
+  中國: [
+    "北京",
+    "上海",
+    "廣州",
+    "深圳",
+    "成都",
+    "杭州",
+    "南京",
+    "武漢",
+    "西安",
+    "廈門",
+    "福州",
+    "青島",
+    "其他城市",
+  ],
+  香港: ["港島", "九龍", "新界"],
+  澳門: ["澳門半島", "氹仔", "路環"],
+  美國: [
+    "加州",
+    "紐約",
+    "德州",
+    "華盛頓州",
+    "伊利諾州",
+    "麻州",
+    "新澤西州",
+    "佛羅里達州",
+    "夏威夷",
+    "其他州",
+  ],
+  其他: [],
+};
+
+export const COUNTRIES = Object.keys(REGIONS);
+
+// Default dial code per country — selecting a country in the form jumps the
+// phone-code dropdown to this entry.
+export const COUNTRY_DIAL: Record<string, string> = {
+  台灣: "+886",
+  馬來西亞: "+60",
+  新加坡: "+65",
+  中國: "+86",
+  香港: "+852",
+  澳門: "+853",
+  美國: "+1",
+  其他: "",
+};
+
+// Full dial-code dropdown. Superset of COUNTRY_DIAL — includes countries
+// we don't have region data for but still want to support for phone entry.
+export const DIAL_OPTIONS: ReadonlyArray<{ code: string; label: string }> = [
+  { code: "+886", label: "台灣 +886" },
+  { code: "+60", label: "馬來西亞 +60" },
+  { code: "+65", label: "新加坡 +65" },
+  { code: "+86", label: "中國 +86" },
+  { code: "+852", label: "香港 +852" },
+  { code: "+853", label: "澳門 +853" },
+  { code: "+1", label: "美國 +1" },
+  { code: "+81", label: "日本 +81" },
+  { code: "+82", label: "韓國 +82" },
+  { code: "+44", label: "英國 +44" },
+  { code: "+61", label: "澳洲 +61" },
+  { code: "+64", label: "紐西蘭 +64" },
+  { code: "+66", label: "泰國 +66" },
+  { code: "+84", label: "越南 +84" },
+  { code: "+62", label: "印尼 +62" },
+  { code: "+63", label: "菲律賓 +63" },
+  { code: "+91", label: "印度 +91" },
+  { code: "+49", label: "德國 +49" },
+  { code: "+33", label: "法國 +33" },
+];

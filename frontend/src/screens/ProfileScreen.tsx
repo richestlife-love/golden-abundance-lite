@@ -3,15 +3,14 @@ import { useNavigate } from "@tanstack/react-router";
 import { useMe } from "../hooks/useMe";
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
 import { ChevronLeftIcon } from "../ui/Icon";
+import { useTheme } from "../ui/theme";
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
   const { data: user } = useMe();
   const onBack = () => navigate({ to: "/me" });
   const onEdit = () => navigate({ to: "/me/profile/edit", state: { fromProfile: true } });
-  const bg = "var(--bg)";
-  const fg = "var(--fg)";
-  const muted = "var(--muted)";
+  const { bg, fg, muted } = useTheme();
   const cardBg = "#FFFBE6";
   const cardBorder = "1px solid rgba(254,199,1,0.22)";
   const accent = "var(--gold-deep)";

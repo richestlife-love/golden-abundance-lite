@@ -4,6 +4,7 @@ import { useMyTasks } from "../hooks/useMyTasks";
 import { useMyRewards } from "../hooks/useMyRewards";
 import { fs } from "../utils";
 import { ChevronLeftIcon } from "../ui/Icon";
+import { useTheme } from "../ui/theme";
 import MyRewards from "./MyRewards";
 
 export default function RewardsScreen() {
@@ -12,9 +13,7 @@ export default function RewardsScreen() {
   const { data: user } = useMe();
   const { data: tasks } = useMyTasks();
   const { data: rewards } = useMyRewards();
-  const bg = "var(--bg)";
-  const fg = "var(--fg)";
-  const muted = "var(--muted)";
+  const { bg, fg, muted } = useTheme();
   const cardBg = "#FFFBE6";
   const cardBorder = "1px solid rgba(254,199,1,0.22)";
 

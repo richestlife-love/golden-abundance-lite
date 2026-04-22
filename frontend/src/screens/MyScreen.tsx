@@ -6,6 +6,7 @@ import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
 import { useMe } from "../hooks/useMe";
 import { useMyTasks } from "../hooks/useMyTasks";
 import { useMyTeams } from "../hooks/useMyTeams";
+import { useTheme } from "../ui/theme";
 import { useAuth } from "../auth/session";
 import {
   useApproveJoinRequest,
@@ -31,11 +32,7 @@ export default function MyScreen() {
   const leave = useLeaveTeam();
   const patchTeam = usePatchTeam();
 
-  const bg = "var(--bg)";
-  const fg = "var(--fg)";
-  const muted = "var(--muted)";
-  const cardBg = "var(--card)";
-  const cardBorder = "1px solid var(--card-strong)";
+  const { bg, fg, muted, cardBg, cardBorder } = useTheme();
 
   const totalPoints = tasks
     .filter((t) => t.status === "completed")
@@ -661,8 +658,6 @@ export default function MyScreen() {
                   total={joinedTotal}
                   cap={teamCap}
                   variant="joined"
-                  fg={fg}
-                  muted={muted}
                   onCancelRequest={() => leave.mutate(joinedTeam.id)}
                   onLeaveTeam={() => leave.mutate(joinedTeam.id)}
                 />
@@ -742,8 +737,6 @@ export default function MyScreen() {
                   total={ledTotal}
                   cap={teamCap}
                   variant="led"
-                  fg={fg}
-                  muted={muted}
                   onApproveRequest={(reqId) => approve.mutate({ teamId: ledTeam.id, reqId })}
                   onRejectRequest={(reqId) => reject.mutate({ teamId: ledTeam.id, reqId })}
                   onRenameTeam={(alias) =>
@@ -759,7 +752,7 @@ export default function MyScreen() {
         {/* Account menu list removed — logout moved to top bar */}
       </div>
 
-      <BottomNav muted={muted} />
+      <BottomNav />
     </div>
   );
 }

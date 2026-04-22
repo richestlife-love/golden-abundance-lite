@@ -4,6 +4,7 @@ import FormShell from "../ui/FormShell";
 import FieldLabel from "../ui/FieldLabel";
 import SubmitButton from "../ui/SubmitButton";
 import { SearchIcon } from "../ui/Icon";
+import { useTheme } from "../ui/theme";
 
 // Demo-only list of searchable teams. The display_id values here are
 // synthetic; when selected, `onSubmit` receives them verbatim so the
@@ -46,11 +47,8 @@ type Props = {
 };
 
 export default function TeamForm({ onCancel, onSubmit, isSubmitting = false }: Props) {
-  const bg = "var(--bg)";
-  const fg = "var(--fg)";
-  const muted = "var(--muted)";
+  const { fg, muted, cardBorder } = useTheme();
   const cardBg = "rgba(255,255,255,0.6)";
-  const cardBorder = "1px solid var(--card-strong)";
 
   const [teamQuery, setTeamQuery] = useState("");
   const [pendingJoin, setPendingJoin] = useState<string | null>(null);
@@ -81,7 +79,6 @@ export default function TeamForm({ onCancel, onSubmit, isSubmitting = false }: P
 
   return (
     <FormShell
-      bg={bg}
       title="加入團隊"
       subtitle="輸入團隊編號或搜尋名稱，向組長送出申請"
       onCancel={onCancel}
