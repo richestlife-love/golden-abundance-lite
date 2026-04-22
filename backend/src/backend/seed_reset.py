@@ -3,7 +3,7 @@ Refuses to run in production.
 
 The table list is derived from ``SQLModel.metadata.sorted_tables`` at
 runtime — adding a new model automatically includes it in the reset,
-so this recipe can't drift against the schema (M10).
+so this recipe can't drift against the schema.
 
 This is intentionally a hard reset: a partial reset (e.g. only
 DEMO_USERS) would leave dangling teams from prior runs and isn't worth

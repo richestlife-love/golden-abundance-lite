@@ -6,7 +6,7 @@ Field derivation rules (server-authoritative):
 
 Length caps on ProfileCreate/ProfileUpdate match the DB column caps in
 ``backend.db.models`` — sending a longer value yields a 422 at the API
-boundary instead of leaking to an IntegrityError 500 at flush (M7).
+boundary instead of leaking to an IntegrityError 500 at flush.
 """
 
 from datetime import datetime

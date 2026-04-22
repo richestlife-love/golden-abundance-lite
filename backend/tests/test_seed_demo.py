@@ -109,7 +109,7 @@ async def test_seed_skips_demo_users_when_app_env_is_prod(
     engine: AsyncEngine,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Guard L11 — `just seed` against a prod DB must not land @demo.ga accounts."""
+    """`just seed` against a prod DB must not land @demo.ga accounts."""
     await _truncate_all(engine)
     monkeypatch.setenv("APP_ENV", "prod")
 

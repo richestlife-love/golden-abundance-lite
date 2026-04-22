@@ -11,7 +11,7 @@ member team cap is a property of the T3 challenge task def, not the
 team row. Keeping them created a double source of truth where
 ``GET /teams/{id}`` would return ``points: 0`` while ``GET
 /leaderboard/teams`` returned the real aggregate. Drop the columns
-(and their CHECK constraints) to eliminate the ambiguity (M6).
+(and their CHECK constraints) to eliminate the ambiguity.
 """
 
 from collections.abc import Sequence

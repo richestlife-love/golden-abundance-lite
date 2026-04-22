@@ -1,4 +1,4 @@
-"""Regression tests for CORS configuration (C1 / L5 in 2026-04-22 review).
+"""Regression tests for CORS configuration.
 
 Auth is ``Authorization: Bearer`` only — no cookies. Therefore
 ``allow_credentials`` must be False, and we enumerate methods/headers

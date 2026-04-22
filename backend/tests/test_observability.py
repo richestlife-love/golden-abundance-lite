@@ -1,4 +1,4 @@
-"""Unit tests for observability — Sentry scrubbing (M1) and structured logging (H5)."""
+"""Unit tests for observability — Sentry scrubbing and structured logging."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from backend.observability import (
 )
 
 # ---------------------------------------------------------------------------
-# Sentry before_send scrub hook (M1)
+# Sentry before_send scrub hook
 # ---------------------------------------------------------------------------
 
 
@@ -94,7 +94,7 @@ def test_scrub_does_not_confuse_similar_path_prefix() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Structured logging (H5)
+# Structured logging
 # ---------------------------------------------------------------------------
 
 

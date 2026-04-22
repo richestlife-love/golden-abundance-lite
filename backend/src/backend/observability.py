@@ -5,12 +5,13 @@ that accept personal data (phone, social IDs). ``send_default_pii=False``
 at init time already suppresses cookies / IP / headers, but the FastAPI
 integration can still attach the JSON body to an event if an exception
 fires mid-handler. The scrub hook below is a defensive before_send that
-drops the body on any path matching a sensitive-endpoint pattern (M1).
+drops the body on any path matching a sensitive-endpoint pattern.
 
-Structured logging (H5) emits JSON on stdout. Every request gets one
-log line with method, path, status, and duration; any handler that
-needs richer context can call ``logging.getLogger(...).info(..., extra={...})``
-and those extras land in the JSON payload.
+Structured logging emits JSON on stdout. Every request gets one log
+line with method, path, status, and duration; any handler that needs
+richer context can call
+``logging.getLogger(...).info(..., extra={...})`` and those extras
+land in the JSON payload.
 """
 
 from __future__ import annotations

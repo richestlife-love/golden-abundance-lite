@@ -64,6 +64,6 @@ async def current_user(
 
     sentry_sdk.set_user({"id": str(user.id)})
     # Stash on request.state so RequestLogMiddleware can include it in
-    # the structured log line for this request (H5).
+    # the structured log line for this request.
     request.state.user_id = user.id
     return user

@@ -7,8 +7,7 @@ Create Date: 2026-04-22 13:40:00.000000
 Pydantic validates ``color`` against ``^#[0-9a-fA-F]{6}$`` at the API
 boundary, but a raw SQL INSERT (``psql``, seed scripts, a future ORM
 that skips Pydantic) could sneak in an out-of-format value. Add the
-same regex as a DB-side CHECK so the pattern is enforced at both tiers
-(L13).
+same regex as a DB-side CHECK so the pattern is enforced at both tiers.
 """
 
 from collections.abc import Sequence

@@ -152,7 +152,7 @@ async def test_search_team_refs_filters_by_topic(session: AsyncSession) -> None:
 
 
 async def test_search_team_refs_treats_percent_literally(session: AsyncSession) -> None:
-    """A user searching for ``%`` must not wildcard-match every team (H3).
+    """A user searching for ``%`` must not wildcard-match every team.
 
     Two teams created with distinct non-overlapping aliases; querying for
     ``%`` returns 0 rows because no alias or name actually contains a literal

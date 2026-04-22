@@ -109,9 +109,9 @@ async def row_to_contract_team(session: AsyncSession, team: TeamRow, *, caller_i
 
     requests: list[ContractJoinRequest] | None
     if role == "leader":
-        # Single join: load every pending request together with its
-        # requester, eliminating the per-row ``session.get(UserRow, ...)``
-        # N+1 the previous loop did (M4).
+        # Join so each pending request arrives with its requester row
+        # in one query — otherwise fetching the requester per-row fires
+        # a session.get() per entry.
         pending_pairs = (
             await session.execute(
                 select(JoinRequestRow, UserRow)

@@ -229,9 +229,9 @@ async def test_leaderboard_users_ranking_is_stable_across_pages(
     unique, strictly-increasing ranks — and keyset pagination must
     return the same ordering as a single-page fetch.
 
-    Regression for the H2 SQL rewrite: previous implementation sorted
-    in Python after loading every user; the SQL version must preserve
-    this ordering when paginated via cursor.
+    Regression guard for the SQL-side ranking rewrite: the previous
+    implementation sorted in Python after loading every user; the SQL
+    version must preserve this ordering when paginated via cursor.
     """
     # Three users, one submits a scoring task so there's a non-trivial
     # order. Small page size to exercise cursor pagination.

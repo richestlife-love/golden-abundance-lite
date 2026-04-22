@@ -39,9 +39,8 @@ entrypoint = "backend.server:app"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# ``--cov=backend`` is explicit rather than bare ``--cov``: the bare
-# form relies on ``tool.coverage.run.source`` and reads magically
-# (L9 from the 2026-04-22 review).
+# ``--cov=backend`` is explicit: the bare ``--cov`` form relies on
+# ``tool.coverage.run.source`` and reads magically.
 addopts = ["-v", "--cov=backend"]
 asyncio_mode = "auto"
 

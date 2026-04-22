@@ -83,10 +83,9 @@ async def test_pending_index_allows_mixed_statuses(session: AsyncSession) -> Non
 
 
 # Note: the ``teams.cap/points/week_points`` CHECK constraints were
-# dropped in migration 0008 along with the columns themselves — see
-# the M6 decision in the 2026-04-22 review. No replacement tests here
-# because aggregate points live in the leaderboard view and the team
-# size cap is a property of the T3 challenge task def.
+# dropped in migration 0008 along with the columns themselves. No
+# replacement tests — aggregate points live in the leaderboard view
+# and the team size cap is a property of the T3 challenge task def.
 
 
 @pytest.mark.parametrize(
