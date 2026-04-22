@@ -8,9 +8,10 @@ frontend prototype's placeholder (see contract design §1.4).
 """
 
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.contract import JoinRequest as ContractJoinRequest
@@ -38,6 +39,26 @@ def user_to_ref(row: UserRow) -> ContractUserRef:
     )
 
 
+def join_request_to_contract(req: JoinRequestRow, requester: UserRow) -> ContractJoinRequest:
+    return ContractJoinRequest(
+        id=req.id,
+        team_id=req.team_id,
+        user=user_to_ref(requester),
+        status=req.status,
+        requested_at=req.requested_at,
+    )
+
+
+async def _team_member_count(session: AsyncSession, team_id: UUID) -> int:
+    return int(
+        (
+            await session.execute(
+                select(func.count()).select_from(TeamMembershipRow).where(TeamMembershipRow.team_id == team_id),
+            )
+        ).scalar_one(),
+    )
+
+
 async def caller_team_totals(session: AsyncSession, user: UserRow) -> tuple[int, int]:
     """Return ``(led_total, joined_total)`` for ``user``.
 
@@ -47,27 +68,13 @@ async def caller_team_totals(session: AsyncSession, user: UserRow) -> tuple[int,
     decides what to do with the pair — spec §1.3 challenge progress uses
     ``max(led_total, joined_total)``.
     """
-    led = (await session.execute(select(TeamRow).where(TeamRow.leader_id == user.id))).scalar_one_or_none()
-    led_total = 0
-    if led is not None:
-        led_mems = (
-            (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == led.id)))
-            .scalars()
-            .all()
-        )
-        led_total = 1 + len(led_mems)
+    led_team_id = (await session.execute(select(TeamRow.id).where(TeamRow.leader_id == user.id))).scalar_one_or_none()
+    led_total = 1 + await _team_member_count(session, led_team_id) if led_team_id is not None else 0
 
-    joined_link = (
-        await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.user_id == user.id))
+    joined_team_id = (
+        await session.execute(select(TeamMembershipRow.team_id).where(TeamMembershipRow.user_id == user.id))
     ).scalar_one_or_none()
-    joined_total = 0
-    if joined_link is not None:
-        joined_mems = (
-            (await session.execute(select(TeamMembershipRow).where(TeamMembershipRow.team_id == joined_link.team_id)))
-            .scalars()
-            .all()
-        )
-        joined_total = 1 + len(joined_mems)
+    joined_total = 1 + await _team_member_count(session, joined_team_id) if joined_team_id is not None else 0
 
     return led_total, joined_total
 
@@ -100,8 +107,9 @@ async def row_to_contract_team(session: AsyncSession, team: TeamRow, *, caller_i
         member_rows = (await session.execute(select(UserRow).where(UserRow.id.in_(member_user_ids)))).scalars().all()
         members = [user_to_ref(u) for u in member_rows]
 
+    role: Literal["leader", "member"] | None
     if caller_id == team.leader_id:
-        role: str | None = "leader"
+        role = "leader"
     elif caller_id in member_user_ids:
         role = "member"
     else:
@@ -121,16 +129,7 @@ async def row_to_contract_team(session: AsyncSession, team: TeamRow, *, caller_i
                 .order_by(JoinRequestRow.requested_at.asc()),
             )
         ).all()
-        requests = [
-            ContractJoinRequest(
-                id=jr.id,
-                team_id=jr.team_id,
-                user=user_to_ref(requester),
-                status=jr.status,
-                requested_at=jr.requested_at,
-            )
-            for jr, requester in pending_pairs
-        ]
+        requests = [join_request_to_contract(jr, requester) for jr, requester in pending_pairs]
     else:
         requests = None
 
