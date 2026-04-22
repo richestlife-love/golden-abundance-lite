@@ -67,7 +67,7 @@ async def test_upsert_reuses_existing_row_on_auth_id_match(
 def test_derive_user_name_falls_back_to_display_id() -> None:
     """When zh_name and nickname are both empty, fall back to the opaque
     display_id rather than the email local-part — the latter leaked
-    user identity to teammates via UserRef.name (L7).
+    user identity to teammates via UserRef.name.
     """
     row = UserRow(id=UUID(int=1), display_id="UJETKAN", email="jet.kan@example.com")
     assert derive_user_name(row) == "UJETKAN"
@@ -120,7 +120,7 @@ async def test_upsert_retries_on_display_id_collision(
 
     If the loser hits the unique constraint, ``upsert_user_by_supabase_identity``
     rolls the savepoint back, re-generates a fresh candidate, and retries
-    instead of propagating the IntegrityError (M2).
+    instead of propagating the IntegrityError.
     """
     # Pre-seed a user holding "UJET" so the first candidate our mock
     # returns will collide on the display_id unique constraint.
@@ -154,29 +154,52 @@ async def test_upsert_returns_existing_row_on_pk_race(
     session: AsyncSession,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """If the savepoint fails because another session committed the same
-    ``sub`` first, the upsert re-fetches that row instead of retrying.
+    """When the savepoint flush raises IntegrityError because another
+    session committed the same ``sub`` first, the upsert re-fetches by
+    PK and returns the winner without retrying.
+
+    Specifically exercises ``except IntegrityError -> session.get(...) ->
+    return winner`` — not the early-return-if-exists path, not the
+    retry-on-display-id path. We stage ``session.get`` to miss on the
+    pre-check (simulating "winner not visible yet") then succeed on the
+    error handler lookup, and force ``session.flush`` to raise.
     """
     auth_id = UUID(int=9100)
-
-    # Pre-seed the "winner" — simulates another request having committed first.
     winning_row = UserRow(id=auth_id, display_id="UWINNER", email="winner@x.com")
-    session.add(winning_row)
-    await session.commit()
+
+    from sqlalchemy.exc import IntegrityError
 
     from backend.services import user as user_mod
 
-    async def _mock_generate(_session: AsyncSession, *, email: str) -> str:
-        return "UMINE"  # will trigger PK collision because `id=auth_id` already exists
+    async def _mock_generate(*_a: object, **_k: object) -> str:
+        return "UMINE"
 
     monkeypatch.setattr(user_mod, "generate_user_display_id", _mock_generate)
+
+    get_calls = 0
+
+    async def _staged_get(*_a: object, **_k: object) -> UserRow | None:
+        nonlocal get_calls
+        get_calls += 1
+        # First call is the pre-check; pretend the winner isn't visible
+        # yet so the function falls through to the insert path. Second
+        # call is the error-handler fetch after the flush race.
+        return None if get_calls == 1 else winning_row
+
+    monkeypatch.setattr(session, "get", _staged_get)
+
+    async def _raise_integrity(*_a: object, **_k: object) -> None:
+        raise IntegrityError("INSERT ...", params=None, orig=Exception("pk collision"))
+
+    monkeypatch.setattr(session, "flush", _raise_integrity)
 
     result = await user_mod.upsert_user_by_supabase_identity(
         session,
         auth_user_id=auth_id,
         email="winner@x.com",
     )
-    assert result.display_id == "UWINNER", "must return winner's row without retrying"
+    assert result is winning_row
+    assert get_calls == 2, "pre-check + error-handler fetch"
 
 
 @pytest.mark.asyncio
