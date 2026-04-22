@@ -42,3 +42,40 @@ async def test_patch_me_partial_update(client: AsyncClient) -> None:
     assert response.status_code == 200
     assert response.json()["nickname"] == "JetNew"
     assert response.json()["zh_name"] == "簡傑特"  # untouched
+
+
+async def test_post_profile_rejects_overlong_zh_name(client: AsyncClient) -> None:
+    headers = await sign_in(client, "jet@example.com")
+    body = {**_PROFILE_BODY, "zh_name": "x" * 65}  # DB cap is 64
+    response = await client.post("/api/v1/me/profile", json=body, headers=headers)
+    assert response.status_code == 422
+
+
+async def test_post_profile_rejects_overlong_phone(client: AsyncClient) -> None:
+    headers = await sign_in(client, "jet@example.com")
+    body = {**_PROFILE_BODY, "phone": "9" * 33}  # DB cap is 32
+    response = await client.post("/api/v1/me/profile", json=body, headers=headers)
+    assert response.status_code == 422
+
+
+async def test_patch_me_rejects_empty_string(client: AsyncClient) -> None:
+    headers = await sign_in(client, "jet@example.com")
+    await client.post("/api/v1/me/profile", json=_PROFILE_BODY, headers=headers)
+    r = await client.patch("/api/v1/me", json={"zh_name": ""}, headers=headers)
+    assert r.status_code == 422
+
+
+async def test_patch_me_rejects_overlong_nickname(client: AsyncClient) -> None:
+    headers = await sign_in(client, "jet@example.com")
+    await client.post("/api/v1/me/profile", json=_PROFILE_BODY, headers=headers)
+    r = await client.patch("/api/v1/me", json={"nickname": "y" * 65}, headers=headers)
+    assert r.status_code == 422
+
+
+async def test_patch_me_allows_null_to_clear_optional_field(client: AsyncClient) -> None:
+    """Null clears nullable fields — only empty string is rejected."""
+    headers = await sign_in(client, "jet@example.com")
+    await client.post("/api/v1/me/profile", json=_PROFILE_BODY, headers=headers)
+    r = await client.patch("/api/v1/me", json={"line_id": None}, headers=headers)
+    assert r.status_code == 200
+    assert r.json()["line_id"] is None

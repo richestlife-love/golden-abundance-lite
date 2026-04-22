@@ -52,11 +52,15 @@ class Team(StrictModel):
 class TeamUpdate(StrictModel):
     """Request body for PATCH /teams/{id} (leader only). All fields
     optional for partial update.
+
+    Setting a field to ``null`` clears it where the column is nullable;
+    empty strings are rejected. Fields omitted from the request are
+    left unchanged.
     """
 
-    name: str | None = None
-    alias: str | None = None
-    topic: str | None = None
+    name: str | None = Field(default=None, min_length=1, max_length=128)
+    alias: str | None = Field(default=None, min_length=1, max_length=64)
+    topic: str | None = Field(default=None, min_length=1, max_length=128)
 
 
 class MeTeamsResponse(StrictModel):

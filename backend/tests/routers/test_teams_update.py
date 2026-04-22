@@ -52,3 +52,23 @@ async def test_patch_unknown_team_404(client: AsyncClient) -> None:
         headers=jet.headers,
     )
     assert r.status_code == 404
+
+
+async def test_patch_team_rejects_overlong_topic(client: AsyncClient) -> None:
+    jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
+    r = await client.patch(
+        f"/api/v1/teams/{jet.led_team_id}",
+        json={"topic": "t" * 129},
+        headers=jet.headers,
+    )
+    assert r.status_code == 422
+
+
+async def test_patch_team_rejects_empty_name(client: AsyncClient) -> None:
+    jet = await sign_in_and_complete(client, "jet@example.com", "簡傑特")
+    r = await client.patch(
+        f"/api/v1/teams/{jet.led_team_id}",
+        json={"name": ""},
+        headers=jet.headers,
+    )
+    assert r.status_code == 422
