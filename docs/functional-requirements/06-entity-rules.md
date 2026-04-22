@@ -21,7 +21,7 @@ exists(profile_complete=true, led_team=T)   ← PATCH /me mutates fields; state 
 
 - **Identity namespace**: `UserRow.id` is the Supabase `auth.users.id` UUID. No local UUID → Supabase UUID mapping table; the two namespaces are unified.
 - **Upsert on first sight** (`services/user.py::upsert_user_by_supabase_identity`): the first authed request for a never-seen `sub` materialises the `UserRow` with `profile_complete=false`. Concurrent first-sign-in requests are caught by an `IntegrityError` retry in `current_user`.
-- **Name derivation** (server): `User.name = zh_name ?? nickname ?? display_id` (the opaque `U…` id). The fallback used to be the email local-part; switched in the 2026-04-22 review (L7) so a profile-incomplete user doesn't leak email identity via `UserRef.name`.
+- **Name derivation** (server): `User.name = zh_name ?? nickname ?? display_id` (opaque `U…` id). Email local-part deliberately excluded so profile-incomplete users don't leak email identity via `UserRef.name`.
 - **Display ID**: `U[A-Z0-9]{3,7}`. Generated in `services/display_id.py`.
 - **`POST /me/profile` side-effect**: `create_led_team` runs in the same transaction — enforces the "one led team per profile-complete user" invariant.
 
@@ -49,7 +49,7 @@ expired  = derived (due_at < now AND not completed by caller)
 - **Non-idempotent submit**: second submit on `completed` → **409**. Explicit product decision.
 - **Prereq check**: submit → **412** if any id in `requires` is not completed by caller.
 - **Form match**: submit → **400** if body `form_type` doesn't match task's declared `form_type`, or task has no form.
-- **`in_progress`** may or may not be written by the backend — MSW fixture T2 shows `progress=0.4` but this is test-only. Verify in `services/task.py`.
+- **`in_progress`** is set by the backend only for challenge tasks; non-challenge tasks jump `todo → completed` in one submit.
 - **T3 auto-completion**: `services/task.py` flips T3 to `completed` when `TeamChallengeProgress.total = max(led_total, joined_total) >= cap`. No explicit submit call.
 - **Reward earning**: server side-effect on task completion **only when `task.bonus` is non-null**. Backstopped by `uq_reward_user_task`.
 

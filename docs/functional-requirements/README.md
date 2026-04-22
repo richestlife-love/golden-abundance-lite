@@ -28,12 +28,8 @@ When a fact in this doc and one of these sources disagree, the source wins.
 
 ## Existing design docs in-repo
 
-Skim these before writing requirements from scratch — a lot of the work is already captured.
-
-- `docs/superpowers/specs/2026-04-19-phase-2-api-contract-design.md` — API shape, auth, status-code conventions
-- `docs/superpowers/specs/2026-04-20-phase-3-routing-design.md` — route guards
-- `docs/superpowers/specs/2026-04-20-phase-4-frontend-wiring-design.md` — query/mutation wiring
-- `docs/production-launch-plan.md` — launch scope
+- `docs/production-launch-plan.md` — launch scope + open tech debt
+- `docs/superpowers/specs/*.md` — design specs per phase
 - `docs/superpowers/plans/*.md` — phased implementation plans
 
 ## Tests as behavior spec

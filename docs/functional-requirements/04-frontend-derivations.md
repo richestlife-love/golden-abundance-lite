@@ -70,12 +70,4 @@ point fields aren't supplied:
 - **Simplified → traditional tag rewrite** — `TaskDetailScreen.tsx:60` rewrites `社区 → 社區` before display. `TaskCard.tsx:42` uses `t.tag` only to select an icon and never renders the tag text, so the remap is currently detail-screen-only by necessity — not an inconsistency with TaskCard, but a gap if tag text is ever added to the card. See `09-localization.md`.
 - **Route guards** — `/` redirects to `/home` if `profile_complete`, `/welcome` if not, `/sign-in` if no token. Defined in `frontend/src/routes/index.tsx` and `sign-in.tsx` `beforeLoad`.
 
-## Things to flag in requirements review
-
-1. **Client-side `locked` derivation** duplicates contract — confirm which layer is authoritative.
-2. **`totalPoints` client-derived** across 4 screens with no backend field.
-3. **Tier thresholds (100/500/1000/2000)** are product rules that live only on frontend.
-4. **TeamCard synthetic numbers** when backend omits — decide on canonical source.
-5. **`urgent` 7-day window** hardcoded in two screens.
-6. **`社区 → 社區` remap** only on detail screen — safe today because TaskCard never shows tag text, but would become an inconsistency if the card adds a tag label.
-7. **`daysUntil` local-time drift** near midnight.
+_See ⚠️ callouts above for the items needing review-level decisions._

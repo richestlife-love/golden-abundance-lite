@@ -30,13 +30,13 @@ All paths under `/api/v1/`. Auth column: `—` public, `B` bearer required. Ever
 
 ## Auth boundary
 
-`POST /auth/google` and `POST /auth/logout` no longer exist — Phase 6 removed them. Sign-in is driven entirely by the frontend's Supabase SDK (`@supabase/supabase-js`); sign-out is a client-side `supabase.auth.signOut()` call. The backend only verifies incoming `Authorization: Bearer <supabase-jwt>` tokens and upserts a `UserRow` keyed on the Supabase `auth.users.id` UUID the first time it sees a new `sub`.
+No `/auth/*` endpoints — sign-in/out is owned by the frontend Supabase SDK. Backend verifies incoming `Authorization: Bearer <supabase-jwt>` tokens and upserts a `UserRow` keyed on `auth.users.id` on first sight of a new `sub`.
 
 ## Server-derived fields
 
 These are computed server-side; clients must not attempt to mirror the logic unless flagged as a gap.
 
-- **`User.name`** — `zh_name ?? nickname ?? display_id` (the opaque `U…` id). The fallback used to be the email local-part; switched so a profile-incomplete user doesn't leak email identity via `UserRef.name`.
+- **`User.name`** — `zh_name ?? nickname ?? display_id` (the opaque `U…` id). Email local-part deliberately excluded from the fallback chain so profile-incomplete users don't leak email identity via `UserRef.name`.
 - **`Task.status`** — `locked` when any id in `requires` is not in caller's completed set; `expired` when `due_at` in the past and not completed.
 - **`Task.progress`** — authoritative; UI displays `steps[].done` for UX only and never computes progress from it.
 - **`Team.role`** — caller's relationship (`"leader" | "member" | null`).

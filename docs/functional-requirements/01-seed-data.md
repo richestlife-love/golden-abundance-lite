@@ -47,6 +47,6 @@ Exercises two-leader approval UX.
 - kai → ami's team
 - yu → ami's team
 
-## Real sign-in (local dev)
+## Local sign-in
 
-Phase 6 removed the demo-account chooser. Local dev signs in via real Google OAuth against a dev Supabase project (or `supabase start` locally). No frontend-bundled account picker, no generated JSON.
+Real Google OAuth against a dev Supabase project (or `supabase start` locally). No demo-account picker.
