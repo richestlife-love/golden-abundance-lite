@@ -23,9 +23,9 @@ from backend.db.models import JoinRequestRow, TeamRow, UserRow
 from backend.db.session import get_session
 from backend.rate_limit import limiter
 from backend.services.team import (
+    join_request_to_contract,
     row_to_contract_team,
     search_team_refs,
-    user_to_ref,
 )
 from backend.services.team_join import (
     JoinConflictError,
@@ -50,6 +50,11 @@ async def _get_request_or_404(session: AsyncSession, *, req_id: UUID, team_id: U
     if req is None or req.team_id != team_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
     return req
+
+
+def _require_leader(team: TeamRow, me: UserRow, *, detail: str) -> None:
+    if team.leader_id != me.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
 
 
 @router.get("", response_model=Paginated[TeamRef])
@@ -92,11 +97,7 @@ async def update_team(
     session: AsyncSession = Depends(get_session),
 ) -> ContractTeam:
     team = await _get_team_or_404(session, team_id)
-    if team.leader_id != me.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only the team leader can update it",
-        )
+    _require_leader(team, me, detail="Only the team leader can update it")
     # ``TeamUpdate`` inherits ``StrictModel(extra='forbid')`` — the field
     # set is closed, so no unknown columns can be written through here.
     for field_name in body.model_fields_set:
@@ -124,13 +125,7 @@ async def request_to_join(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     await session.commit()
     await session.refresh(req)
-    return ContractJoinRequest(
-        id=req.id,
-        team_id=req.team_id,
-        user=user_to_ref(me),
-        status=req.status,
-        requested_at=req.requested_at,
-    )
+    return join_request_to_contract(req, me)
 
 
 @router.delete(
@@ -161,11 +156,7 @@ async def approve_request(
     session: AsyncSession = Depends(get_session),
 ) -> ContractTeam:
     team = await _get_team_or_404(session, team_id)
-    if team.leader_id != me.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only the leader can approve",
-        )
+    _require_leader(team, me, detail="Only the leader can approve")
     req = await _get_request_or_404(session, req_id=req_id, team_id=team_id)
     await approve_join_request(session, team=team, req=req)
     await session.commit()
@@ -184,11 +175,7 @@ async def reject_request(
     session: AsyncSession = Depends(get_session),
 ) -> None:
     team = await _get_team_or_404(session, team_id)
-    if team.leader_id != me.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only the leader can reject",
-        )
+    _require_leader(team, me, detail="Only the leader can reject")
     req = await _get_request_or_404(session, req_id=req_id, team_id=team_id)
     await reject_join_request(session, req=req)
     await session.commit()
