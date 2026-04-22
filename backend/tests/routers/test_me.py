@@ -31,7 +31,8 @@ async def test_401_when_user_was_deleted(
     """Valid JWT whose `sub` points at a deleted user → on next request,
     current_user upserts a fresh row with the same sub. Verified by
     display_id + id continuity, not by 401 (post-6a behaviour differs
-    from the HS256 stub: upsert-on-miss materializes the row again)."""
+    from the HS256 stub: upsert-on-miss materializes the row again).
+    """
     from sqlalchemy import delete
 
     from backend.db.models import UserRow
