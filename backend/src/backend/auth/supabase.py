@@ -1,7 +1,8 @@
 """Supabase JWKS-based JWT verification.
 
-Supabase signs access tokens with an asymmetric RS256 key. The public
-key(s) are served at ``<SUPABASE_URL>/auth/v1/.well-known/jwks.json``.
+Supabase signs access tokens with an asymmetric key (RS256 or ES256 —
+newer projects default to ES256 via the JWT Signing Keys feature). The
+public key(s) are served at ``<SUPABASE_URL>/auth/v1/.well-known/jwks.json``.
 PyJWT's ``PyJWKClient`` fetches and caches the JWKS in-process so
 verification is cheap after the first call.
 
@@ -17,7 +18,7 @@ from jwt import PyJWKClient
 from backend.config import get_settings
 from backend.contract.auth import SupabaseClaims
 
-_ALGORITHMS = ["RS256"]
+_ALGORITHMS = ["RS256", "ES256"]
 
 
 @lru_cache(maxsize=1)
