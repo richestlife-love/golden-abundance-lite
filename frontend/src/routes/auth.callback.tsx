@@ -28,16 +28,13 @@ function AuthCallbackRoute() {
       // exchangeCodeForSession expects JUST the code value — it sends its
       // argument verbatim as the `auth_code` POST body. Passing a query
       // string here yields "invalid flow state, no valid flow state found".
-      // `error=1` tells /sign-in to show the retry UI instead of auto-
-      // redirecting back to Google — otherwise cancellations loop.
-      const bounceBack = { error: "1", returnTo: search.returnTo };
       if (!search.code) {
         const providerErr = search.error_description ?? search.error;
         pushToast({
           kind: "error",
           message: `登入失敗：${providerErr || "缺少驗證碼，請再試一次"}`,
         });
-        navigate({ to: "/sign-in", search: bounceBack });
+        navigate({ to: "/sign-in" });
         return;
       }
       const { error } = await supabase.auth.exchangeCodeForSession(search.code);
@@ -50,7 +47,7 @@ function AuthCallbackRoute() {
           kind: "error",
           message: `登入失敗：${error.message || "請再試一次"}`,
         });
-        navigate({ to: "/sign-in", search: bounceBack });
+        navigate({ to: "/sign-in" });
         return;
       }
       navigate({ to: search.returnTo ?? "/" });
