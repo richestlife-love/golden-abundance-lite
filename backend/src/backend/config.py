@@ -23,6 +23,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
         enable_decoding=False,
+        env_ignore_empty=True,
     )
 
     database_url: str = Field(
