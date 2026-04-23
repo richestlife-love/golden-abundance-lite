@@ -27,7 +27,16 @@ class Settings(BaseSettings):
 
     database_url: str = Field(
         default="postgresql+psycopg://app:app@localhost:5432/app",
-        description="SQLAlchemy URL (psycopg3 driver).",
+        description="SQLAlchemy URL (psycopg3 driver) used by the app at runtime.",
+    )
+    migration_database_url: str | None = Field(
+        default=None,
+        description=(
+            "Optional SQLAlchemy URL used only by Alembic. When set, migrations "
+            "connect with this URL instead of `database_url` — useful when the "
+            "runtime role is restricted (e.g. Supabase: `postgres` for migrations, "
+            "`app_runtime` for the app). Falls back to `database_url` when unset."
+        ),
     )
     supabase_url: str | None = Field(
         default=None,

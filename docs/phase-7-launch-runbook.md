@@ -37,17 +37,25 @@ Copy Client ID + Secret → paste into Supabase → Authentication → Providers
 - Scopes: defaults only (`openid`, `email`, `profile`)
 - Publishing status: In production
 
-### 2. Supabase `app_backend` Postgres role (plan 7a §B)
+### 2. Supabase `app_runtime` Postgres role (plan 7a §B)
 
-Supabase → SQL Editor → new query. Paste the `CREATE ROLE app_backend WITH LOGIN BYPASSRLS NOINHERIT PASSWORD '<strong-random-password>';` block from plan 7a §B Task B1 Step 2 (grants + default privileges included). Generate a 24+ char password; do not commit it.
+Supabase → SQL Editor → new query. Paste the `CREATE ROLE app_runtime WITH LOGIN BYPASSRLS NOINHERIT PASSWORD '<strong-random-password>';` block from plan 7a §B Task B1 Step 2 (grants + default privileges included). Generate a 24+ char password; do not commit it.
 
-Compose the DATABASE_URL:
+Compose the DATABASE_URL (app runtime):
 
 ```
-postgresql+psycopg://app_backend:<pw>@db.<ref>.supabase.co:5432/postgres?sslmode=require
+postgresql+psycopg://app_runtime:<pw>@db.<ref>.supabase.co:5432/postgres?sslmode=require
 ```
 
-Test from your laptop with the `get_engine` snippet in plan 7a §B Task B1 Step 5 — expect `connected as: app_backend`.
+Compose the MIGRATION_DATABASE_URL (Alembic only — needs DDL privileges the restricted role doesn't have, so point this at the built-in `postgres` superuser):
+
+```
+postgresql+psycopg://postgres:<postgres-pw>@db.<ref>.supabase.co:5432/postgres?sslmode=require
+```
+
+The `postgres` password is the one you set when creating the Supabase project (Settings → Database → Reset database password if lost). Alembic reads `MIGRATION_DATABASE_URL` when set and falls back to `DATABASE_URL` otherwise — see `backend/src/backend/config.py` and `backend/alembic/env.py`.
+
+Test both from your laptop with the `get_engine` snippet in plan 7a §B Task B1 Step 5 — expect `connected as: app_runtime` for `DATABASE_URL` and `connected as: postgres` for `MIGRATION_DATABASE_URL`.
 
 ### 3. Railway backend project (plan 7a §C1)
 
@@ -60,7 +68,8 @@ Environment variables:
 
 | Var | Value |
 |---|---|
-| `DATABASE_URL` | from step 2 |
+| `DATABASE_URL` | app-runtime URL from step 2 |
+| `MIGRATION_DATABASE_URL` | postgres-superuser URL from step 2 (Alembic only) |
 | `SUPABASE_URL` | `https://<ref>.supabase.co` |
 | `SUPABASE_JWT_AUD` | `authenticated` |
 | `APP_ENV` | `prod` |
@@ -82,7 +91,7 @@ Settings → Networking → Custom Domains → add `api.goldenabundance.app`; re
 **Only after Railway has booted once** so migrations created the tables. From your laptop:
 
 ```bash
-DATABASE_URL='postgresql+psycopg://app_backend:<pw>@db.<ref>.supabase.co:5432/postgres?sslmode=require' \
+DATABASE_URL='postgresql+psycopg://app_runtime:<pw>@db.<ref>.supabase.co:5432/postgres?sslmode=require' \
 APP_ENV=prod \
 SUPABASE_URL='https://<ref>.supabase.co' \
   uv run --project backend python -c "
