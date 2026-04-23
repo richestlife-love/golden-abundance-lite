@@ -4,10 +4,7 @@ FROM debian:trixie-slim AS build
 
 COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /uvx /usr/local/bin/
 
-# LINK_MODE=copy is required with the cache mount below; hardlinks from the
-# mount wouldn't survive into the image layer.
 ARG UV_COMPILE_BYTECODE=1
-ARG UV_LINK_MODE=copy
 
 ENV UV_PYTHON_INSTALL_DIR=/opt/uv/python \
     UV_PYTHON_PREFERENCE=only-managed \
@@ -23,14 +20,12 @@ WORKDIR /app
 # Manifests first so a source-only change doesn't bust the deps layer.
 COPY pyproject.toml uv.lock .python-version ./
 
-RUN --mount=type=cache,id=uv,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project
+RUN uv sync --frozen --no-dev --no-install-project
 
 # --no-editable installs `backend` as a real wheel so the venv is
 # self-contained and safe to copy into the runtime stage.
 COPY src/ src/
-RUN --mount=type=cache,id=uv,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-editable
+RUN uv sync --frozen --no-dev --no-editable
 
 COPY alembic/ alembic/
 COPY alembic.ini ./
