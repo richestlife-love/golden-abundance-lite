@@ -1,5 +1,5 @@
-"""Phase 2 API contract — Pydantic 2 models shared between the frontend
-and the FastAPI backend. See `endpoints.md` for the endpoint catalog and
+"""API contract — Pydantic 2 models shared between the frontend and the
+FastAPI backend. See `endpoints.md` for the endpoint catalog and
 `README.md` for a consumer guide.
 
 Usage::

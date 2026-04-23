@@ -24,9 +24,8 @@ const Ctx = createContext<AuthCtx | null>(null);
 
 let inFlightSignOut = false;
 
-// Module-level QueryClient holder, preserved from Phase 4c so the 401
-// interceptor + module-level signOut fire without needing AuthProvider
-// to be mounted.
+// Module-level QueryClient holder so the 401 interceptor + module-level
+// signOut can fire without needing AuthProvider to be mounted.
 let activeQueryClient: QueryClient | null = null;
 export function _setActiveQueryClient(qc: QueryClient | null): void {
   activeQueryClient = qc;

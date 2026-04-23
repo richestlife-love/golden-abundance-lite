@@ -2,17 +2,15 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Golden Abundance API",
-    "description": "Phase 7 backend \u2014 see backend/src/backend/contract/endpoints.md",
+    "description": "Golden Abundance backend \u2014 see backend/src/backend/contract/endpoints.md",
     "version": "0.1.0"
   },
   "paths": {
     "/health": {
       "get": {
-        "tags": [
-          "internal"
-        ],
+        "tags": ["internal"],
         "summary": "Health",
-        "operationId": "health_health_get",
+        "operationId": "health_health_head",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -23,7 +21,28 @@
                     "type": "string"
                   },
                   "type": "object",
-                  "title": "Response Health Health Get"
+                  "title": "Response Health Health Head"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "tags": ["internal"],
+        "summary": "Health",
+        "operationId": "health_health_head",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Head"
                 }
               }
             }
@@ -33,11 +52,9 @@
     },
     "/readyz": {
       "get": {
-        "tags": [
-          "internal"
-        ],
+        "tags": ["internal"],
         "summary": "Readyz",
-        "operationId": "readyz_readyz_get",
+        "operationId": "readyz_readyz_head",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -48,7 +65,28 @@
                     "type": "string"
                   },
                   "type": "object",
-                  "title": "Response Readyz Readyz Get"
+                  "title": "Response Readyz Readyz Head"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "tags": ["internal"],
+        "summary": "Readyz",
+        "operationId": "readyz_readyz_head",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Readyz Readyz Head"
                 }
               }
             }
@@ -58,9 +96,7 @@
     },
     "/api/v1/me": {
       "get": {
-        "tags": [
-          "me"
-        ],
+        "tags": ["me"],
         "summary": "Get Me",
         "operationId": "get_me_api_v1_me_get",
         "parameters": [
@@ -105,9 +141,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "me"
-        ],
+        "tags": ["me"],
         "summary": "Patch Me",
         "operationId": "patch_me_api_v1_me_patch",
         "parameters": [
@@ -164,9 +198,7 @@
     },
     "/api/v1/me/profile": {
       "post": {
-        "tags": [
-          "me"
-        ],
+        "tags": ["me"],
         "summary": "Complete Profile",
         "operationId": "complete_profile_api_v1_me_profile_post",
         "parameters": [
@@ -223,9 +255,7 @@
     },
     "/api/v1/me/teams": {
       "get": {
-        "tags": [
-          "me"
-        ],
+        "tags": ["me"],
         "summary": "Get Me Teams",
         "operationId": "get_me_teams_api_v1_me_teams_get",
         "parameters": [
@@ -272,9 +302,7 @@
     },
     "/api/v1/me/tasks": {
       "get": {
-        "tags": [
-          "me"
-        ],
+        "tags": ["me"],
         "summary": "Get Me Tasks",
         "operationId": "get_me_tasks_api_v1_me_tasks_get",
         "parameters": [
@@ -325,9 +353,7 @@
     },
     "/api/v1/me/rewards": {
       "get": {
-        "tags": [
-          "me"
-        ],
+        "tags": ["me"],
         "summary": "Get Me Rewards",
         "operationId": "get_me_rewards_api_v1_me_rewards_get",
         "parameters": [
@@ -378,9 +404,7 @@
     },
     "/api/v1/news": {
       "get": {
-        "tags": [
-          "news"
-        ],
+        "tags": ["news"],
         "summary": "Get News",
         "operationId": "get_news_api_v1_news_get",
         "parameters": [
@@ -455,9 +479,7 @@
     },
     "/api/v1/leaderboard/users": {
       "get": {
-        "tags": [
-          "leaderboard"
-        ],
+        "tags": ["leaderboard"],
         "summary": "Get Leaderboard Users",
         "operationId": "get_leaderboard_users_api_v1_leaderboard_users_get",
         "parameters": [
@@ -466,11 +488,7 @@
             "in": "query",
             "required": false,
             "schema": {
-              "enum": [
-                "week",
-                "month",
-                "all_time"
-              ],
+              "enum": ["week", "month", "all_time"],
               "type": "string",
               "default": "week",
               "title": "Period"
@@ -547,9 +565,7 @@
     },
     "/api/v1/leaderboard/teams": {
       "get": {
-        "tags": [
-          "leaderboard"
-        ],
+        "tags": ["leaderboard"],
         "summary": "Get Leaderboard Teams",
         "operationId": "get_leaderboard_teams_api_v1_leaderboard_teams_get",
         "parameters": [
@@ -558,11 +574,7 @@
             "in": "query",
             "required": false,
             "schema": {
-              "enum": [
-                "week",
-                "month",
-                "all_time"
-              ],
+              "enum": ["week", "month", "all_time"],
               "type": "string",
               "default": "week",
               "title": "Period"
@@ -639,9 +651,7 @@
     },
     "/api/v1/tasks/{task_id}": {
       "get": {
-        "tags": [
-          "tasks"
-        ],
+        "tags": ["tasks"],
         "summary": "Get Task",
         "operationId": "get_task_api_v1_tasks__task_id__get",
         "parameters": [
@@ -698,9 +708,7 @@
     },
     "/api/v1/tasks/{task_id}/submit": {
       "post": {
-        "tags": [
-          "tasks"
-        ],
+        "tags": ["tasks"],
         "summary": "Submit",
         "operationId": "submit_api_v1_tasks__task_id__submit_post",
         "parameters": [
@@ -782,9 +790,7 @@
     },
     "/api/v1/teams": {
       "get": {
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "summary": "List Teams",
         "operationId": "list_teams_api_v1_teams_get",
         "parameters": [
@@ -907,9 +913,7 @@
     },
     "/api/v1/teams/{team_id}": {
       "get": {
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "summary": "Get Team",
         "operationId": "get_team_api_v1_teams__team_id__get",
         "parameters": [
@@ -964,9 +968,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "summary": "Update Team",
         "operationId": "update_team_api_v1_teams__team_id__patch",
         "parameters": [
@@ -1033,9 +1035,7 @@
     },
     "/api/v1/teams/{team_id}/join-requests": {
       "post": {
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "summary": "Request To Join",
         "operationId": "request_to_join_api_v1_teams__team_id__join_requests_post",
         "parameters": [
@@ -1092,9 +1092,7 @@
     },
     "/api/v1/teams/{team_id}/join-requests/{req_id}": {
       "delete": {
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "summary": "Cancel Join Request",
         "operationId": "cancel_join_request_api_v1_teams__team_id__join_requests__req_id__delete",
         "parameters": [
@@ -1154,9 +1152,7 @@
     },
     "/api/v1/teams/{team_id}/join-requests/{req_id}/approve": {
       "post": {
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "summary": "Approve Request",
         "operationId": "approve_request_api_v1_teams__team_id__join_requests__req_id__approve_post",
         "parameters": [
@@ -1223,9 +1219,7 @@
     },
     "/api/v1/teams/{team_id}/join-requests/{req_id}/reject": {
       "post": {
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "summary": "Reject Request",
         "operationId": "reject_request_api_v1_teams__team_id__join_requests__req_id__reject_post",
         "parameters": [
@@ -1285,9 +1279,7 @@
     },
     "/api/v1/teams/{team_id}/leave": {
       "post": {
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "summary": "Leave",
         "operationId": "leave_api_v1_teams__team_id__leave_post",
         "parameters": [
@@ -1394,13 +1386,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "form_type",
-          "name",
-          "phone",
-          "interests",
-          "availability"
-        ],
+        "required": ["form_type", "name", "phone", "interests", "availability"],
         "title": "InterestFormBody",
         "description": "POST /tasks/{id}/submit body for tasks with form_type == 'interest'\n(task 1)."
       },
@@ -1421,11 +1407,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "pending",
-              "approved",
-              "rejected"
-            ],
+            "enum": ["pending", "approved", "rejected"],
             "title": "Status"
           },
           "requested_at": {
@@ -1436,13 +1418,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "id",
-          "team_id",
-          "user",
-          "status",
-          "requested_at"
-        ],
+        "required": ["id", "team_id", "user", "status", "requested_at"],
         "title": "JoinRequest",
         "description": "A pending/approved/rejected request to join a team. Visible to\nthe team's leader and to the requester themselves."
       },
@@ -1457,10 +1433,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "user",
-          "led_team"
-        ],
+        "required": ["user", "led_team"],
         "title": "MeProfileCreateResponse",
         "description": "Response body for POST /me/profile. Returned atomically with the\nprofile completion and led-team creation."
       },
@@ -1490,7 +1463,7 @@
         "additionalProperties": false,
         "type": "object",
         "title": "MeTeamsResponse",
-        "description": "Response body for GET /me/teams. Named envelope over an inline\ndict so Phase 4 TS codegen and Phase 5 FastAPI share one OpenAPI\nschema."
+        "description": "Response body for GET /me/teams. Named envelope over an inline\ndict so TS codegen and FastAPI share one OpenAPI schema."
       },
       "NewsItem": {
         "properties": {
@@ -1509,11 +1482,7 @@
           },
           "category": {
             "type": "string",
-            "enum": [
-              "\u516c\u544a",
-              "\u6d3b\u52d5",
-              "\u901a\u77e5"
-            ],
+            "enum": ["\u516c\u544a", "\u6d3b\u52d5", "\u901a\u77e5"],
             "title": "Category"
           },
           "image_url": {
@@ -1540,13 +1509,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "id",
-          "title",
-          "body",
-          "category",
-          "published_at"
-        ],
+        "required": ["id", "title", "body", "category", "published_at"],
         "title": "NewsItem",
         "description": "A single entry in the home-screen news carousel."
       },
@@ -1573,9 +1536,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "items"
-        ],
+        "required": ["items"],
         "title": "Paginated[NewsItem]"
       },
       "Paginated_TeamLeaderboardEntry_": {
@@ -1601,9 +1562,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "items"
-        ],
+        "required": ["items"],
         "title": "Paginated[TeamLeaderboardEntry]"
       },
       "Paginated_TeamRef_": {
@@ -1629,9 +1588,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "items"
-        ],
+        "required": ["items"],
         "title": "Paginated[TeamRef]"
       },
       "Paginated_UserLeaderboardEntry_": {
@@ -1657,9 +1614,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "items"
-        ],
+        "required": ["items"],
         "title": "Paginated[UserLeaderboardEntry]"
       },
       "ProfileCreate": {
@@ -1749,13 +1704,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "zh_name",
-          "phone",
-          "phone_code",
-          "country",
-          "location"
-        ],
+        "required": ["zh_name", "phone", "phone_code", "country", "location"],
         "title": "ProfileCreate",
         "description": "Request body for POST /me/profile (first-time profile completion).\nSide effect on the backend: user's led team is created in the same\ntransaction."
       },
@@ -1911,10 +1860,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "earned",
-              "claimed"
-            ],
+            "enum": ["earned", "claimed"],
             "title": "Status"
           },
           "earned_at": {
@@ -1937,15 +1883,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "id",
-          "user_id",
-          "task_id",
-          "task_title",
-          "bonus",
-          "status",
-          "earned_at"
-        ],
+        "required": ["id", "user_id", "task_id", "task_title", "bonus", "status", "earned_at"],
         "title": "Reward",
         "description": "A user's earned (or claimed) reward."
       },
@@ -1974,11 +1912,7 @@
           },
           "tag": {
             "type": "string",
-            "enum": [
-              "\u63a2\u7d22",
-              "\u793e\u533a",
-              "\u966a\u4f34"
-            ],
+            "enum": ["\u63a2\u7d22", "\u793e\u533a", "\u966a\u4f34"],
             "title": "Tag"
           },
           "color": {
@@ -2047,10 +1981,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": [
-                  "interest",
-                  "ticket"
-                ]
+                "enum": ["interest", "ticket"]
               },
               {
                 "type": "null"
@@ -2060,13 +1991,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "todo",
-              "in_progress",
-              "completed",
-              "expired",
-              "locked"
-            ],
+            "enum": ["todo", "in_progress", "completed", "expired", "locked"],
             "title": "Status"
           },
           "progress": {
@@ -2145,12 +2070,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "id",
-          "label",
-          "done",
-          "order"
-        ],
+        "required": ["id", "label", "done", "order"],
         "title": "TaskStep",
         "description": "One step in a task's checklist. `done` reflects the caller's state."
       },
@@ -2172,9 +2092,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "task"
-        ],
+        "required": ["task"],
         "title": "TaskSubmissionResponse",
         "description": "Response body for POST /tasks/{id}/submit.\n\n`reward` is null when the task has `bonus is None`."
       },
@@ -2234,10 +2152,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": [
-                  "leader",
-                  "member"
-                ]
+                "enum": ["leader", "member"]
               },
               {
                 "type": "null"
@@ -2267,14 +2182,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "id",
-          "display_id",
-          "name",
-          "topic",
-          "leader",
-          "created_at"
-        ],
+        "required": ["id", "display_id", "name", "topic", "leader", "created_at"],
         "title": "Team",
         "description": "Full team view.\n\n`role` reflects the caller's relationship to the team (leader /\nmember / None for outsiders). `requests` is populated only when the\ncaller is the leader; members and outsiders see `None`.\n\nAggregate points (all-time / week) live in the leaderboard view \u2014\nnot on the team row. The team size cap (currently 6) is a property\nof the T3 challenge task def (``TaskDefRow.cap``), not stored here."
       },
@@ -2299,12 +2207,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "total",
-          "cap",
-          "led_total",
-          "joined_total"
-        ],
+        "required": ["total", "cap", "led_total", "joined_total"],
         "title": "TeamChallengeProgress",
         "description": "Aggregate progress for a team-challenge task.\n\n`total = max(led_total, joined_total)` \u2014 the higher of the caller's\nled-team or joined-team head count (server-computed)."
       },
@@ -2328,12 +2231,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "team",
-          "rank",
-          "points",
-          "week_points"
-        ],
+        "required": ["team", "rank", "points", "week_points"],
         "title": "TeamLeaderboardEntry",
         "description": "Single entry in the team leaderboard."
       },
@@ -2362,13 +2260,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "id",
-          "display_id",
-          "name",
-          "topic",
-          "leader"
-        ],
+        "required": ["id", "display_id", "name", "topic", "leader"],
         "title": "TeamRef",
         "description": "Thin team embedding for leaderboard entries and search results."
       },
@@ -2455,12 +2347,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "form_type",
-          "name",
-          "ticket_725",
-          "ticket_726"
-        ],
+        "required": ["form_type", "name", "ticket_725", "ticket_726"],
         "title": "TicketFormBody",
         "description": "POST /tasks/{id}/submit body for tasks with form_type == 'ticket'\n(task 2)."
       },
@@ -2607,14 +2494,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "id",
-          "display_id",
-          "email",
-          "name",
-          "profile_complete",
-          "created_at"
-        ],
+        "required": ["id", "display_id", "email", "name", "profile_complete", "created_at"],
         "title": "User",
         "description": "Authenticated caller's profile. Returned by GET /me."
       },
@@ -2638,12 +2518,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "user",
-          "rank",
-          "points",
-          "week_points"
-        ],
+        "required": ["user", "rank", "points", "week_points"],
         "title": "UserLeaderboardEntry",
         "description": "Single entry in the user leaderboard."
       },
@@ -2676,11 +2551,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "id",
-          "display_id",
-          "name"
-        ],
+        "required": ["id", "display_id", "name"],
         "title": "UserRef",
         "description": "Thin user embedding (id + display_id + name + avatar_url)."
       },
@@ -2717,11 +2588,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError"
       }
     }

@@ -9,13 +9,12 @@ Team display_id: ``T-`` + up to 8 [A-Z0-9] from the user's display_id
 minus the leading ``U``, with the same 01-99 collision suffix and
 ``RuntimeError`` on exhaustion. Matches ``^T-[A-Z0-9]{3,10}$``.
 
-Phase-5 caveat: both functions run a SELECT-then-INSERT flow that is
-NOT transactional — two concurrent sign-ups with colliding bases can
-both pick the same candidate, and the loser hits a unique-constraint
-error on insert (surfaces as a 500). Acceptable for single-tenant dev;
-Phase 6 should wrap the candidate generation in a retry-on-IntegrityError
-loop (or `INSERT ... ON CONFLICT` with a regenerated suffix) before
-production sign-ups land.
+Caveat: both functions run a SELECT-then-INSERT flow that is NOT
+transactional — two concurrent sign-ups with colliding bases can both
+pick the same candidate, and the loser hits a unique-constraint error
+on insert (surfaces as a 500). If concurrent sign-up collisions become
+observable, wrap the candidate generation in a retry-on-IntegrityError
+loop (or `INSERT ... ON CONFLICT` with a regenerated suffix).
 """
 
 import re

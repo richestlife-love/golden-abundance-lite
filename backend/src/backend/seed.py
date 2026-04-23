@@ -119,7 +119,7 @@ DEMO_USERS: list[_DemoUser] = [
 ]
 
 # gamma-with-two-leaders fan-out: two pending requests each at jet and ami teams.
-# Exercises leader-approval UX (team-detail pending list) for Phase 4 plumbing.
+# Exercises leader-approval UX (team-detail pending list).
 DEMO_FANOUT: list[tuple[str, str]] = [
     ("alex@demo.ga", "jet@demo.ga"),
     ("mei@demo.ga", "jet@demo.ga"),
@@ -289,7 +289,7 @@ async def _upsert_demo_join_requests(session: AsyncSession, users: dict[str, Use
     """Seed the gamma-with-two-leaders pending join requests.
 
     Idempotent: any requester with a pre-existing pending request
-    anywhere is skipped (Phase 5c invariant: at-most-one-pending-per-user).
+    anywhere is skipped (invariant: at-most-one-pending-per-user).
     ``create_join_request`` re-enforces the invariant and raises
     ``JoinConflictError`` if violated — we wrap it defensively so a
     partial-seed replay can't abort the whole run.

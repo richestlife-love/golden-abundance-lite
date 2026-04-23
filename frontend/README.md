@@ -16,27 +16,27 @@ fetch("/api/v1/me");
 
 Local overrides live in `frontend/.env.local` (gitignored). Copy `frontend/.env.example` as a starting point. Supported variables:
 
-| Variable                 | Purpose                                                                                                                                         |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_API_BASE_URL`      | Backend origin for the `/api` proxy. Defaults to `http://localhost:8000`.                                                                       |
-| `VITE_PORT`              | Dev server port. Defaults to `5173`.                                                                                                            |
-| `VITE_ALLOWED_HOSTS`     | Comma-separated hosts for Vite's `allowedHosts` (needed behind a tunnel such as ngrok).                                                         |
-| `NGROK_HOST`             | Hostname used by `just frontend tunnel`.                                                                                                        |
-| `VITE_SUPABASE_URL`      | Supabase project URL (`https://<ref>.supabase.co`). Required for sign-in to work.                                                               |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (public by design; format `sb_publishable_...`). Required for sign-in to work.                                  |
-| `VITE_SENTRY_DSN`        | Sentry DSN for browser error reporting. Optional — `Sentry.init()` is skipped when absent. Baked into the bundle at build time; safe to expose. |
+| Variable                        | Purpose                                                                                                                                         |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`             | Backend origin for the `/api` proxy. Defaults to `http://localhost:8000`.                                                                       |
+| `VITE_PORT`                     | Dev server port. Defaults to `5173`.                                                                                                            |
+| `VITE_ALLOWED_HOSTS`            | Comma-separated hosts for Vite's `allowedHosts` (needed behind a tunnel such as ngrok).                                                         |
+| `NGROK_HOST`                    | Hostname used by `just frontend tunnel`.                                                                                                        |
+| `VITE_SUPABASE_URL`             | Supabase project URL (`https://<ref>.supabase.co`). Required for sign-in to work.                                                               |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (public by design; format `sb_publishable_...`). Required for sign-in to work.                                         |
+| `VITE_SENTRY_DSN`               | Sentry DSN for browser error reporting. Optional — `Sentry.init()` is skipped when absent. Baked into the bundle at build time; safe to expose. |
 
 ## pnpm scripts
 
 `just frontend <recipe>` covers the normal loop. The underlying `pnpm` scripts are also available for direct invocation:
 
-| Script                          | Does                                                |
-| ------------------------------- | --------------------------------------------------- |
-| `pnpm dev`                      | Vite dev server.                                    |
-| `pnpm test` / `pnpm test:watch` | Vitest run / watch.                                 |
+| Script                          | Does                                                                                 |
+| ------------------------------- | ------------------------------------------------------------------------------------ |
+| `pnpm dev`                      | Vite dev server.                                                                     |
+| `pnpm test` / `pnpm test:watch` | Vitest run / watch.                                                                  |
 | `pnpm build`                    | Regenerates `src/api/schema.d.ts` from `openapi.json`, then `tsc -b` + `vite build`. |
 | `pnpm typecheck`                | Regenerates `src/api/schema.d.ts` from `openapi.json`, then `tsc -b`.                |
-| `pnpm lint` / `pnpm format`     | ESLint / Prettier.                                  |
+| `pnpm lint` / `pnpm format`     | ESLint / Prettier.                                                                   |
 
 ## Layout
 

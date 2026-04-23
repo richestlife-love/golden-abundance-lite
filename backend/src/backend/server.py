@@ -44,7 +44,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Golden Abundance API",
         version="0.1.0",
-        description="Phase 7 backend — see backend/src/backend/contract/endpoints.md",
+        description="Golden Abundance backend — see backend/src/backend/contract/endpoints.md",
     )
     app.state.limiter = refresh_limiter_from_settings()
     app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)

@@ -41,8 +41,8 @@ function AuthCallbackRoute() {
       if (cancelled) return;
       if (error) {
         // Surface the failure so the user isn't left staring at a spinner
-        // that vanishes into /sign-in without explanation. TODO(phase-7b):
-        // also send to Sentry with the supabase error code as a tag.
+        // that vanishes into /sign-in without explanation. TODO: also send
+        // to Sentry with the supabase error code as a tag.
         pushToast({
           kind: "error",
           message: `登入失敗：${error.message || "請再試一次"}`,

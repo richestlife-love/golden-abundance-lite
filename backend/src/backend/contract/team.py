@@ -66,8 +66,7 @@ class TeamUpdate(StrictModel):
 
 class MeTeamsResponse(StrictModel):
     """Response body for GET /me/teams. Named envelope over an inline
-    dict so Phase 4 TS codegen and Phase 5 FastAPI share one OpenAPI
-    schema.
+    dict so TS codegen and FastAPI share one OpenAPI schema.
     """
 
     led: Team | None = None

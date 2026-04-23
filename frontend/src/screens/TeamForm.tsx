@@ -8,7 +8,7 @@ import { useTheme } from "../ui/theme";
 
 // Demo-only list of searchable teams. The display_id values here are
 // synthetic; when selected, `onSubmit` receives them verbatim so the
-// wiring lives upstream. Real teams search (spec §5.3) lands post-Phase 4.
+// wiring lives upstream. Real teams search (spec §5.3) is still pending.
 const DEMO_TEAMS = [
   {
     id: "T-MING2024",

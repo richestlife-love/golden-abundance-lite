@@ -97,9 +97,9 @@ export default function TeamCard({
   const copyId = () => copyIdClipboard(shareCode);
   const copyShare = () => copyShareClipboard(shareMessage);
 
-  // Full team view (leader OR approved member). Phase 3's "pending join
-  // request" state is gone: `myTeams.joined` only returns approved teams;
-  // outstanding requests live on the leader's `team.requests` list.
+  // Full team view (leader OR approved member). `myTeams.joined` only
+  // returns approved teams; outstanding requests live on the leader's
+  // `team.requests` list.
   const complete = total >= cap;
   const memberPoints = (name: string) => 400 + (Math.abs(hashString(name)) % 1200); // 400–1600
   const allMembers = [
