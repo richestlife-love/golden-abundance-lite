@@ -47,11 +47,9 @@ cd frontend && just ci
 | `just backend db-reset` | Drop the Postgres volume, restart container, migrate, and seed. | Hard wipe — schema or seed shape changed. |
 | `just backend db-psql [args]` | Open a psql shell in the running Postgres container. | Ad-hoc inspection. |
 | `just backend migrate` | Apply Alembic migrations to head. | Fresh DB, or after pulling new revisions. |
-| `just backend makemigration MSG="..."` | Autogenerate an Alembic revision. | After changing SQLAlchemy models. |
 | `just backend seed` | Populate task definitions + news items. Idempotent but **skip-on-conflict** — won't update existing rows. | Fresh DB. |
 | `just backend seed-reset` | Destructive: truncate seed-owned tables then re-seed. Refuses `APP_ENV=prod`. | When seed _content_ changed, or demo state is polluted. |
 | `just backend dev [port]` | FastAPI dev server with reload (default port 8000). | Daily. |
-| `just backend test [args]` | pytest passthrough. | During development. |
 | `just backend contract-validate` | Validate example JSON fixtures against Pydantic contract models. | After editing contract examples. |
 | `just backend ci` | Full local CI: sync deps, ruff (lint + format), ty, contract-validate, pytest. | Before pushing. |
 
@@ -60,7 +58,6 @@ cd frontend && just ci
 | Recipe | Purpose | When to run |
 | --- | --- | --- |
 | `just frontend dev` | Vite dev server (port from `VITE_PORT` in `.env.local`, default 5173). | Daily. |
-| `just frontend test [args]` | Vitest passthrough. | During development. |
 | `just frontend tunnel` | Expose dev server via ngrok (reads `NGROK_HOST` + `VITE_PORT` from `.env.local`). | Mobile testing, webhooks, etc. |
 | `just frontend ci` | Full local CI: install, lint, format, typecheck, test, build. | Before pushing. |
 
@@ -70,7 +67,7 @@ cd frontend && just ci
 | --- | --- |
 | Fresh clone | `just backend db-up` → `just backend migrate` → `just backend seed-reset` → `just backend dev` + `just frontend dev` |
 | After `git pull` | `just backend migrate` → `just backend seed-reset` (if seed content changed) → `just gen-types` (if backend API changed) |
-| Changed models | `just backend makemigration MSG="…"` → `just backend migrate` |
+| Changed models | `uv run alembic revision --autogenerate -m "…"` (review the generated script) → `just backend migrate` |
 | Changed routes / schemas | `just gen-types` |
 | Demo data polluted | `just backend seed-reset` |
 | Before pushing | `just backend ci` && `just frontend ci` |

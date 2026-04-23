@@ -38,14 +38,6 @@ db-psql *args:
 migrate:
     uv run alembic upgrade head
 
-# Create a new Alembic revision (pass MSG="message").
-makemigration MSG:
-    uv run alembic revision --autogenerate -m "{{MSG}}"
-
-# Run pytest (extra args pass through).
-test *args:
-    uv run pytest {{args}}
-
 # Populate dev database with task definitions and news items (idempotent).
 seed:
     uv run python -m backend.seed

@@ -35,7 +35,7 @@ Runtime config is read from the environment (prefer a `.env` file; see `.env.exa
 
 - Local Postgres is a single-container `docker compose` (`docker-compose.yml`) exposing `localhost:5432` with `app/app/app` user/password/db.
 - Alembic reads `DATABASE_URL` from `Settings` (`alembic/env.py`), not from `alembic.ini`. Autogenerate runs with `compare_type=True` so column-type changes (e.g. VARCHAR length) aren't silently ignored.
-- `just backend makemigration MSG="..."` autogenerates a revision. **Review the generated script before committing** — autogenerate doesn't catch every drift (check constraints, server defaults, table renames).
+- `uv run alembic revision --autogenerate -m "..."` autogenerates a revision. **Review the generated script before committing** — autogenerate doesn't catch every drift (check constraints, server defaults, table renames).
 - `just backend migrate` runs `alembic upgrade head`.
 
 ## Seed

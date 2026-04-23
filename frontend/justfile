@@ -13,10 +13,6 @@ ci:
 dev:
     pnpm run dev
 
-# Run Vitest once (extra args pass through).
-test *args:
-    pnpm run test {{args}}
-
 # Expose the local dev server via ngrok (uses NGROK_HOST + VITE_PORT from .env.local).
 tunnel:
     ngrok http ${NGROK_HOST:+--url=$NGROK_HOST} ${VITE_PORT:-5173}
