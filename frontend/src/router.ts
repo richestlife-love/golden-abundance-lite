@@ -11,6 +11,7 @@ import { authedRoute } from "./routes/_authed";
 import { signInRoute } from "./routes/sign-in";
 import { authCallbackRoute } from "./routes/auth.callback";
 import { welcomeRoute } from "./routes/welcome";
+import { sentrySmokeRoute } from "./routes/debug.sentry-smoke";
 import { homeRoute } from "./routes/_authed.home";
 import { leaderboardRoute } from "./routes/_authed.leaderboard";
 import { rewardsRoute } from "./routes/_authed.rewards";
@@ -26,6 +27,7 @@ const routeTree = rootRoute.addChildren([
   signInRoute,
   authCallbackRoute,
   welcomeRoute,
+  sentrySmokeRoute,
   authedRoute.addChildren([
     homeRoute,
     tasksRoute,
