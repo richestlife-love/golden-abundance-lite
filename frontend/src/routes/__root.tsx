@@ -1,5 +1,7 @@
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import GlobalStyles from "../ui/GlobalStyles";
 import FormSuccessOverlay from "../ui/FormSuccessOverlay";
 import { useUIState } from "../ui/useUIState";
@@ -32,6 +34,8 @@ function RootLayout() {
       }}
     >
       <GlobalStyles />
+      <Analytics />
+      <SpeedInsights />
       <Outlet />
       {successData && <FormSuccessOverlay {...successData} onDone={() => setSuccessData(null)} />}
       {toasts.length > 0 && (
