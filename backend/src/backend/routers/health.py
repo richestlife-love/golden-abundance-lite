@@ -15,12 +15,12 @@ from backend.db.engine import get_engine
 router = APIRouter()
 
 
-@router.get("/health", tags=["internal"])
+@router.api_route("/health", methods=["GET", "HEAD"], tags=["internal"])
 async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@router.get("/readyz", tags=["internal"])
+@router.api_route("/readyz", methods=["GET", "HEAD"], tags=["internal"])
 async def readyz() -> dict[str, str]:
     try:
         async with get_engine().connect() as conn:

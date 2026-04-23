@@ -12,11 +12,22 @@ def test_health_ok(no_db_client: TestClient) -> None:
     assert body.get("status") == "ok"
 
 
+def test_health_head(no_db_client: TestClient) -> None:
+    response = no_db_client.head("/health")
+    assert response.status_code == 200
+
+
 @pytest.mark.asyncio
 async def test_readyz_ok_when_db_healthy(client: AsyncClient) -> None:
     response = await client.get("/readyz")
     assert response.status_code == 200
     assert response.json() == {"status": "ready"}
+
+
+@pytest.mark.asyncio
+async def test_readyz_head_when_db_healthy(client: AsyncClient) -> None:
+    response = await client.head("/readyz")
+    assert response.status_code == 200
 
 
 @pytest.mark.asyncio
