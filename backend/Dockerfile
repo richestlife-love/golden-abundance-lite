@@ -1,32 +1,44 @@
 # syntax=docker/dockerfile:1.7
 
-# -------- build stage --------
-FROM python:3.14-slim AS build
+FROM debian:trixie-slim AS build
 
-ENV UV_COMPILE_BYTECODE=1 \
-    UV_LINK_MODE=copy \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1
+COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /uvx /usr/local/bin/
 
-RUN pip install --no-cache-dir uv==0.11.7
+# LINK_MODE=copy is required with the cache mount below; hardlinks from the
+# mount wouldn't survive into the image layer.
+ARG UV_COMPILE_BYTECODE=1
+ARG UV_LINK_MODE=copy
+
+ENV UV_PYTHON_INSTALL_DIR=/opt/uv/python \
+    UV_PYTHON_PREFERENCE=only-managed \
+    PYTHONDONTWRITEBYTECODE=1
+
+# ca-certificates is required for uv's TLS fetch of the Python build.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy manifests first for layer caching: a source-only change doesn't bust the deps layer.
-COPY pyproject.toml uv.lock ./
+# Manifests first so a source-only change doesn't bust the deps layer.
+COPY pyproject.toml uv.lock .python-version ./
 
-RUN uv sync --frozen --no-dev --no-install-project
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project
 
-# Now copy the project + sync again to install the project itself.
-COPY . .
-RUN uv sync --frozen --no-dev
+# --no-editable installs `backend` as a real wheel so the venv is
+# self-contained and safe to copy into the runtime stage.
+COPY src/ src/
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-editable
 
-# -------- runtime stage --------
-FROM python:3.14-slim AS runtime
+COPY alembic/ alembic/
+COPY alembic.ini ./
 
-# libpq for psycopg. The binary wheel bundles its own libpq at wheel-build
-# time, so the system lib is only the safety net for any unexpected
-# dlopen path. Pin to the major that matches our server (Postgres 17) so a
+FROM debian:trixie-slim AS runtime
+
+# psycopg's binary wheel bundles libpq, so the system lib is only a fallback
+# for unexpected dlopen paths. Pin to match our Postgres 17 server so a
 # future Debian upgrade can't silently drop a minor-version ABI.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends 'libpq5=17.*' \
@@ -34,28 +46,26 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Non-root user — Railway doesn't require it but it's cheap hygiene.
 RUN useradd --create-home --uid 1000 app
 USER app
 
-COPY --from=build --chown=app:app /app /app
+# The venv's python shim symlinks into /opt/uv/python; both trees must ship.
+COPY --from=build /opt/uv/python /opt/uv/python
+COPY --from=build --chown=app:app /app/.venv /app/.venv
+COPY --from=build --chown=app:app /app/alembic /app/alembic
+COPY --from=build --chown=app:app /app/alembic.ini /app/alembic.ini
 
 ENV PATH="/app/.venv/bin:${PATH}" \
-    PYTHONPATH="/app/src" \
     PYTHONUNBUFFERED=1 \
     PORT=8000
 
 EXPOSE 8000
 
-# Local Docker healthcheck for `docker-compose` / `docker run`. Railway
-# runs its own probes against /readyz so this is mostly defensive.
-# Uses the bundled Python interpreter to avoid adding curl to the image.
+# Railway uses its own /readyz probes; this exists for docker-compose / docker run.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)" || exit 1
 
-# Alembic runs migrations idempotently on every container start. If the migration
-# fails, the container exits non-zero → Railway keeps the previous deployment live.
-# `exec` on the uvicorn step replaces the sh process so SIGTERM from Railway
-# reaches uvicorn directly (rather than relying on dash's implicit-exec
-# optimization for the last command), enabling graceful shutdown on deploys.
+# If alembic fails the container exits non-zero and Railway keeps the
+# previous deployment live. `exec` ensures SIGTERM reaches uvicorn for
+# graceful shutdown rather than being swallowed by sh.
 CMD ["sh", "-c", "alembic upgrade head && exec uvicorn backend.server:app --host 0.0.0.0 --port ${PORT}"]
