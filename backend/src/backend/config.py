@@ -10,11 +10,17 @@ fails fast at app import rather than silently accepting unverified
 tokens.
 """
 
+import logging
 from functools import cached_property, lru_cache
 from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine.url import make_url
+
+logger = logging.getLogger(__name__)
+
+_LOCAL_DB_HOSTS = frozenset({"localhost", "127.0.0.1", "::1", "postgres", "db"})
 
 
 class Settings(BaseSettings):
@@ -78,4 +84,19 @@ def get_settings() -> Settings:
     settings = Settings()
     if settings.app_env == "prod" and settings.supabase_url is None:
         raise RuntimeError("SUPABASE_URL must be set when APP_ENV=prod")
+    if settings.app_env != "prod":
+        # Belt-and-suspenders so a local dev run can't accidentally point at a
+        # remote DB (e.g. prod creds copied into .env while debugging). Escape
+        # hatch is explicit: set APP_ENV=prod.
+        host = make_url(settings.database_url).host or ""
+        if host not in _LOCAL_DB_HOSTS:
+            raise RuntimeError(
+                f"DATABASE_URL host '{host}' is not local — refusing to start "
+                f"with APP_ENV={settings.app_env}. Set APP_ENV=prod if intentional."
+            )
+    if settings.app_env == "dev" and settings.supabase_url is None:
+        logger.warning(
+            "SUPABASE_URL not set — authed endpoints will fail. "
+            "Set it in backend/.env to use the frontend sign-in flow."
+        )
     return settings

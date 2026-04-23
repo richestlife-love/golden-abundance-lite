@@ -39,3 +39,41 @@ def test_settings_accepts_app_env_test(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("APP_ENV", "test")
     get_settings.cache_clear()
     assert get_settings().app_env == "test"
+
+
+def test_settings_refuses_non_local_database_url_outside_prod(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("APP_ENV", "dev")
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+psycopg://app:app@db.abc.supabase.co:5432/postgres",
+    )
+    get_settings.cache_clear()
+    with pytest.raises(RuntimeError, match="is not local"):
+        get_settings()
+
+
+def test_settings_allows_non_local_database_url_in_prod(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("APP_ENV", "prod")
+    monkeypatch.setenv("SUPABASE_URL", "https://abc.supabase.co")
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+psycopg://app:app@db.abc.supabase.co:5432/postgres",
+    )
+    get_settings.cache_clear()
+    assert get_settings().database_url.startswith("postgresql+psycopg://")
+
+
+def test_settings_warns_when_dev_supabase_url_unset(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    monkeypatch.setenv("APP_ENV", "dev")
+    monkeypatch.delenv("SUPABASE_URL", raising=False)
+    get_settings.cache_clear()
+    with caplog.at_level("WARNING", logger="backend.config"):
+        get_settings()
+    assert any("SUPABASE_URL not set" in r.message for r in caplog.records)
