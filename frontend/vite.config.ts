@@ -23,7 +23,15 @@ export default defineConfig(({ mode }) => {
         org: env.SENTRY_ORG ?? "goldenabundance",
         project: env.SENTRY_PROJECT ?? "goldenabundance-frontend",
         release: { name: env.VITE_RELEASE },
-        sourcemaps: { assets: "./dist/**" },
+        sourcemaps: {
+          // Scope to JS + maps only — scanning the full dist tree (fonts,
+          // images, HTML) is what pushed sentry-vite-plugin to ~60% of
+          // build time.
+          assets: ["./dist/**/*.js", "./dist/**/*.js.map"],
+          // Delete both .js.map and .css.map — Vite emits CSS maps too with
+          // `sourcemap: true`, and we don't want them served to visitors.
+          filesToDeleteAfterUpload: "./dist/**/*.map",
+        },
       }),
     );
   }
@@ -31,10 +39,11 @@ export default defineConfig(({ mode }) => {
   return {
     plugins,
     build: {
-      // "hidden" emits .map files so the Sentry plugin can upload them, but
-      // doesn't add a `//# sourceMappingURL=` comment to the bundle — real
-      // visitors don't fetch source maps; only Sentry resolves stack traces.
-      sourcemap: "hidden",
+      // Emit .map files + `//# sourceMappingURL=` comment so the Sentry
+      // plugin can auto-detect references (avoids a noisy warning). The
+      // plugin then deletes the .map files after upload, so visitors never
+      // fetch them — only Sentry resolves stack traces.
+      sourcemap: true,
       rolldownOptions: {
         output: {
           // Split heavy third-party libs into their own chunks so the main
