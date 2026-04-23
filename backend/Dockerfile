@@ -35,8 +35,13 @@ FROM debian:trixie-slim AS runtime
 # psycopg's binary wheel bundles libpq, so the system lib is only a fallback
 # for unexpected dlopen paths. Pin to match our Postgres 17 server so a
 # future Debian upgrade can't silently drop a minor-version ABI.
+# ca-certificates is required for PyJWKClient to verify Supabase's JWKS URL
+# (outbound HTTPS from the running app); without it, urllib fails every TLS
+# handshake with CERTIFICATE_VERIFY_FAILED.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends 'libpq5=17.*' \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        'libpq5=17.*' \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
