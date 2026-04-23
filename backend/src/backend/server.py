@@ -7,7 +7,6 @@ A module-level `app` is exported for `fastapi-cli` (see
 
 import sentry_sdk
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend.config import get_settings
@@ -49,18 +48,6 @@ def create_app() -> FastAPI:
     app.state.limiter = refresh_limiter_from_settings()
     app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
     app.add_middleware(RequestLogMiddleware)
-    # Auth is `Authorization: Bearer` only — no cookies — so
-    # allow_credentials stays False. Methods and headers are enumerated
-    # rather than wildcarded so a misconfigured frontend fails loudly
-    # instead of silently gaining extra surface.
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_origins,
-        allow_credentials=False,
-        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type"],
-        max_age=600,
-    )
     app.include_router(health.router)
     app.include_router(me.router, prefix=API_V1)
     app.include_router(news.router, prefix=API_V1)

@@ -14,7 +14,7 @@ import logging
 from functools import cached_property, lru_cache
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine.url import make_url
 
@@ -50,9 +50,6 @@ class Settings(BaseSettings):
         description="Supabase project base URL, e.g. https://<ref>.supabase.co. Required when APP_ENV=prod.",
     )
     supabase_jwt_aud: str = Field(default="authenticated")
-    cors_origins: list[str] = Field(
-        default_factory=lambda: ["http://localhost:5173"],
-    )
     app_env: Literal["dev", "test", "prod"] = "dev"
     sentry_dsn: str | None = Field(default=None)
     app_release: str | None = Field(default=None)
@@ -60,13 +57,6 @@ class Settings(BaseSettings):
         default=False,
         description="Set to True in tests / CI to skip slowapi limits.",
     )
-
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def _parse_cors_origins(cls, v: object) -> object:
-        if isinstance(v, str):
-            return [s.strip() for s in v.split(",") if s.strip()]
-        return v
 
     @cached_property
     def supabase_issuer(self) -> str:

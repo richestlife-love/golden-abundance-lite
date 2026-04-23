@@ -1,22 +1,20 @@
 """Settings env parsing + prod-env guard."""
 
+import pathlib
+from unittest.mock import patch
+
 import pytest
 
 from backend.config import get_settings
 
 
-def test_settings_parses_cors_origins_comma_separated(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setenv("CORS_ORIGINS", "https://a.com, https://b.com")
-    get_settings.cache_clear()
-    settings = get_settings()
-    assert settings.cors_origins == ["https://a.com", "https://b.com"]
-
-
 def test_settings_requires_supabase_url_in_prod(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
 ) -> None:
+    # chdir to a temp dir so pydantic-settings doesn't pick up backend/.env
+    # (which may have a real SUPABASE_URL on a developer's machine).
+    monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("APP_ENV", "prod")
     monkeypatch.delenv("SUPABASE_URL", raising=False)
     get_settings.cache_clear()
@@ -69,11 +67,16 @@ def test_settings_allows_non_local_database_url_in_prod(
 
 def test_settings_warns_when_dev_supabase_url_unset(
     monkeypatch: pytest.MonkeyPatch,
-    caplog: pytest.LogCaptureFixture,
+    tmp_path: pathlib.Path,
 ) -> None:
+    # Patch the logger directly rather than caplog: ``configure_logging``
+    # (called by other test fixtures) installs a root StreamHandler that
+    # races with caplog's capture in the full-suite run. chdir escapes
+    # any developer-local backend/.env with a real SUPABASE_URL.
+    monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("APP_ENV", "dev")
     monkeypatch.delenv("SUPABASE_URL", raising=False)
     get_settings.cache_clear()
-    with caplog.at_level("WARNING", logger="backend.config"):
+    with patch("backend.config.logger.warning") as mock_warn:
         get_settings()
-    assert any("SUPABASE_URL not set" in r.message for r in caplog.records)
+    assert any("SUPABASE_URL not set" in str(call.args[0]) for call in mock_warn.call_args_list)
