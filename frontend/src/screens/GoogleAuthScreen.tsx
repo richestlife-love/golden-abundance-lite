@@ -99,8 +99,7 @@ export default function GoogleAuthScreen({ onCancel, onSignIn }: GoogleAuthScree
             lineHeight: 1.5,
           }}
         >
-          繼續前往 <span style={{ color: "#1A73E8" }}>金富有志工</span>。Google
-          會將您的電子郵件地址分享給本應用程式，用以建立您的帳號。
+          Google 會將您的電子郵件地址分享給<span style={{ color: "#1A73E8" }}>金富有志工</span>，用以建立您的帳號。
         </p>
 
         {pending ? (
