@@ -7,6 +7,7 @@ connection takes the pod out of rotation instead of silently serving
 500s on real requests.
 """
 
+import sentry_sdk
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import text
 
@@ -19,6 +20,12 @@ router = APIRouter()
 @router.api_route("/health", methods=["GET", "HEAD"], tags=["internal"], include_in_schema=False)
 async def health() -> dict[str, str | None]:
     return {"status": "ok", "release": get_settings().app_release}
+
+
+@router.get("/_sentry_test", tags=["internal"], include_in_schema=False)
+async def _sentry_test() -> dict[str, str]:
+    sentry_sdk.capture_message("release check")
+    return {"status": "sent"}
 
 
 @router.api_route("/readyz", methods=["GET", "HEAD"], tags=["internal"], include_in_schema=False)
