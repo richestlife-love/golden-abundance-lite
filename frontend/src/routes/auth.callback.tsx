@@ -1,5 +1,5 @@
 import { createRoute, useNavigate, useSearch } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { rootRoute } from "./__root";
 import { getSupabaseClient } from "../lib/supabase";
 import { parseReturnTo } from "../lib/returnTo";
@@ -19,10 +19,16 @@ function str(raw: unknown): string | undefined {
 function AuthCallbackRoute() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth/callback" });
+  // PKCE codes are one-shot: exchangeCodeForSession reads the verifier from
+  // localStorage and deletes it on success. React StrictMode (dev) re-runs
+  // effects, so without this guard the second run sees an empty verifier and
+  // fails with "PKCE code verifier not found in storage".
+  const exchangeStartedRef = useRef(false);
 
   useEffect(() => {
+    if (exchangeStartedRef.current) return;
+    exchangeStartedRef.current = true;
     const supabase = getSupabaseClient();
-    let cancelled = false;
     void (async () => {
       // PKCE: Supabase redirected here with `?code=<pkce-code>`. The SDK's
       // exchangeCodeForSession expects JUST the code value — it sends its
@@ -38,7 +44,6 @@ function AuthCallbackRoute() {
         return;
       }
       const { error } = await supabase.auth.exchangeCodeForSession(search.code);
-      if (cancelled) return;
       if (error) {
         // Surface the failure so the user isn't left staring at a spinner
         // that vanishes into /sign-in without explanation. TODO: also send
@@ -52,9 +57,6 @@ function AuthCallbackRoute() {
       }
       navigate({ to: search.returnTo ?? "/" });
     })();
-    return () => {
-      cancelled = true;
-    };
   }, [navigate, search.code, search.error, search.error_description, search.returnTo]);
 
   return <div style={{ padding: 32, textAlign: "center", color: "var(--fg)" }}>正在完成登入⋯</div>;
