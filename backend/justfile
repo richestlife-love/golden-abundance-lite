@@ -11,9 +11,9 @@ ci:
 contract-validate:
     uv run python -m backend.contract.validate_examples
 
-# Run the FastAPI dev server with reload (default port 8000).
-dev port="8000":
-    uv run fastapi dev --port {{port}}
+# Run the FastAPI dev server with reload.
+dev:
+    uv run fastapi dev
 
 # Start local Postgres via docker compose.
 db-up:
