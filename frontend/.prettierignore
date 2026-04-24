@@ -4,3 +4,4 @@ dist
 .tsbuild
 pnpm-lock.yaml
 src/assets
+openapi.json

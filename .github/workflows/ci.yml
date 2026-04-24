@@ -47,6 +47,19 @@ jobs:
         # report gate (`fail_under = 90`); no flag overrides needed here.
         run: uv run pytest
 
+      - name: Check frontend/openapi.json snapshot is up to date
+        # Regenerates the snapshot into the working tree and fails if the
+        # committed copy has drifted from what the backend now produces.
+        # Format must match `just gen-types` (indent=2) so the diff is clean.
+        env:
+          APP_ENV: test
+        run: |
+          uv run python -c 'import json; from backend.server import app; print(json.dumps(app.openapi(), indent=2))' > ../frontend/openapi.json
+          if ! git diff --exit-code ../frontend/openapi.json; then
+            echo "::error::frontend/openapi.json is stale. Run 'just gen-types' locally and commit the result."
+            exit 1
+          fi
+
   frontend:
     name: frontend
     runs-on: ubuntu-latest
